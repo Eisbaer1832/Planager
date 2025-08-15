@@ -34,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.automirrored.filled.LabelImportant
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material.icons.automirrored.filled.Message
@@ -103,7 +104,6 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,6 +148,7 @@ fun TimestampCard(l: lesson) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LessonCardCanceled(l: lesson)  {
     ElevatedCard(
@@ -161,14 +162,33 @@ fun LessonCardCanceled(l: lesson)  {
         modifier = Modifier
             .height(120.dp)
             .fillMaxWidth()
-    ){
-
-        Text(
-            modifier = Modifier.padding(16.dp),
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            text = l.subject)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(MaterialShapes.Cookie7Sided.toShape())
+                    .background(MaterialTheme.colorScheme.error),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(40.dp),
+                    imageVector = Icons.AutoMirrored.Filled.LabelImportant,
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onError
+                )
+            }
+            Text(
+                modifier = Modifier.padding(16.dp),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                text = l.subject
+            )
+        }
     }
 }
 
@@ -193,7 +213,7 @@ fun LessonCard(l: lesson) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-                    modifier = Modifier.width(220.dp),
+
                     color = MaterialTheme.colorScheme.primaryContainer,
                     shape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
                 ) {

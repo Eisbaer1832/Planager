@@ -23,8 +23,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun fetchTimetable(): String = withContext(Dispatchers.IO){
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-    val current = LocalDateTime.now().format(formatter)
     val url = URL("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
     val username = "schueler"
     val password = "s292q17"

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings.Global.getString
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,16 +17,24 @@ import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.edit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import me.zhanghai.compose.preference.ProvidePreferenceLocals
+import me.zhanghai.compose.preference.switchPreference
 
 class Settings : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -44,6 +51,7 @@ class Settings : ComponentActivity() {
                         NavBar()
                     }
                 ) { innerPadding ->
+
                     Settings(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
@@ -56,64 +64,58 @@ class Settings : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnSubjectDialog(shouldShowDialog: MutableState<Boolean>, Kurse: ArrayList<String>?) {
-    val context = LocalContext.current
-    val prefs: SharedPreferences =
-        context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-
     if (shouldShowDialog.value) {
-        androidx.compose.material3.AlertDialog(
-            modifier = Modifier.fillMaxSize().padding(0.dp),
+        BasicAlertDialog(
             onDismissRequest = {
                 shouldShowDialog.value = false
             },
-            ){
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                shape = MaterialTheme.shapes.large
-            ) {
-                Column(modifier = Modifier
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
+            modifier = Modifier.fillMaxSize().padding(0.dp),
+            properties = DialogProperties(), content = {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    shape = MaterialTheme.shapes.large
                 ) {
-                    Text("Eigene Fächer")
-                    Kurse?.forEach { subject ->
-                        Row {
-                            Card(
-                                modifier = Modifier.padding(10.dp).fillMaxWidth()
-                            ) {
-                                Row {
-                                    Text(
-                                        modifier = Modifier.padding(10.dp),
-                                        text = subject)
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    var checked by remember { mutableStateOf(true) }
-                                    Switch(
-                                        checked = checked,
-                                        onCheckedChange = {
-                                            checked = it })
+                    Column(modifier = Modifier
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
+                    ) {
+                        Text("Eigene Fächer")
+                        Kurse?.forEach { subject ->
+                            Row {
+                                Card(
+                                    modifier = Modifier.padding(10.dp).fillMaxWidth()
+                                ) {
+                                    Row {
+                                        Text(
+                                            modifier = Modifier.padding(10.dp),
+                                            text = subject)
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        var checked by remember { mutableStateOf(true) }
+                                        Switch(
+                                            checked = checked,
+                                            onCheckedChange = {
+                                                checked = it })
+                                    }
                                 }
                             }
                         }
-                    }
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            prefs.edit() {
-                                putInt("ownSubjects", 1)
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+
+                                shouldShowDialog.value = false
+                            })
+                        {
+                            Text("Speichern")
                         }
-                            shouldShowDialog.value = false
-                        })
-                    {
-                        Text("Speichern")
                     }
                 }
-            }
-        }
+            })
     }
 }
-@SuppressLint("MutableCollectionMutableState")
+@SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Settings(name: String, modifier: Modifier = Modifier) {
@@ -123,8 +125,20 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         Kurse = getKurse()
         println(Kurse)
-
     }
+
+    ProvidePreferenceLocals {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            switchPreference(
+                key = "switch_preference",
+                defaultValue = false,
+                title = { Text(text = "Switch preference") },
+                icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
+                summary = { Text(text = if (it) "On" else "Off") }
+            )
+        }
+    }
+
 
     if (OwnSubjectDialogToggle.value) {
         OwnSubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse)
@@ -152,54 +166,10 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                 Button(onClick = {OwnSubjectDialogToggle.value = true}) { Text("Ändern") }
             }
         }
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Dark Mode", style = MaterialTheme.typography.bodyLarge)
-                Switch(
-                    checked = darkMode,
-                    onCheckedChange = { darkMode = it },
-                )
-            }
-        }
-
-        // Example: Notifications
-        var notificationsEnabled by remember { mutableStateOf(true) }
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Enable Notifications", style = MaterialTheme.typography.bodyLarge)
-                Switch(
-                    checked = notificationsEnabled,
-                    onCheckedChange = { notificationsEnabled = it },
-                )
-            }
-        }
-
-        // Example: Button
-        FilledTonalButton(
-            onClick = { /* perform some action */ },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Reset Settings")
-        }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview3() {
