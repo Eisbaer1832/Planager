@@ -8,10 +8,13 @@ import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.ArrayList
 import java.util.Base64
+import java.util.Date
 import javax.xml.parsers.DocumentBuilderFactory
 
 // API Endpoints
@@ -20,6 +23,8 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun fetchTimetable(): String = withContext(Dispatchers.IO){
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    val current = LocalDateTime.now().format(formatter)
     val url = URL("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
     val username = "schueler"
     val password = "s292q17"
@@ -85,3 +90,14 @@ suspend fun getLessons(): ArrayList<lesson> {
     return lessons
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun getKurse(): ArrayList<String> {
+    val selectedClass = getSelectedClass()?.childNodes
+    val KursNodes = selectedClass?.item(3)?.childNodes
+    var Kurse = ArrayList<String>()
+
+    for ( i in 0..<KursNodes!!.length) {
+        Kurse.add(KursNodes.item(i).firstChild.textContent)
+    }
+    return Kurse
+}

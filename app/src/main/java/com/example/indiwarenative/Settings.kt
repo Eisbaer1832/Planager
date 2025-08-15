@@ -1,6 +1,11 @@
 package com.example.indiwarenative
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings.Global.getString
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,22 +16,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode.Companion.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 
 class Settings : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             IndiwareNativeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        TopBar("Einstellungen")
+                    }, bottomBar = {
+                        NavBar()
+                    }
+                ) { innerPadding ->
                     Settings(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
@@ -38,33 +55,79 @@ class Settings : ComponentActivity() {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OwnSubjectDialog(shouldShowDialog: MutableState<Boolean>) {
+fun OwnSubjectDialog(shouldShowDialog: MutableState<Boolean>, Kurse: ArrayList<String>?) {
+    val context = LocalContext.current
+    val prefs: SharedPreferences =
+        context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+
     if (shouldShowDialog.value) {
         androidx.compose.material3.AlertDialog(
+            modifier = Modifier.fillMaxSize().padding(0.dp),
             onDismissRequest = {
                 shouldShowDialog.value = false
             },
-        ){
+            ){
             Surface(
                 modifier = Modifier
-                    .wrapContentWidth()
+                    .fillMaxWidth()
                     .wrapContentHeight(),
                 shape = MaterialTheme.shapes.large
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Hey")
-                    //... AlertDialog content
+                Column(modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
+                ) {
+                    Text("Eigene Fächer")
+                    Kurse?.forEach { subject ->
+                        Row {
+                            Card(
+                                modifier = Modifier.padding(10.dp).fillMaxWidth()
+                            ) {
+                                Row {
+                                    Text(
+                                        modifier = Modifier.padding(10.dp),
+                                        text = subject)
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    var checked by remember { mutableStateOf(true) }
+                                    Switch(
+                                        checked = checked,
+                                        onCheckedChange = {
+                                            checked = it })
+                                }
+                            }
+                        }
+                    }
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            prefs.edit() {
+                                putInt("ownSubjects", 1)
+                        }
+                            shouldShowDialog.value = false
+                        })
+                    {
+                        Text("Speichern")
+                    }
                 }
             }
         }
     }
 }
+@SuppressLint("MutableCollectionMutableState")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Settings(name: String, modifier: Modifier = Modifier) {
+    var Kurse by remember { mutableStateOf<ArrayList<String>?>(null) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) } // 1
 
+    LaunchedEffect(Unit) {
+        Kurse = getKurse()
+        println(Kurse)
+
+    }
+
     if (OwnSubjectDialogToggle.value) {
-        OwnSubjectDialog(shouldShowDialog = OwnSubjectDialogToggle)
+        OwnSubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse)
     }
 
     Column(
