@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -127,19 +128,6 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
         println(Kurse)
     }
 
-    ProvidePreferenceLocals {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            switchPreference(
-                key = "switch_preference",
-                defaultValue = false,
-                title = { Text(text = "Switch preference") },
-                icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
-                summary = { Text(text = if (it) "On" else "Off") }
-            )
-        }
-    }
-
-
     if (OwnSubjectDialogToggle.value) {
         OwnSubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse)
     }
@@ -166,7 +154,20 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                 Button(onClick = {OwnSubjectDialogToggle.value = true}) { Text("Ändern") }
             }
         }
+
+    ProvidePreferenceLocals {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            switchPreference(
+                key = "showTeachers",
+                defaultValue = true,
+                title = { Text(text = "Lehrer Anzeigen") },
+                icon = { Icon(imageVector = Icons.Outlined.Person, contentDescription = null) },
+                summary = { Text(text = if (it) "An" else "Aus") }
+            )
+        }
     }
+    }
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

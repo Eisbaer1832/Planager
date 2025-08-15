@@ -3,6 +3,7 @@ package com.example.indiwarenative
 import android.R
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
@@ -98,10 +99,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.graphics.shapes.RoundedPolygon
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
-
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -261,11 +263,16 @@ fun LessonCard(l: lesson) {
                     )
                 }
             }
-            Text(
-                modifier = Modifier.padding(16.dp),
-                textAlign = TextAlign.Center,
-                text = "Lehrer: " + l.teacher
-            )
+            val context = LocalContext.current
+            val showteacher = context.getSharedPreferences("Settings", MODE_PRIVATE).getBoolean("showTeachers", true)
+            println(showteacher)
+            if (showteacher) {
+                Text(
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center,
+                    text = "Lehrer: " + l.teacher
+                )
+            }
         }
     }
 }
