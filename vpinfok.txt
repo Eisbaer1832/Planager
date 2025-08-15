@@ -1,0 +1,6 @@
+[Grunddaten]
+Nativ=1
+Datum=14.08.2025
+Uhrzeit=10:41:40
+Plan1=20250814
+Anzahl=1

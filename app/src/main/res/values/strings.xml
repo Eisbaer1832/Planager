@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">IndiwareNative</string>
+    <string name="title_activity_home_page">HomePage</string>
+    <string name="title_activity_settings">Settings</string>
 </resources>

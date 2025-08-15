@@ -4,13 +4,22 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.InputStream
+import org.w3c.dom.Node
+import org.w3c.dom.NodeList
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.ArrayList
 import java.util.Base64
+import javax.xml.parsers.DocumentBuilderFactory
+
+// API Endpoints
+// https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml
+// https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl20250814.xml -- Format yyyymmdd - 20250814
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getData(): String = withContext(Dispatchers.IO){
+suspend fun fetchTimetable(): String = withContext(Dispatchers.IO){
     val url = URL("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
     val username = "schueler"
     val password = "s292q17"
@@ -24,3 +33,55 @@ suspend fun getData(): String = withContext(Dispatchers.IO){
 
     connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
 }
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun getSelectedClass(): Node? {
+    val XmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fetchTimetable().byteInputStream())
+    val nodeList = XmlRes.documentElement.getElementsByTagName("Kurz")
+
+
+    for (i in 0..<nodeList.length) {
+        if (nodeList.item(i).textContent == "13") {
+            return nodeList.item(i).parentNode // kl node
+        }
+    }
+    return null
+}
+fun getPart(array: NodeList, name: String): String? {
+    for (i in 0..array.length) {
+        val child = array.item(i)
+        if (child.nodeName == name) return child.textContent
+    }
+    return null
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun getLessons(): ArrayList<lesson> {
+    val selectedClass = getSelectedClass()?.childNodes
+    val lessonNodes = selectedClass?.item(5)?.childNodes
+    var lessons = ArrayList<lesson>()
+
+
+    for (i in 0..<lessonNodes!!.length) {
+
+        val l = lessonNodes.item(i).childNodes
+        println()
+        val pos = getPart(l, "St")!!.toInt()
+        val start =  getPart(l, "Beginn")
+        val end = getPart(l, "Ende")
+        var subject = getPart(l, "Fa").toString()
+        var canceled = false;
+        if (subject == "---") {
+            canceled = true
+            subject = getPart(l, "If").toString()
+        }
+        val teacher = getPart(l, "Le")
+        val room = getPart(l, "Ra")
+
+        val formatter = DateTimeFormatter.ofPattern("H:mm")
+        lessons.add(lesson(pos, teacher, subject,  room, LocalTime.parse(start, formatter), LocalTime.parse(end, formatter), canceled))
+    }
+    return lessons
+}
+
