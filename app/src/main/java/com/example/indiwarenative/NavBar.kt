@@ -24,7 +24,7 @@ fun NavBar() {
     val context = LocalContext.current
     val items = listOf("Tagesplan", "Wochenplan", "Einstellungen")
     val selectedIcons = listOf(Icons.Filled.CalendarToday, Icons.Filled.CalendarViewWeek, Icons.Filled.Settings)
-    val href = listOf(MainActivity::class.java, MainActivity::class.java, Settings::class.java)
+    val href = listOf(MainActivity::class.java, WeekView::class.java, Settings::class.java)
     val unselectedIcons =
         listOf(Icons.Outlined.CalendarToday, Icons.Outlined.CalendarViewWeek, Icons.Outlined.Settings)
 

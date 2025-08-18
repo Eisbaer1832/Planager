@@ -124,7 +124,7 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) } // 1
 
     LaunchedEffect(Unit) {
-        Kurse = getKurse()
+        Kurse = getKurse("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
         println(Kurse)
     }
 

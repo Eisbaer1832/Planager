@@ -8,13 +8,10 @@ import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.net.HttpURLConnection
 import java.net.URL
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.ArrayList
 import java.util.Base64
-import java.util.Date
 import javax.xml.parsers.DocumentBuilderFactory
 
 // API Endpoints
@@ -22,12 +19,14 @@ import javax.xml.parsers.DocumentBuilderFactory
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl20250814.xml -- Format yyyymmdd - 20250814
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun fetchTimetable(): String = withContext(Dispatchers.IO){
-    val url = URL("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
+suspend fun fetchTimetable(
+    url: String
+): String = withContext(Dispatchers.IO){
+    println("using: $url")
     val username = "schueler"
     val password = "s292q17"
 
-    val connection = url.openConnection() as HttpURLConnection
+    val connection = URL(url).openConnection() as HttpURLConnection
     connection.requestMethod = "GET"
 
     val auth = "$username:$password"
@@ -39,8 +38,9 @@ suspend fun fetchTimetable(): String = withContext(Dispatchers.IO){
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getSelectedClass(): Node? {
-    val XmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fetchTimetable().byteInputStream())
+suspend fun getSelectedClass(url: String): Node? {
+    println("getSelecedClass $url")
+    val XmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fetchTimetable(url).byteInputStream())
     val nodeList = XmlRes.documentElement.getElementsByTagName("Kurz")
 
 
@@ -60,8 +60,9 @@ fun getPart(array: NodeList, name: String): String? {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getLessons(): ArrayList<lesson> {
-    val selectedClass = getSelectedClass()?.childNodes
+suspend fun getLessons(url: String): ArrayList<lesson> {
+    println("getLessons using $url")
+    val selectedClass = getSelectedClass(url)?.childNodes
     val lessonNodes = selectedClass?.item(5)?.childNodes
     var lessons = ArrayList<lesson>()
 
@@ -69,7 +70,6 @@ suspend fun getLessons(): ArrayList<lesson> {
     for (i in 0..<lessonNodes!!.length) {
 
         val l = lessonNodes.item(i).childNodes
-        println()
         val pos = getPart(l, "St")!!.toInt()
         val start =  getPart(l, "Beginn")
         val end = getPart(l, "Ende")
@@ -79,6 +79,7 @@ suspend fun getLessons(): ArrayList<lesson> {
             canceled = true
             subject = getPart(l, "If").toString()
         }
+        println(subject)
         val teacher = getPart(l, "Le")
         val room = getPart(l, "Ra")
 
@@ -89,8 +90,8 @@ suspend fun getLessons(): ArrayList<lesson> {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getKurse(): ArrayList<String> {
-    val selectedClass = getSelectedClass()?.childNodes
+suspend fun getKurse(url:String): ArrayList<String> {
+    val selectedClass = getSelectedClass(url)?.childNodes
     val KursNodes = selectedClass?.item(3)?.childNodes
     var Kurse = ArrayList<String>()
 

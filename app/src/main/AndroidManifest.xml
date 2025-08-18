@@ -15,11 +15,15 @@
         android:theme="@style/Theme.IndiwareNative"
         tools:targetApi="31">
         <activity
+            android:name=".WeekView"
+            android:exported="false"
+            android:label="@string/title_activity_week_view"
+            android:theme="@style/Theme.IndiwareNative" />
+        <activity
             android:name=".Settings"
             android:exported="false"
             android:label="@string/title_activity_settings"
             android:theme="@style/Theme.IndiwareNative" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
