@@ -62,6 +62,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -183,7 +187,7 @@ fun LessonCard(l: lesson) {
 
                         Box(
                             modifier = Modifier
-                                .size(80.dp)
+                                .size(70.dp)
                                 .clip(MaterialShapes.Cookie7Sided.toShape())
                                 .background(MaterialTheme.colorScheme.primary),
                             contentAlignment = Alignment.Center
@@ -244,14 +248,18 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+    var current = LocalDate.now()
+    var currentAsString = current.format(formatter)
+
     val prefs: SharedPreferences =
         context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
     LaunchedEffect(Unit) {
-        lessons = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
+        lessons = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl${currentAsString}.xml")
     }
     val state = rememberPullToRefreshState()
     val isRefreshing = false
-    val onRefresh: () -> Unit = { coroutineScope.launch {lessons = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml") }}
+    val onRefresh: () -> Unit = { coroutineScope.launch {lessons = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl${currentAsString}.xml") }}
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,

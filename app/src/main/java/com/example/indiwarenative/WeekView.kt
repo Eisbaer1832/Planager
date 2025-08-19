@@ -38,8 +38,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 class WeekView : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -94,7 +96,9 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
     var isLoading by remember { mutableStateOf(true) }
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
+    current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     var largest = HashMap<Int, Int>()
+
 
     LaunchedEffect(Unit) {
         // loading a full school week
@@ -108,7 +112,12 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
         }
         largest  = SubjectCountPerLesson(week)
         isLoading = false
+        //TODO implement Week reorder
+        val orderedWeek = OrderWeek(week)
     }
+
+
+
     val state = rememberPullToRefreshState()
     val isRefreshing = false
     val onRefresh: () -> Unit = {}//TODO implement refresh behaviour
@@ -192,6 +201,28 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
 
     }
 
+}
+
+// TODO Check if this is actually implemented? Ig, this should work? Maybe?
+fun OrderWeek(week: ArrayList<ArrayList<lesson>>) {
+    var newWeek = HashMap<Int, ArrayList<lesson>>()
+
+    println("ordering the Week")
+    for (i in 0..week.size - 1){
+        var tempArray: ArrayList<lesson> = arrayListOf()
+        var lastPos = 0
+        for (j in 0..week[i].size - 1){
+            val pos = week[i][j].pos
+            if (pos > lastPos) {
+                newWeek.put(pos, tempArray)
+                tempArray = arrayListOf()
+                lastPos = pos
+            }
+            tempArray.add(week[i][j])
+            println("Ordered Week Part: " + tempArray.get(0).subject)
+        }
+    }
+    println("Ordered Week:" + newWeek.get(0)?.get(0)?.subject)
 }
 
 fun SubjectCountPerLesson(week: ArrayList<ArrayList<lesson>>): HashMap<Int, Int> {
