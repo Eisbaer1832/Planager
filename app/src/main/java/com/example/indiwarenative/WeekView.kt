@@ -98,7 +98,7 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     var largest = HashMap<Int, Int>()
-
+    var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
 
     LaunchedEffect(Unit) {
         // loading a full school week
@@ -113,7 +113,7 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
         largest  = SubjectCountPerLesson(week)
         isLoading = false
         //TODO implement Week reorder
-        val orderedWeek = OrderWeek(week)
+        orderedWeek = orderWeek(week)
     }
 
 
@@ -153,49 +153,29 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
             val configuration = LocalConfiguration.current
             val screenWidth = configuration.screenWidthDp.dp
 
-            Row(
+
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                Column {
-                    //display lesson time
-                    for (i in 1..largest.size){
-                        val pad = largest.get(i)
-                        if (pad != null) {
-                            val topPading = pad * 60
-                            Card(
-                                modifier = Modifier
-                                    .width(screenWidth / 6)
-                                    .height(topPading.dp)
+                for ( pos in 1..orderedWeek.size - 1 ) {
+                    Row {
+                        Card {
+                            Text(pos.toString())
+                        }
+                        for ( i in 0..(orderedWeek[pos]?.size?.minus(1) ?: 0)) {
+                            println("entries: " + orderedWeek.entries)
+                            Column {
+                                for ( j in 0..(orderedWeek[pos]?.get(i)?.size?.minus(1) ?: 0)) {
+                                    smallLessonCard(orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson())
 
-                            ) {
-                                Text(i.toString())
+                                }
                             }
                         }
                     }
                 }
-                //display subjects
-                for (i in 0..week.size - 1) {
-                    Column {
-                        Card(
-                            modifier = Modifier
-                                .width(screenWidth / 6)
-                                .padding(5.dp)
 
-                        ) {
-                            Text("Tag")
-                        }
-                        var lastpos = 1
-                        for (j in 0..week[i].size - 1) {
-                            if (week[i][j].pos > lastpos) {
-                               Text("STOP")
-                               lastpos = week[i][j].pos
-                            }
-                            smallLessonCard(week[i][j])
-                        }
-                    }
-                }
             }
         }
 
@@ -204,17 +184,22 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
 }
 
 // TODO Check if this is actually implemented? Ig, this should work? Maybe?
-fun OrderWeek(week: ArrayList<ArrayList<lesson>>) {
-    var newWeek = HashMap<Int, ArrayList<lesson>>()
+fun orderWeek(week: ArrayList<ArrayList<lesson>>): HashMap<Int, ArrayList<ArrayList<lesson>>> {
+    var newWeek = HashMap<Int, ArrayList<ArrayList<lesson>>>()
 
     println("ordering the Week")
     for (i in 0..week.size - 1){
         var tempArray: ArrayList<lesson> = arrayListOf()
-        var lastPos = 0
+        var lastPos = 1
         for (j in 0..week[i].size - 1){
             val pos = week[i][j].pos
             if (pos > lastPos) {
-                newWeek.put(pos, tempArray)
+                var allreadSaved = newWeek.get(lastPos)
+                if (allreadSaved == null) {
+                    allreadSaved = ArrayList<ArrayList<lesson>>()
+                }
+                allreadSaved.add(tempArray)
+                newWeek.put(lastPos, allreadSaved)
                 tempArray = arrayListOf()
                 lastPos = pos
             }
@@ -222,7 +207,7 @@ fun OrderWeek(week: ArrayList<ArrayList<lesson>>) {
             println("Ordered Week Part: " + tempArray.get(0).subject)
         }
     }
-    println("Ordered Week:" + newWeek.get(0)?.get(0)?.subject)
+    return newWeek
 }
 
 fun SubjectCountPerLesson(week: ArrayList<ArrayList<lesson>>): HashMap<Int, Int> {
@@ -237,7 +222,6 @@ fun SubjectCountPerLesson(week: ArrayList<ArrayList<lesson>>): HashMap<Int, Int>
                 counter++
                 println("Found pos $pos for the $counter time")
             }else {
-                println("Pos $lastpos is ${LessonSize.get(pos)}")
                 val savedCounter = LessonSize.get(lastpos)
                 if (savedCounter == null) {
                     LessonSize.put(lastpos, counter)

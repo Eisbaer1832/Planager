@@ -22,4 +22,11 @@ public class lesson {
         this.pos = pos;
         this.canceled = canceled;
     }
+
+    public  lesson () {
+        this.pos = 0;
+        this.subject = "error";
+        this.room = "error";
+        this.teacher = "error";
+    }
 }
