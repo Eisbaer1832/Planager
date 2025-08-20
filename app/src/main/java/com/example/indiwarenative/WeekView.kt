@@ -33,6 +33,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -118,6 +120,11 @@ fun SmallLessonCard (lesson: lesson) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekView(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val userSettings = UserSettings.getInstance(context.applicationContext)
+    val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
+    val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
+
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -203,7 +210,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                             modifier = Modifier
                                 .width(screenWidth / 6)
                                 .height(70.dp)
-                                .padding(15.dp, 0.dp, 15.dp, 0.dp,),
+                                .padding(15.dp, 7.dp, 15.dp, 7.dp,),
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -215,17 +222,19 @@ fun WeekView(modifier: Modifier = Modifier) {
                             }
                         }
                         if (pos == 7) {
-                            Card {
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(70.dp)
+                                    .padding(3.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text= "Pauseee \uD83C\uDF89",
-                                        modifier
-                                            .fillMaxWidth()
-                                        ,
-                                        textAlign = TextAlign.Center,
+                                        text = "Pauseee \uD83C\uDF89",
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }
@@ -234,9 +243,14 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 println("entries: " + orderedWeek.entries)
                                 Column {
                                     for (j in 0..(orderedWeek[pos]?.get(i)?.size?.minus(1) ?: 0)) {
-                                        SmallLessonCard(
-                                            orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
-                                        )
+                                        if(subjectsToShow.get(orderedWeek.get(pos)?.get(i)?.get(j)?.subject ?: true) == true) {
+                                            SmallLessonCard(
+                                                orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
+                                            )
+                                        }else{
+                                            Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                        }
+
 
                                     }
                                 }

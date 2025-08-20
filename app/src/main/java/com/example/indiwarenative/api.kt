@@ -2,7 +2,6 @@ package com.example.indiwarenative
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.indiwarenative.DataSharer.SavedSelectedClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Node
@@ -94,23 +93,26 @@ suspend fun getLessons(url: String): ArrayList<lesson> {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getKurse(url:String): ArrayList<String> {
+suspend fun getKurse(url:String): ArrayList<Kurs> {
     var selectedClass = getSelectedClass(url)?.childNodes
 
 
     val KursNodes = selectedClass?.item(3)?.childNodes
     println(selectedClass?.item(3)?.textContent)
-    var Kurse = ArrayList<String>()
+    var Kurse = ArrayList<Kurs>()
 
     for ( i in 0..<KursNodes!!.length) {
         var text = KursNodes.item(i).firstChild.textContent
+        println("Kurs is named $text")
+        var teacher = KursNodes.item(i).firstChild.attributes.getNamedItem("KLe").textContent
         if (text == "") {
-            //TODO replace with attribute getter
-            text = KursNodes.item(i).firstChild.attributes.getNamedItem("KLe").textContent
+            text = KursNodes.item(i).firstChild.textContent
         }
 
-        Kurse.add(text)
+        Kurse.add(Kurs(teacher,text))
     }
     println(Kurse.joinToString())
+    println("finished loading Kurse")
+
     return Kurse
 }

@@ -1,6 +1,7 @@
 
 package com.example.indiwarenative
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
@@ -46,6 +47,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,10 +64,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -158,7 +158,7 @@ fun LessonCardCanceled(l: lesson)  {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LessonCard(l: lesson) {
+fun LessonCard(l: lesson, showTeacher: Boolean?) {
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -200,8 +200,6 @@ fun LessonCard(l: lesson) {
                             )
                         }
 
-
-
                         Text(
                             modifier = Modifier.padding( 16.dp),
                             fontSize = 30.sp,
@@ -225,10 +223,8 @@ fun LessonCard(l: lesson) {
                     )
                 }
             }
-            val context = LocalContext.current
-            val showteacher = context.getSharedPreferences("Settings", MODE_PRIVATE).getBoolean("showTeachers", true)
-            println(showteacher)
-            if (showteacher) {
+            println("show_teachers: " + showTeacher)
+            if (showTeacher == true) {
                 Text(
                     modifier = Modifier.padding(16.dp),
                     textAlign = TextAlign.Center,
@@ -245,9 +241,13 @@ fun LessonCard(l: lesson) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val userSettings = UserSettings.getInstance(context.applicationContext)
+    val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
+    val status by userSettings.ownSubjects.collectAsState(initial = HashMap())
+
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
     var currentAsString = current.format(formatter)
@@ -305,10 +305,12 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                         } else {
                             Spacer(modifier = Modifier.padding(start = 100.dp))
                         }
-                        if (!l.canceled) {
-                            LessonCard(l)
-                        } else {
-                            LessonCardCanceled(l)
+                        if (status.get(l.subject) == true) {
+                            if (!l.canceled) {
+                                LessonCard(l, showTeacher)
+                            } else {
+                                LessonCardCanceled(l)
+                            }
                         }
                     }
                 }

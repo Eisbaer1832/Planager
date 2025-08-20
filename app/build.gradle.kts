@@ -51,6 +51,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -63,12 +64,17 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.core)
     implementation(libs.material.icons.extended)
+    implementation(libs.androidx.datastore)
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    implementation("com.google.protobuf:protobuf-javalite:4.32.0")
     implementation("me.zhanghai.compose.preference:preference:2.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation(libs.androidx.foundation)
     implementation(libs.material3)
     implementation (libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.firebase.crashlytics.buildtools)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

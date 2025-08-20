@@ -1,8 +1,6 @@
 package com.example.indiwarenative
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -17,12 +15,8 @@ import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,11 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.edit
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import me.zhanghai.compose.preference.ProvidePreferenceLocals
-import me.zhanghai.compose.preference.switchPreference
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 
 class Settings : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -64,13 +56,22 @@ class Settings : ComponentActivity() {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OwnSubjectDialog(shouldShowDialog: MutableState<Boolean>, Kurse: ArrayList<String>?) {
+fun OwnSubjectDialog(
+    shouldShowDialog: MutableState<Boolean>,
+    Kurse: ArrayList<Kurs>?,
+    userSettings: UserSettings
+) {
     if (shouldShowDialog.value) {
+        val couroutineScope = rememberCoroutineScope()
+        val status by userSettings.ownSubjects.collectAsState(initial = HashMap<String, Boolean>())
+
         BasicAlertDialog(
             onDismissRequest = {
                 shouldShowDialog.value = false
             },
-            modifier = Modifier.fillMaxSize().padding(0.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(0.dp),
             properties = DialogProperties(), content = {
                 Surface(
                     modifier = Modifier
@@ -83,21 +84,28 @@ fun OwnSubjectDialog(shouldShowDialog: MutableState<Boolean>, Kurse: ArrayList<S
                         .verticalScroll(rememberScrollState())
                     ) {
                         Text("Eigene Fächer")
-                        Kurse?.forEach { subject ->
-                            Row {
-                                Card(
-                                    modifier = Modifier.padding(10.dp).fillMaxWidth()
-                                ) {
-                                    Row {
-                                        Text(
-                                            modifier = Modifier.padding(10.dp),
-                                            text = subject)
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        var checked by remember { mutableStateOf(true) }
-                                        Switch(
-                                            checked = checked,
-                                            onCheckedChange = {
-                                                checked = it })
+                        Kurse?.size?.let {
+                            for (i in 0..<it) {
+                                Row {
+                                    Card(
+                                        modifier = Modifier
+                                            .padding(10.dp)
+                                            .fillMaxWidth()
+                                    ) {
+                                        Row {
+                                            Text(
+                                                modifier = Modifier.padding(10.dp),
+                                                text = Kurse[i].subject + " " + Kurse[i].teacher
+                                            )
+                                            Spacer(modifier = Modifier.weight(1f))
+                                            var checked by remember { mutableStateOf(status.get(Kurse[i].subject) == true) }
+                                            Switch(
+                                                checked = checked,
+                                                onCheckedChange = {
+                                                    checked = it
+                                                    status.put(Kurse[i].subject, checked)
+                                                })
+                                        }
                                     }
                                 }
                             }
@@ -105,7 +113,7 @@ fun OwnSubjectDialog(shouldShowDialog: MutableState<Boolean>, Kurse: ArrayList<S
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-
+                                couroutineScope.launch{userSettings.updateOwnSubjects(status)}
                                 shouldShowDialog.value = false
                             })
                         {
@@ -120,8 +128,15 @@ fun OwnSubjectDialog(shouldShowDialog: MutableState<Boolean>, Kurse: ArrayList<S
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Settings(name: String, modifier: Modifier = Modifier) {
-    var Kurse by remember { mutableStateOf<ArrayList<String>?>(null) }
+
+    val context = LocalContext.current
+    val userSettings = UserSettings.getInstance(context.applicationContext)
+    val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
+
+    var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(null) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) } // 1
+    val couroutineScope = rememberCoroutineScope()
+    println(showTeacher)
 
     LaunchedEffect(Unit) {
         Kurse = getKurse("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
@@ -129,7 +144,7 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
     }
 
     if (OwnSubjectDialogToggle.value) {
-        OwnSubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse)
+        OwnSubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse,userSettings)
     }
 
     Column(
@@ -138,8 +153,6 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Example: Dark Mode Toggle
-        var darkMode by remember { mutableStateOf(false) }
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
@@ -153,19 +166,25 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                 Text("Eigene Fächer", style = MaterialTheme.typography.bodyLarge)
                 Button(onClick = {OwnSubjectDialogToggle.value = true}) { Text("Ändern") }
             }
-        }
 
-    ProvidePreferenceLocals {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            switchPreference(
-                key = "showTeachers",
-                defaultValue = true,
-                title = { Text(text = "Lehrer Anzeigen") },
-                icon = { Icon(imageVector = Icons.Outlined.Person, contentDescription = null) },
-                summary = { Text(text = if (it) "An" else "Aus") }
+        }
+        var checked by remember { mutableStateOf(true) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Lehrer anzeigen")
+            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
+            Switch(
+                checked = showTeacher,
+                onCheckedChange = {
+                    checked = it
+                    couroutineScope.launch{userSettings.updateShowTeachers(checked)}
+                }
             )
         }
-    }
     }
 
 }
