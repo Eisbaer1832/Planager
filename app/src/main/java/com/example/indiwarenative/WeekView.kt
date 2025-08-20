@@ -7,12 +7,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
@@ -34,7 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
@@ -52,13 +58,12 @@ class WeekView : ComponentActivity() {
             IndiwareNativeTheme {
                 Scaffold(
                     topBar = {
-                        TopBar("Tagesplan")
+                        TopBar("Wochenplan")
                     }, bottomBar = {
                         NavBar()
                     }
                 ){ innerPadding ->
                     WeekView(
-                        name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -69,20 +74,41 @@ class WeekView : ComponentActivity() {
 
 
 @Composable
-fun smallLessonCard (lesson: lesson) {
-    val context = LocalContext.current
+fun SmallLessonCard (lesson: lesson) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
     Card(
         modifier = Modifier
             .width(screenWidth / 6)
-            .height(60.dp)
             .padding(3.dp)
+            .height(70.dp)
+
 
     ) {
-        Text(lesson.subject)
-        Text(lesson.room)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Surface  (
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = lesson.subject
+                )
+            }
+            Text(
+                text = lesson.teacher
+            )
+            Text(
+                text = lesson.room
+            )
+        }
     }
 }
 
@@ -91,13 +117,12 @@ fun smallLessonCard (lesson: lesson) {
 @SuppressLint("MutableCollectionMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekView(name: String, modifier: Modifier = Modifier) {
+fun WeekView(modifier: Modifier = Modifier) {
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
     current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    var largest = HashMap<Int, Int>()
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
 
     LaunchedEffect(Unit) {
@@ -110,7 +135,7 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
             println("gettin from week: " + week[0][0].subject)
             current = current.plusDays(1)
         }
-        largest  = SubjectCountPerLesson(week)
+        //largest  = SubjectCountPerLesson(week)
         isLoading = false
         //TODO implement Week reorder
         orderedWeek = orderWeek(week)
@@ -122,6 +147,8 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
     val isRefreshing = false
     val onRefresh: () -> Unit = {}//TODO implement refresh behaviour
 
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -148,28 +175,70 @@ fun WeekView(name: String, modifier: Modifier = Modifier) {
                 LoadingIndicator()
             }
         } else {
-            //TODO actually display a full week
-            val context = LocalContext.current
-            val configuration = LocalConfiguration.current
-            val screenWidth = configuration.screenWidthDp.dp
-
+            val days = arrayOf("Mo.", "Di.", "Mi.", "Do.", "Fr.")
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
+                Row {
+                    Spacer(modifier = Modifier.width(screenWidth / 6))
+                    for (i in 0..<days.size) {
+                        Card(
+                            modifier = Modifier
+                                .width(screenWidth / 6)
+                                .padding(3.dp)
+                        ) {
+                            Text(
+                                text = days[i],
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+                }
                 for ( pos in 1..orderedWeek.size - 1 ) {
                     Row {
-                        Card {
-                            Text(pos.toString())
+                        Card(
+                            modifier = Modifier
+                                .width(screenWidth / 6)
+                                .height(70.dp)
+                                .padding(15.dp, 0.dp, 15.dp, 0.dp,),
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = pos.toString(),
+                                )
+                            }
                         }
-                        for ( i in 0..(orderedWeek[pos]?.size?.minus(1) ?: 0)) {
-                            println("entries: " + orderedWeek.entries)
-                            Column {
-                                for ( j in 0..(orderedWeek[pos]?.get(i)?.size?.minus(1) ?: 0)) {
-                                    smallLessonCard(orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson())
+                        if (pos == 7) {
+                            Card {
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text= "Pauseee \uD83C\uDF89",
+                                        modifier
+                                            .fillMaxWidth()
+                                        ,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            }
+                        } else {
+                            for (i in 0..(orderedWeek[pos]?.size?.minus(1) ?: 0)) {
+                                println("entries: " + orderedWeek.entries)
+                                Column {
+                                    for (j in 0..(orderedWeek[pos]?.get(i)?.size?.minus(1) ?: 0)) {
+                                        SmallLessonCard(
+                                            orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
+                                        )
 
+                                    }
                                 }
                             }
                         }
@@ -196,7 +265,7 @@ fun orderWeek(week: ArrayList<ArrayList<lesson>>): HashMap<Int, ArrayList<ArrayL
             if (pos > lastPos) {
                 var allreadSaved = newWeek.get(lastPos)
                 if (allreadSaved == null) {
-                    allreadSaved = ArrayList<ArrayList<lesson>>()
+                    allreadSaved = ArrayList()
                 }
                 allreadSaved.add(tempArray)
                 newWeek.put(lastPos, allreadSaved)
@@ -204,49 +273,18 @@ fun orderWeek(week: ArrayList<ArrayList<lesson>>): HashMap<Int, ArrayList<ArrayL
                 lastPos = pos
             }
             tempArray.add(week[i][j])
-            println("Ordered Week Part: " + tempArray.get(0).subject)
+            println("Ordered Week Part: " + tempArray[0].subject)
         }
     }
     return newWeek
 }
 
-fun SubjectCountPerLesson(week: ArrayList<ArrayList<lesson>>): HashMap<Int, Int> {
-    var LessonSize = HashMap<Int, Int>()
-
-    for (i in 0..week.size - 1) {
-        var counter = 0
-        var lastpos = 1
-        for (j in 0..week[i].size - 1) {
-            val pos = week[i][j].pos
-            if (pos == lastpos) {
-                counter++
-                println("Found pos $pos for the $counter time")
-            }else {
-                val savedCounter = LessonSize.get(lastpos)
-                if (savedCounter == null) {
-                    LessonSize.put(lastpos, counter)
-                }else {
-                    if (counter > savedCounter) {
-                        LessonSize.replace(lastpos, counter)
-                    }
-                }
-                counter = 0
-                lastpos = pos
-            }
-        }
-    }
-    for (i in 1..LessonSize.size) {
-        println("Lessonsize of " + i + " " + LessonSize[i])
-    }
-    return LessonSize
-
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview2() {
     IndiwareNativeTheme {
-        WeekView("Android")
+        WeekView()
     }
 }

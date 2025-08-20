@@ -125,7 +125,7 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit) {
         Kurse = getKurse("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
-        println(Kurse)
+        println("Kurse: " + (Kurse as Iterable<Any?>).joinToString())
     }
 
     if (OwnSubjectDialogToggle.value) {

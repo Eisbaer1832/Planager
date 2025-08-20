@@ -2,6 +2,7 @@ package com.example.indiwarenative
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.indiwarenative.DataSharer.SavedSelectedClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Node
@@ -62,7 +63,10 @@ fun getPart(array: NodeList, name: String): String? {
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun getLessons(url: String): ArrayList<lesson> {
     println("getLessons using $url")
-    val selectedClass = getSelectedClass(url)?.childNodes
+
+    var selectedClass = getSelectedClass(url)?.childNodes
+
+
     val lessonNodes = selectedClass?.item(5)?.childNodes
     var lessons = ArrayList<lesson>()
 
@@ -91,12 +95,22 @@ suspend fun getLessons(url: String): ArrayList<lesson> {
 
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun getKurse(url:String): ArrayList<String> {
-    val selectedClass = getSelectedClass(url)?.childNodes
+    var selectedClass = getSelectedClass(url)?.childNodes
+
+
     val KursNodes = selectedClass?.item(3)?.childNodes
+    println(selectedClass?.item(3)?.textContent)
     var Kurse = ArrayList<String>()
 
     for ( i in 0..<KursNodes!!.length) {
-        Kurse.add(KursNodes.item(i).firstChild.textContent)
+        var text = KursNodes.item(i).firstChild.textContent
+        if (text == "") {
+            //TODO replace with attribute getter
+            text = KursNodes.item(i).firstChild.attributes.getNamedItem("KLe").textContent
+        }
+
+        Kurse.add(text)
     }
+    println(Kurse.joinToString())
     return Kurse
 }
