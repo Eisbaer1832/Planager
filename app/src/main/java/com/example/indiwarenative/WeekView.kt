@@ -138,8 +138,6 @@ fun WeekView(modifier: Modifier = Modifier) {
             val currentAsString = current.format(formatter)
             val lesson = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl${currentAsString}.xml")
             week.add(lesson)
-            println("lesson: " + lesson[0].subject)
-            println("gettin from week: " + week[0][0].subject)
             current = current.plusDays(1)
         }
         //largest  = SubjectCountPerLesson(week)
@@ -239,19 +237,19 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 }
                             }
                         } else {
-                            for (i in 0..(orderedWeek[pos]?.size?.minus(1) ?: 0)) {
-                                println("entries: " + orderedWeek.entries)
+                            for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
                                 Column {
-                                    for (j in 0..(orderedWeek[pos]?.get(i)?.size?.minus(1) ?: 0)) {
-                                        if(subjectsToShow.get(orderedWeek.get(pos)?.get(i)?.get(j)?.subject ?: true) == true) {
+                                    for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
+                                        println("size is: " + orderedWeek[pos]?.get(i)?.size)
+                                        if(subjectsToShow[orderedWeek.get(pos)?.get(i)?.get(j)?.subject ?: true] == true) {
+                                            //println("showing in $pos : " + orderedWeek.get(pos)?.get(i)?.get(j)?.subject)
                                             SmallLessonCard(
                                                 orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
                                             )
                                         }else{
+                                            //println("not showing in $pos : " + orderedWeek.get(pos)?.get(i)?.get(j)?.subject)
                                             Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                         }
-
-
                                     }
                                 }
                             }
@@ -270,7 +268,6 @@ fun WeekView(modifier: Modifier = Modifier) {
 fun orderWeek(week: ArrayList<ArrayList<lesson>>): HashMap<Int, ArrayList<ArrayList<lesson>>> {
     var newWeek = HashMap<Int, ArrayList<ArrayList<lesson>>>()
 
-    println("ordering the Week")
     for (i in 0..week.size - 1){
         var tempArray: ArrayList<lesson> = arrayListOf()
         var lastPos = 1

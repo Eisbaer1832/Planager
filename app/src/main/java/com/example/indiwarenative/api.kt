@@ -61,8 +61,6 @@ fun getPart(array: NodeList, name: String): String? {
 
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun getLessons(url: String): ArrayList<lesson> {
-    println("getLessons using $url")
-
     var selectedClass = getSelectedClass(url)?.childNodes
 
 
@@ -76,13 +74,12 @@ suspend fun getLessons(url: String): ArrayList<lesson> {
         val pos = getPart(l, "St")!!.toInt()
         val start =  getPart(l, "Beginn")
         val end = getPart(l, "Ende")
-        var subject = getPart(l, "Fa").toString()
+        var subject = getPart(l, "Fa")
         var canceled = false;
         if (subject == "---") {
             canceled = true
             subject = getPart(l, "If").toString()
         }
-        println(subject)
         val teacher = getPart(l, "Le")
         val room = getPart(l, "Ra")
 

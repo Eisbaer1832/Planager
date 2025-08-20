@@ -155,13 +155,13 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Eigene Fächer", style = MaterialTheme.typography.bodyLarge)
                 Button(onClick = {OwnSubjectDialogToggle.value = true}) { Text("Ändern") }

@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
 fun TimestampCard(l: lesson) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
         ),
         modifier = Modifier
             .width(100.dp)
