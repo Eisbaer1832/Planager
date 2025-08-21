@@ -7,6 +7,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.util.Log.i
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -167,19 +168,15 @@ fun LessonCard(l: lesson, showTeacher: Boolean?) {
             defaultElevation = 6.dp
         ),
         shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
-        modifier = Modifier
-            //.height(140.dp)
-            .fillMaxWidth()
     ){
         Column{
             Row(
-                modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-
+                    modifier = Modifier.width(180.dp),
                     color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
+                    shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -210,7 +207,6 @@ fun LessonCard(l: lesson, showTeacher: Boolean?) {
                     }
                 }
                 Box(
-                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
 
@@ -223,7 +219,6 @@ fun LessonCard(l: lesson, showTeacher: Boolean?) {
                     )
                 }
             }
-            println("show_teachers: " + showTeacher)
             if (showTeacher == true) {
                 Text(
                     modifier = Modifier.padding(16.dp),
@@ -252,8 +247,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     var currentAsString = current.format(formatter)
 
-    val prefs: SharedPreferences =
-        context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
     LaunchedEffect(Unit) {
         lessons = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl${currentAsString}.xml")
     }
@@ -294,26 +287,30 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             )
             {
-                var lastPos = -1;
-                for (i in 0..<lessons!!.size - 1) {
-                    val l = lessons!![i]
-
-                    Row {
-                        if (l.pos > lastPos) {
-                            lastPos = l.pos;
-                            TimestampCard(l)
-                        } else {
-                            Spacer(modifier = Modifier.padding(start = 100.dp))
-                        }
-                        if (status.get(l.subject) == true) {
-                            if (!l.canceled) {
-                                LessonCard(l, showTeacher)
+                val currentLessons = lessons
+                var lastPos = 0
+                currentLessons
+                    ?.filter { status[it.subject] == true }
+                    ?.forEach { l ->
+                        Row {
+                            if (l.pos > lastPos) {
+                                lastPos = l.pos;
+                                TimestampCard(l)
                             } else {
-                                LessonCardCanceled(l)
+                                Spacer(modifier = Modifier.padding(start = 100.dp))
+                            }
+
+
+                            if (status.get(l.subject) == true) {
+                                println(l.subject)
+                                if (!l.canceled) {
+                                    LessonCard(l, showTeacher)
+                                } else {
+                                    LessonCardCanceled(l)
+                                }
                             }
                         }
                     }
-                }
             }
         }}
     }
