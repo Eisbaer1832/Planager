@@ -104,6 +104,7 @@ fun OwnSubjectDialog(
                                                 onCheckedChange = {
                                                     checked = it
                                                     status.put(Kurse[i].subject, checked)
+                                                    couroutineScope.launch{userSettings.updateOwnSubjects(status)}
                                                 })
                                         }
                                     }

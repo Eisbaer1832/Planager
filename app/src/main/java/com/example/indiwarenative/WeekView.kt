@@ -283,9 +283,15 @@ fun orderWeek(week: ArrayList<ArrayList<lesson>>): HashMap<Int, ArrayList<ArrayL
                 lastPos = pos
             }
             tempArray.add(week[i][j])
-            println("Ordered Week Part: " + tempArray[0].subject)
+            println("Ordered Week Part $pos $i $j: " + tempArray[tempArray.size -1].subject)
+        }
+        if (lastPos != -1 && tempArray.isNotEmpty()) {
+            var alreadySaved = newWeek[lastPos] ?: ArrayList()
+            alreadySaved.add(tempArray)
+            newWeek[lastPos] = alreadySaved
         }
     }
+
     return newWeek
 }
 
