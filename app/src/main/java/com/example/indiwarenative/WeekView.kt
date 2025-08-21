@@ -116,6 +116,39 @@ fun SmallLessonCard (lesson: lesson) {
 }
 
 
+@Composable
+fun SmallLessonCardCanceled (lesson: lesson) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    Card(
+        modifier = Modifier
+            .width(screenWidth / 6)
+            .padding(3.dp)
+            .height(70.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Surface  (
+                color = MaterialTheme.colorScheme.errorContainer,
+                modifier = Modifier.fillMaxSize()
+            ){
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = lesson.subject
+                )
+            }
+        }
+    }
+}
+
+
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -238,18 +271,41 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 }
                             }
                         } else {
+
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
-                                Column {
-                                    for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
-                                        println("size is: " + orderedWeek[pos]?.get(i)?.size)
-                                        if(subjectsToShow[orderedWeek.get(pos)?.get(i)?.get(j)?.subject ?: true] == true || !doFilter) {
-                                            //println("showing in $pos : " + orderedWeek.get(pos)?.get(i)?.get(j)?.subject)
-                                            SmallLessonCard(
-                                                orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
-                                            )
-                                        }else{
-                                            println("not showing in $pos : " + orderedWeek.get(pos)?.get(i)?.get(j)?.subject)
-                                            Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
+                                    // <<--- hier Spacer wenn ganze Zelle leer
+                                    Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                } else {
+                                    Column {
+                                        for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
+
+                                            if (subjectsToShow[orderedWeek.get(pos)?.get(i)
+                                                    ?.get(j)?.subject ?: true] == true || !doFilter
+                                            ) {
+                                                println(
+                                                    "showing in $pos $i $j: " + orderedWeek.get(
+                                                        pos
+                                                    )?.get(i)?.get(j)?.subject
+                                                )
+                                                val subject = orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
+                                                if (subject.canceled == true) {
+                                                    SmallLessonCardCanceled(
+                                                        subject
+                                                    )
+                                                }else {
+                                                    SmallLessonCard(
+                                                        subject
+                                                    )
+                                                }
+                                            } else {
+                                                println(
+                                                    "not showing in $pos : " + orderedWeek.get(
+                                                        pos
+                                                    )?.get(i)?.get(j)?.subject
+                                                )
+                                                Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                            }
                                         }
                                     }
                                 }
@@ -264,36 +320,34 @@ fun WeekView(modifier: Modifier = Modifier) {
     }
 
 }
-fun orderWeek(week: ArrayList<ArrayList<lesson>>): HashMap<Int, ArrayList<ArrayList<lesson>>> {
-    var newWeek = HashMap<Int, ArrayList<ArrayList<lesson>>>()
+fun orderWeek(
+    week: ArrayList<ArrayList<lesson>>,
+    minPos: Int = 1,
+    maxPos: Int = 12
+): HashMap<Int, ArrayList<ArrayList<lesson>>> {
 
-    for (i in 0..week.size - 1){
-        var tempArray: ArrayList<lesson> = arrayListOf()
-        var lastPos = -1
-        for (j in 0..week[i].size - 1){
-            val pos = week[i][j].pos
-            if (pos > lastPos) {
-                var allreadSaved = newWeek.get(lastPos)
-                if (allreadSaved == null) {
-                    allreadSaved = ArrayList()
-                }
-                allreadSaved.add(tempArray)
-                newWeek.put(lastPos, allreadSaved)
-                tempArray = arrayListOf()
-                lastPos = pos
+    val newWeek = HashMap<Int, ArrayList<ArrayList<lesson>>>()
+    for (p in minPos..maxPos) newWeek[p] = arrayListOf()
+
+    for (i in 0 until week.size) {
+
+        val day = ArrayList(week[i])
+
+        var j = 0
+        for (p in minPos..maxPos) {
+            val group = arrayListOf<lesson>()
+            while (j < day.size && day[j].pos == p) {
+                group.add(day[j])
+                j++
             }
-            tempArray.add(week[i][j])
-            println("Ordered Week Part $pos $i $j: " + tempArray[tempArray.size -1].subject)
-        }
-        if (lastPos != -1 && tempArray.isNotEmpty()) {
-            var alreadySaved = newWeek[lastPos] ?: ArrayList()
-            alreadySaved.add(tempArray)
-            newWeek[lastPos] = alreadySaved
+            //check for empty lessons
+            newWeek[p]!!.add(group)
         }
     }
 
     return newWeek
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
