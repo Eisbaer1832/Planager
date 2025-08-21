@@ -16,7 +16,13 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.*
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -125,6 +131,7 @@ fun OwnSubjectDialog(
             })
     }
 }
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -185,6 +192,80 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                     couroutineScope.launch{userSettings.updateShowTeachers(checked)}
                 }
             )
+        }
+        HorizontalDivider(thickness = 2.dp)
+        Text("Server Daten", style = MaterialTheme.typography.headlineMediumEmphasized)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Server URL")
+            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
+            var url by remember { mutableStateOf("") }
+            TextField(
+                value = url,
+                onValueChange = { url = it },
+                label = { Text("URL") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Web,
+                        contentDescription = "URL"
+                    )
+                },
+                singleLine = true,
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Nutzername")
+            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
+            var username by remember { mutableStateOf("") }
+
+            TextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Nutzername") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = "Nutzername"
+                    )
+                },
+                singleLine = true,
+            )
+        }
+
+        var password by remember { mutableStateOf("") }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Passwort")
+            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
+            var password by remember { mutableStateOf("") }
+
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Passwort") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Password,
+                        contentDescription = "Password"
+                    )
+                },
+                singleLine = true,
+            )
+
         }
     }
 
