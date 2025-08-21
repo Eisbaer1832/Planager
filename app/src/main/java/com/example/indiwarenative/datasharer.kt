@@ -3,6 +3,7 @@ package com.example.indiwarenative
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
@@ -22,6 +23,7 @@ import java.io.OutputStream
 
 
 object DataSharer {
+    var doFilter by mutableStateOf(true);
     var NavbarSelectedItem by mutableIntStateOf(0)
 }
 

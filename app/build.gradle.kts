@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore.preferences.core)
     implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

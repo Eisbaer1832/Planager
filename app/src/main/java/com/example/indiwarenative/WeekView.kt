@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.indiwarenative.DataSharer.doFilter
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -241,13 +242,13 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 Column {
                                     for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
                                         println("size is: " + orderedWeek[pos]?.get(i)?.size)
-                                        if(subjectsToShow[orderedWeek.get(pos)?.get(i)?.get(j)?.subject ?: true] == true) {
+                                        if(subjectsToShow[orderedWeek.get(pos)?.get(i)?.get(j)?.subject ?: true] == true || !doFilter) {
                                             //println("showing in $pos : " + orderedWeek.get(pos)?.get(i)?.get(j)?.subject)
                                             SmallLessonCard(
                                                 orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
                                             )
                                         }else{
-                                            //println("not showing in $pos : " + orderedWeek.get(pos)?.get(i)?.get(j)?.subject)
+                                            println("not showing in $pos : " + orderedWeek.get(pos)?.get(i)?.get(j)?.subject)
                                             Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                         }
                                     }
@@ -263,14 +264,12 @@ fun WeekView(modifier: Modifier = Modifier) {
     }
 
 }
-
-// TODO Check if this is actually implemented? Ig, this should work? Maybe?
 fun orderWeek(week: ArrayList<ArrayList<lesson>>): HashMap<Int, ArrayList<ArrayList<lesson>>> {
     var newWeek = HashMap<Int, ArrayList<ArrayList<lesson>>>()
 
     for (i in 0..week.size - 1){
         var tempArray: ArrayList<lesson> = arrayListOf()
-        var lastPos = 1
+        var lastPos = -1
         for (j in 0..week[i].size - 1){
             val pos = week[i][j].pos
             if (pos > lastPos) {

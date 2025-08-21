@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.indiwarenative.DataSharer.doFilter
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -287,11 +288,13 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             )
             {
-                val currentLessons = lessons
+                var currentLessons = lessons
                 var lastPos = 0
-                currentLessons
-                    ?.filter { status[it.subject] == true }
-                    ?.forEach { l ->
+
+                if (doFilter) {
+                    currentLessons = currentLessons?.filter { status[it.subject] == true } as ArrayList<lesson>?
+                }
+                currentLessons?.forEach { l ->
                         Row {
                             if (l.pos > lastPos) {
                                 lastPos = l.pos;
@@ -300,14 +303,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                                 Spacer(modifier = Modifier.padding(start = 100.dp))
                             }
 
-
-                            if (status.get(l.subject) == true) {
-                                println(l.subject)
-                                if (!l.canceled) {
-                                    LessonCard(l, showTeacher)
-                                } else {
-                                    LessonCardCanceled(l)
-                                }
+                            println(l.subject)
+                            if (!l.canceled) {
+                                LessonCard(l, showTeacher)
+                            } else {
+                                LessonCardCanceled(l)
                             }
                         }
                     }

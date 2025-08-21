@@ -21,6 +21,7 @@ datastoreCore = "1.1.7"
 datastorePreferencesCoreJvm = "1.1.7"
 datastorePreferencesCore = "1.1.7"
 firebaseCrashlyticsBuildtools = "3.0.6"
+ui = "1.9.0"
 
 [libraries]
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
@@ -54,6 +55,7 @@ androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core
 androidx-datastore-preferences-core-jvm = { group = "androidx.datastore", name = "datastore-preferences-core-jvm", version.ref = "datastorePreferencesCoreJvm" }
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastorePreferencesCore" }
 firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
+ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
