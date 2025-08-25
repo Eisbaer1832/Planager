@@ -1,4 +1,4 @@
-package com.example.indiwarenative
+package com.example.indiwarenative.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book

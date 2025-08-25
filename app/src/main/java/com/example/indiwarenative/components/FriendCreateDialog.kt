@@ -1,0 +1,74 @@
+package com.example.indiwarenative.components
+
+import android.graphics.drawable.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Web
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.coroutines.launch
+
+@Composable
+fun FriendCreateDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: (name: String) -> Unit,
+    dialogTitle: String,
+) {
+    var name by remember { mutableStateOf("") }
+
+    AlertDialog(
+        icon = {
+            Icon(Icons.Filled.PersonAdd, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            TextField(
+                value = name,
+                onValueChange = {
+                    name = it;
+
+                },
+                label = { Text("Name") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Web,
+                        contentDescription = "Name"
+                    )
+                },
+                singleLine = true,
+            )},
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation(name)
+                }
+            ) {
+                Text("Bestätigen")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Abbrechen")
+            }
+        }
+    )
+}

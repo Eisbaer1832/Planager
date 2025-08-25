@@ -2,7 +2,11 @@ package com.example.indiwarenative
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -22,6 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 suspend fun fetchTimetable(
     url: String
 ): String = withContext(Dispatchers.IO){
+
     println("using: $url")
     val username = "schueler"
     val password = "s292q17"

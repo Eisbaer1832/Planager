@@ -58,6 +58,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.indiwarenative.DataSharer.doFilter
+import com.example.indiwarenative.components.NavBar
+import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -72,7 +74,7 @@ class MainActivity : ComponentActivity() {
             IndiwareNativeTheme {
                 Scaffold(
                     topBar = {
-                       TopBar("Tagesplan")
+                        TopBar("Tagesplan")
                     }, bottomBar = {
                         NavBar()
                     }
@@ -100,7 +102,8 @@ fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
             .height(80.dp)
     ){
         Text(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(16.dp)
                 .fillMaxSize(),
             text = l.pos.toString(),
             fontSize = 25.sp,
@@ -234,6 +237,9 @@ fun LessonCard(
     }
 }
 
+fun shapeCheck(pos: Int) {
+
+}
 
 @SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -295,27 +301,77 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 var lastPos = 0
 
                 if (doFilter) {
-                    currentLessons = currentLessons?.filter { status[it.subject] == true } as ArrayList<lesson>?
+                    currentLessons = currentLessons?.filter { status[it.subject.substringBefore(" ")] == true } as ArrayList<lesson>?
                 }
-                currentLessons?.forEach { l ->
+                currentLessons?.forEachIndexed { i, l ->
                         val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
                         val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
                         val topSurfaceShape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 0.dp)
                         val bottomSurfaceShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 16.dp)
-                        var shape = if (l.pos % 2 == 0)  bottomShape else topShape
-                        var surfaceShape = if (l.pos % 2 == 0 )  bottomSurfaceShape else topSurfaceShape
+                        val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
+                        val rounded = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
+                        var numberShape = neutralShape
+                        var shape = neutralShape
+                        var surfaceShape = neutralShape
 
-                        if (l.pos >= 8) {
-                            shape = if (l.pos % 2 == 0)  topShape else bottomShape
-                            surfaceShape = if (l.pos % 2 == 0 )  topSurfaceShape else bottomSurfaceShape
+                        val pos = l.pos
+
+
+                        //TODO Clean this mess up
+                        if (i + 1 <= currentLessons.size - 1) {
+                            if (l.pos < 8) {
+                                if (pos % 2 == 0) {
+                                    numberShape = bottomShape
+                                    if (currentLessons[i + 1].pos > pos) {
+                                        shape = bottomShape
+                                        surfaceShape = bottomSurfaceShape
+                                    }
+                                }else {
+                                    numberShape = topShape
+                                    if (pos > lastPos) {
+                                        shape = topShape
+                                        surfaceShape = topSurfaceShape
+                                    }
+                                }
+                            }else {
+                                if (pos % 2 != 0){
+                                    numberShape = bottomShape
+
+                                    if (currentLessons[i + 1].pos > pos) {
+                                        shape = bottomShape
+                                        surfaceShape = bottomSurfaceShape
+                                    }
+                                }else {
+                                    numberShape = topShape
+                                    if (pos > lastPos) {
+                                        shape = topShape
+                                        surfaceShape = topSurfaceShape
+                                    }
+                                }
+
+                            }
                         }
 
-                        Row {
-                            if (l.pos > lastPos) {
-                                lastPos = l.pos;
-                                TimestampCard(l, shape)
+                        if (i == currentLessons.size - 1) {
+                            shape = bottomShape
+                            numberShape = bottomShape
+                            surfaceShape = bottomSurfaceShape
+                        }
+
+                        if (!doFilter || showTeacher) {
+                            numberShape = rounded
+                        }
+
+                        if (showTeacher) {
+                            surfaceShape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 0.dp)
+                        }
+
+                        Row{
+                            if (pos > lastPos) {
+                                lastPos = pos;
+                                TimestampCard(l, numberShape)
                             } else {
-                                Spacer(modifier = Modifier.padding(start = 100.dp))
+                              Spacer(Modifier.width(80.dp))
                             }
 
                             println(l.subject)

@@ -12,12 +12,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -46,6 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indiwarenative.DataSharer.doFilter
+import com.example.indiwarenative.components.NavBar
+import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -281,7 +281,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                         for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
 
                                             if (subjectsToShow[orderedWeek.get(pos)?.get(i)
-                                                    ?.get(j)?.subject ?: true] == true || !doFilter
+                                                    ?.get(j)?.subject?.substringBefore(" ") ?: true] == true || !doFilter
                                             ) {
                                                 println(
                                                     "showing in $pos $i $j: " + orderedWeek.get(

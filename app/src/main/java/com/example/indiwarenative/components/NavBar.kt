@@ -1,4 +1,4 @@
-package com.example.indiwarenative
+package com.example.indiwarenative.components
 
 import android.content.Intent
 import androidx.compose.material.icons.Icons
@@ -13,11 +13,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.example.indiwarenative.DataSharer
+import com.example.indiwarenative.MainActivity
+import com.example.indiwarenative.Settings
+import com.example.indiwarenative.WeekView
 
 @Composable
 fun NavBar() {

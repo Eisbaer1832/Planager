@@ -15,25 +15,26 @@ import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.*
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import com.example.indiwarenative.components.FriendCreateDialog
+import com.example.indiwarenative.components.FriendItem
+import com.example.indiwarenative.components.NavBar
+import com.example.indiwarenative.components.SubjectDialog
+import com.example.indiwarenative.components.TopBar
 
 class Settings : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -60,77 +61,73 @@ class Settings : ComponentActivity() {
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun OwnSubjectDialog(
-    shouldShowDialog: MutableState<Boolean>,
+@OptIn(ExperimentalMaterial3Api::class)
+fun FriendsList (
+    showBottomSheet: MutableState<Boolean>,
     Kurse: ArrayList<Kurs>?,
     userSettings: UserSettings
 ) {
-    if (shouldShowDialog.value) {
-        val couroutineScope = rememberCoroutineScope()
-        val status by userSettings.ownSubjects.collectAsState(initial = HashMap<String, Boolean>())
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
+    val shouldShowDialog = remember { mutableStateOf(false) }
+    val createFriendDialog = remember { mutableStateOf(false) }
+    val couroutineScope = rememberCoroutineScope()
 
-        BasicAlertDialog(
+    if (shouldShowDialog.value) {
+        SubjectDialog(shouldShowDialog, Kurse, userSettings, false)
+    }
+
+    if (createFriendDialog.value) {
+        FriendCreateDialog({ createFriendDialog.value = false }, {name: String ->
+            friends.put(name, HashMap())
+            createFriendDialog.value = false;
+        }, "Freund Erfinden")
+    }
+
+    if (showBottomSheet.value) {
+
+        ModalBottomSheet(
             onDismissRequest = {
-                shouldShowDialog.value = false
+                showBottomSheet.value = false
             },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp),
-            properties = DialogProperties(), content = {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Column(modifier = Modifier
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
-                    ) {
-                        Text("Eigene Fächer")
-                        Kurse?.size?.let {
-                            for (i in 0..<it) {
-                                Row {
-                                    Card(
-                                        modifier = Modifier
-                                            .padding(10.dp)
-                                            .fillMaxWidth()
-                                    ) {
-                                        Row {
-                                            Text(
-                                                modifier = Modifier.padding(10.dp),
-                                                text = Kurse[i].subject + " " + Kurse[i].teacher
-                                            )
-                                            Spacer(modifier = Modifier.weight(1f))
-                                            var checked by remember { mutableStateOf(status.get(Kurse[i].subject) == true) }
-                                            Switch(
-                                                checked = checked,
-                                                onCheckedChange = {
-                                                    checked = it
-                                                    status.put(Kurse[i].subject, checked)
-                                                    couroutineScope.launch{userSettings.updateOwnSubjects(status)}
-                                                })
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {
-                                couroutineScope.launch{userSettings.updateOwnSubjects(status)}
-                                shouldShowDialog.value = false
-                            })
-                        {
-                            Text("Speichern")
-                        }
+            sheetState = sheetState
+        ) {
+            Column {
+                friends.forEach {friend ->
+                    FriendItem(friend.key, {})
+                }
+            }
+            Button(
+                modifier = Modifier
+                    .padding(16.dp, 0.dp)
+                    .fillMaxWidth(),
+                onClick = {
+                createFriendDialog.value = true
+            }) {
+                Text("Freund hinzufügen")
+            }
+            Button(
+                modifier = Modifier
+                    .padding( 16.dp, 0.dp)
+                    .fillMaxWidth(),
+                onClick = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        showBottomSheet.value = false
                     }
                 }
-            })
+            }) {
+                Text("Fertig")
+            }
+        }
     }
 }
+
+
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -142,7 +139,8 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
 
     var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(null) }
-    val OwnSubjectDialogToggle = remember { mutableStateOf(false) } // 1
+    val FriendsListToggle = remember { mutableStateOf(false) }
+    val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
     println(showTeacher)
 
@@ -152,16 +150,24 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
     }
 
     if (OwnSubjectDialogToggle.value) {
-        OwnSubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse,userSettings)
+        SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse, userSettings, true)
     }
+    if (FriendsListToggle.value) {
+        FriendsList(FriendsListToggle, Kurse,userSettings)
+    }
+
+
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+        Text("App Einstellungen", style = MaterialTheme.typography.headlineMediumEmphasized)
+
         Card(
+            shape = RoundedCornerShape(16.dp, 16.dp, 0.dp,0.dp),
             modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
@@ -176,90 +182,138 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
             }
 
         }
+
+        Card(
+            shape = RoundedCornerShape(0.dp,0.dp, 16.dp, 16.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Fächer von Freunden", style = MaterialTheme.typography.bodyLarge)
+                Button(onClick = {FriendsListToggle.value = true}) { Text("Ändern") }
+            }
+
+        }
         var checked by remember { mutableStateOf(true) }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+
+        Card(
+            shape = RoundedCornerShape(16.dp,16.dp, 16.dp, 16.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Lehrer anzeigen")
-            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
-            Switch(
-                checked = showTeacher,
-                onCheckedChange = {
-                    checked = it
-                    couroutineScope.launch{userSettings.updateShowTeachers(checked)}
-                }
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Lehrer anzeigen")
+                Spacer(modifier = Modifier.weight(1f))
+                Switch(
+                    checked = showTeacher,
+                    onCheckedChange = {
+                        checked = it
+                        couroutineScope.launch{userSettings.updateShowTeachers(checked)}
+                    }
+                )
+            }
         }
-        HorizontalDivider(thickness = 2.dp)
+        Spacer(Modifier.height(20.dp))
         Text("Server Daten", style = MaterialTheme.typography.headlineMediumEmphasized)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            shape = RoundedCornerShape(16.dp,16.dp, 0.dp, 0.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            var url by remember { mutableStateOf("") }
-            TextField(
-                value = url,
-                onValueChange = { url = it },
-                label = { Text("URL") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Web,
-                        contentDescription = "URL"
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                var url by remember { mutableStateOf("") }
+
+                    TextField(
+                        value = url,
+                        onValueChange = {
+                            url = it;
+                            couroutineScope.launch { userSettings.updateSchoolID(url) }
+                        },
+                        label = { Text("URL") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Web,
+                                contentDescription = "URL"
+                            )
+                        },
+                        singleLine = true,
                     )
-                },
-                singleLine = true,
-            )
+                }
         }
+        var username by remember { mutableStateOf("") }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            shape = RoundedCornerShape(0.dp,0.dp, 0.dp, 0.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            var username by remember { mutableStateOf("") }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Nutzername") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = "Nutzername"
-                    )
-                },
-                singleLine = true,
-            )
+                TextField(
+                    value = username,
+                    onValueChange = {
+                        username = it
+                        couroutineScope.launch { userSettings.updateUsername(username) }
+                    },
+                    label = { Text("Nutzername") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "Nutzername"
+                        )
+                    },
+                    singleLine = true,
+                )
+            }
         }
 
         var password by remember { mutableStateOf("") }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            shape = RoundedCornerShape(0.dp,0.dp, 16.dp, 16.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            var password by remember { mutableStateOf("") }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                var password by remember { mutableStateOf("") }
 
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Passwort") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Password,
-                        contentDescription = "Password"
-                    )
-                },
-                singleLine = true,
-            )
+                TextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        couroutineScope.launch { userSettings.updatePassword(password) }
+                    },
+                    label = { Text("Passwort") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Password,
+                            contentDescription = "Password"
+                        )
+                    },
+                    singleLine = true,
+                )
 
+            }
         }
     }
 
