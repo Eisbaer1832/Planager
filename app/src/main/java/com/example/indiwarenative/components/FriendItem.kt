@@ -39,12 +39,12 @@ fun FriendItem(
                 modifier = Modifier.weight(1f)
             )
             IconButton(
-                onClick = {delete},
+                onClick = {delete()},
             ) {
                 Icon(Icons.Default.Delete, "delete")
             }
             IconButton(
-                onClick = {edit},
+                onClick = {edit()},
             ) {
                 Icon(Icons.Default.Edit, "edit")
             }

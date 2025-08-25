@@ -102,7 +102,7 @@ fun FriendsList (
         ) {
             Column {
                 friends.forEach {friend ->
-                    FriendItem(friend.key, {shouldShowDialog.value = true; }, {})
+                    FriendItem(friend.key, {println("entering edit mode"); shouldShowDialog.value = true; }, {})
                 }
             }
             Row(
