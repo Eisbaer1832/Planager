@@ -1,13 +1,8 @@
 
 package com.example.indiwarenative
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.util.Log.i
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -94,18 +88,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TimestampCard(l: lesson) {
+fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
         ),
+        shape = shape,
         modifier = Modifier
-            .width(100.dp)
+            .width(80.dp)
             .padding(start = 10.dp, end = 10.dp)
-            .fillMaxHeight()
+            .height(80.dp)
     ){
         Text(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            modifier = Modifier.padding(16.dp)
+                .fillMaxSize(),
             text = l.pos.toString(),
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
@@ -160,7 +156,14 @@ fun LessonCardCanceled(l: lesson)  {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LessonCard(l: lesson, showTeacher: Boolean?) {
+fun LessonCard(
+    l: lesson,
+    showTeacher: Boolean?,
+    shape: RoundedCornerShape,
+    surfaceShape: RoundedCornerShape
+) {
+
+
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -168,7 +171,7 @@ fun LessonCard(l: lesson, showTeacher: Boolean?) {
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
-        shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
+        shape = shape
     ){
         Column{
             Row(
@@ -177,7 +180,7 @@ fun LessonCard(l: lesson, showTeacher: Boolean?) {
                 Surface(
                     modifier = Modifier.width(180.dp),
                     color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp)
+                    shape = surfaceShape
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -185,7 +188,7 @@ fun LessonCard(l: lesson, showTeacher: Boolean?) {
 
                         Box(
                             modifier = Modifier
-                                .size(70.dp)
+                                .size(80.dp)
                                 .clip(MaterialShapes.Cookie7Sided.toShape())
                                 .background(MaterialTheme.colorScheme.primary),
                             contentAlignment = Alignment.Center
@@ -199,10 +202,10 @@ fun LessonCard(l: lesson, showTeacher: Boolean?) {
                         }
 
                         Text(
-                            modifier = Modifier.padding( 16.dp),
+                            modifier = Modifier.fillMaxSize(),
                             fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
                             text = l.subject
                         )
                     }
@@ -295,17 +298,29 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                     currentLessons = currentLessons?.filter { status[it.subject] == true } as ArrayList<lesson>?
                 }
                 currentLessons?.forEach { l ->
+                        val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
+                        val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
+                        val topSurfaceShape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 0.dp)
+                        val bottomSurfaceShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 16.dp)
+                        var shape = if (l.pos % 2 == 0)  bottomShape else topShape
+                        var surfaceShape = if (l.pos % 2 == 0 )  bottomSurfaceShape else topSurfaceShape
+
+                        if (l.pos >= 8) {
+                            shape = if (l.pos % 2 == 0)  topShape else bottomShape
+                            surfaceShape = if (l.pos % 2 == 0 )  topSurfaceShape else bottomSurfaceShape
+                        }
+
                         Row {
                             if (l.pos > lastPos) {
                                 lastPos = l.pos;
-                                TimestampCard(l)
+                                TimestampCard(l, shape)
                             } else {
                                 Spacer(modifier = Modifier.padding(start = 100.dp))
                             }
 
                             println(l.subject)
                             if (!l.canceled) {
-                                LessonCard(l, showTeacher)
+                                LessonCard(l, showTeacher, shape, surfaceShape)
                             } else {
                                 LessonCardCanceled(l)
                             }

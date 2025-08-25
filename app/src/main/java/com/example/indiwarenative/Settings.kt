@@ -201,8 +201,6 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Server URL")
-            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
             var url by remember { mutableStateOf("") }
             TextField(
                 value = url,
@@ -224,8 +222,6 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Nutzername")
-            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
             var username by remember { mutableStateOf("") }
 
             TextField(
@@ -249,8 +245,6 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Passwort")
-            Spacer(modifier = Modifier.weight(1f)) // pushes the Switch to the end
             var password by remember { mutableStateOf("") }
 
             TextField(
