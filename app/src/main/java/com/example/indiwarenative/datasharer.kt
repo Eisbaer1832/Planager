@@ -72,7 +72,7 @@ class UserSettings private constructor(private val appContext: Context) {
     }
 
     val schoolID = dataStore.data.map { preferences ->
-        preferences[SCHOOL_ID] ?: false
+        preferences[SCHOOL_ID] ?: ""
     }
 
     suspend fun updateSchoolID(value: String) {
@@ -81,7 +81,7 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
     val username = dataStore.data.map { preferences ->
-        preferences[USERNAME] ?: false
+        preferences[USERNAME] ?: ""
     }
 
     suspend fun updateUsername(value: String) {
@@ -90,7 +90,7 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
     val password = dataStore.data.map { preferences ->
-        preferences[PASSWORD] ?: false
+        preferences[PASSWORD] ?: ""
     }
 
     suspend fun updatePassword(value: String) {

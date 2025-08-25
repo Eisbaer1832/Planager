@@ -17,6 +17,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Web
@@ -30,11 +32,16 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import com.example.indiwarenative.components.FriendCreateDialog
 import com.example.indiwarenative.components.FriendItem
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.SubjectDialog
 import com.example.indiwarenative.components.TopBar
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 
 class Settings : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -46,14 +53,13 @@ class Settings : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        TopBar("Einstellungen")
+                        TopBar("Einstellungen", false)
                     }, bottomBar = {
                         NavBar()
                     }
                 ) { innerPadding ->
 
                     Settings(
-                        name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -74,7 +80,6 @@ fun FriendsList (
     val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     val shouldShowDialog = remember { mutableStateOf(false) }
     val createFriendDialog = remember { mutableStateOf(false) }
-    val couroutineScope = rememberCoroutineScope()
 
     if (shouldShowDialog.value) {
         SubjectDialog(shouldShowDialog, Kurse, userSettings, false)
@@ -83,7 +88,7 @@ fun FriendsList (
     if (createFriendDialog.value) {
         FriendCreateDialog({ createFriendDialog.value = false }, {name: String ->
             friends.put(name, HashMap())
-            createFriendDialog.value = false;
+            createFriendDialog.value = false
         }, "Freund Erfinden")
     }
 
@@ -97,30 +102,67 @@ fun FriendsList (
         ) {
             Column {
                 friends.forEach {friend ->
-                    FriendItem(friend.key, {})
+                    FriendItem(friend.key, {shouldShowDialog.value = true; }, {})
                 }
             }
-            Button(
-                modifier = Modifier
-                    .padding(16.dp, 0.dp)
-                    .fillMaxWidth(),
-                onClick = {
-                createFriendDialog.value = true
-            }) {
-                Text("Freund hinzufügen")
-            }
-            Button(
-                modifier = Modifier
-                    .padding( 16.dp, 0.dp)
-                    .fillMaxWidth(),
-                onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        showBottomSheet.value = false
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp)
+                        .height(60.dp)
+                        .weight(1f),
+                    onClick = {
+                    createFriendDialog.value = true
+                }) {
+                    Row (verticalAlignment = Alignment.CenterVertically){
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .weight(1f)
+
+                        )
+                        Text(
+                            text= "Freund",
+                            modifier =  Modifier
+                                .weight(2f),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
-            }) {
-                Text("Fertig")
+                Button(
+
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp)
+                        .height(60.dp)
+                        .weight(1.5f),
+                    onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet.value = false
+                        }
+                    }
+                }) {
+                    Row (verticalAlignment = Alignment.CenterVertically){
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .weight(1f)
+
+                        )
+                        Text(
+                            text= "Fertig",
+                            modifier =  Modifier
+                                .weight(2f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
     }
@@ -128,25 +170,26 @@ fun FriendsList (
 
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class)
 @SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Settings(name: String, modifier: Modifier = Modifier) {
+fun Settings(modifier: Modifier = Modifier) {
 
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
-
-    var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(null) }
+    val schoolID by userSettings.schoolID.collectAsState(initial = "")
+    val password by userSettings.password.collectAsState(initial = "")
+    val username by userSettings.username.collectAsState(initial = "")
+    var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(ArrayList()) }
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
-    println(showTeacher)
 
     LaunchedEffect(Unit) {
-        Kurse = getKurse("https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml")
-        println("Kurse: " + (Kurse as Iterable<Any?>).joinToString())
+        Kurse = getKurse(userSettings,"/mobil/mobdaten/Klassen.xml")
+
     }
 
     if (OwnSubjectDialogToggle.value) {
@@ -234,15 +277,19 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var url by remember { mutableStateOf("") }
+                    var sID by remember { mutableStateOf("") }
+
+                    LaunchedEffect(Unit) {
+                        sID = userSettings.schoolID.first()
+                    }
 
                     TextField(
-                        value = url,
+                        value = sID,
                         onValueChange = {
-                            url = it;
-                            couroutineScope.launch { userSettings.updateSchoolID(url) }
+                            sID = it
                         },
-                        label = { Text("URL") },
+
+                        label = { Text("Schul-ID") },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Filled.Web,
@@ -251,9 +298,13 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                         },
                         singleLine = true,
                     )
+                    LaunchedEffect(sID) {
+                        snapshotFlow { sID }
+                            .debounce(500)
+                            .collect { userSettings.updateSchoolID(it) }
+                    }
                 }
         }
-        var username by remember { mutableStateOf("") }
 
         Card(
             shape = RoundedCornerShape(0.dp,0.dp, 0.dp, 0.dp),
@@ -265,12 +316,16 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                var uname by remember { mutableStateOf("") }
+
+                LaunchedEffect(Unit) {
+                    uname = userSettings.username.first()
+                }
 
                 TextField(
-                    value = username,
+                    value = uname,
                     onValueChange = {
-                        username = it
-                        couroutineScope.launch { userSettings.updateUsername(username) }
+                        uname = it
                     },
                     label = { Text("Nutzername") },
                     leadingIcon = {
@@ -281,10 +336,14 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                     },
                     singleLine = true,
                 )
+                LaunchedEffect(uname) {
+                    snapshotFlow { uname }
+                        .debounce(500) // wait 500ms after the last keystroke
+                        .collect { userSettings.updateUsername(it) }
+                }
             }
         }
 
-        var password by remember { mutableStateOf("") }
         Card(
             shape = RoundedCornerShape(0.dp,0.dp, 16.dp, 16.dp),
             modifier = Modifier.fillMaxWidth(),
@@ -295,14 +354,19 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var password by remember { mutableStateOf("") }
+                var pwd by remember { mutableStateOf("") }
+
+                LaunchedEffect(Unit) {
+                    pwd = userSettings.password.first()
+                }
 
                 TextField(
-                    value = password,
+                    visualTransformation = PasswordVisualTransformation(),
+                    value = pwd,
                     onValueChange = {
-                        password = it
-                        couroutineScope.launch { userSettings.updatePassword(password) }
+                        pwd = it
                     },
+
                     label = { Text("Passwort") },
                     leadingIcon = {
                         Icon(
@@ -312,7 +376,11 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
                     },
                     singleLine = true,
                 )
-
+                LaunchedEffect(pwd) {
+                    snapshotFlow { pwd }
+                        .debounce(500) // wait 500ms after the last keystroke
+                        .collect { userSettings.updatePassword(it) }
+                }
             }
         }
     }
@@ -324,6 +392,6 @@ fun Settings(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview3() {
     IndiwareNativeTheme {
-        Settings("Android")
+        Settings()
     }
 }

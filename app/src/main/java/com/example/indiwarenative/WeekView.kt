@@ -61,7 +61,7 @@ class WeekView : ComponentActivity() {
             IndiwareNativeTheme {
                 Scaffold(
                     topBar = {
-                        TopBar("Wochenplan")
+                        TopBar("Wochenplan", true)
                     }, bottomBar = {
                         NavBar()
                     }
@@ -156,7 +156,6 @@ fun SmallLessonCardCanceled (lesson: lesson) {
 fun WeekView(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
-    val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
 
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
@@ -170,9 +169,11 @@ fun WeekView(modifier: Modifier = Modifier) {
         // loading a full school week
         for (i in 0..4) {
             val currentAsString = current.format(formatter)
-            val lesson = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl${currentAsString}.xml")
-            week.add(lesson)
-            current = current.plusDays(1)
+            val lesson = getLessons(userSettings,"" + "/mobil/mobdaten/PlanKl${currentAsString}.xml")
+            if (lesson != null) {
+                week.add(lesson)
+                current = current.plusDays(1)
+            }
         }
         //largest  = SubjectCountPerLesson(week)
         isLoading = false
@@ -242,7 +243,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                             modifier = Modifier
                                 .width(screenWidth / 6)
                                 .height(70.dp)
-                                .padding(15.dp, 7.dp, 15.dp, 7.dp,),
+                                .padding(15.dp, 7.dp, 15.dp, 7.dp),
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -289,7 +290,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                     )?.get(i)?.get(j)?.subject
                                                 )
                                                 val subject = orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
-                                                if (subject.canceled == true) {
+                                                if (subject.canceled) {
                                                     SmallLessonCardCanceled(
                                                         subject
                                                     )

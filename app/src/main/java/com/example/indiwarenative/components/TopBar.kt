@@ -26,13 +26,13 @@ import com.example.indiwarenative.DataSharer.doFilter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(title: String) {
+fun TopBar(title: String, showHamburger: Boolean) {
     CenterAlignedTopAppBar(
-    title = { Text(title) },
+        title = { Text(title) },
 
-    actions = {
-        MinimalDropdownMenu()
-    },
+        actions = {
+            if (showHamburger) MinimalDropdownMenu()
+        },
     )
 }
 
@@ -46,6 +46,7 @@ fun MinimalDropdownMenu() {
         IconButton(onClick = { expanded = !expanded }) {
             Icon(Icons.Default.MoreVert, contentDescription = "More options")
         }
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }

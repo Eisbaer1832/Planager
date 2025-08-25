@@ -2,11 +2,8 @@ package com.example.indiwarenative
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -24,29 +21,43 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun fetchTimetable(
+    userSettings: UserSettings,
     url: String
 ): String = withContext(Dispatchers.IO){
 
     println("using: $url")
-    val username = "schueler"
-    val password = "s292q17"
+    val username = userSettings.username.first()
+    val password = userSettings.password.first()
+    val schoolID = userSettings.schoolID.first()
 
-    val connection = URL(url).openConnection() as HttpURLConnection
-    connection.requestMethod = "GET"
+    try {
+        val connection = URL("https://www.stundenplan24.de/$schoolID$url").openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
 
-    val auth = "$username:$password"
-    val encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charsets.UTF_8))
-    connection.setRequestProperty("Authorization", "Basic $encodedAuth")
+        val auth = "$username:$password"
+        val encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charsets.UTF_8))
 
-    connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        connection.setRequestProperty("Authorization", "Basic $encodedAuth")
+        connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+    }catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
+
 }
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getSelectedClass(url: String): Node? {
-    println("getSelecedClass $url")
-    val XmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fetchTimetable(url).byteInputStream())
-    val nodeList = XmlRes.documentElement.getElementsByTagName("Kurz")
+suspend fun getSelectedClass(
+    userSettings: UserSettings,
+    url: String
+    ): Node? {
+    val xmlTimeTable = fetchTimetable(userSettings, url)
+    if (xmlTimeTable.isEmpty()) {
+        return null;
+    }
+    val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
+    val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
 
 
     for (i in 0..<nodeList.length) {
@@ -65,12 +76,17 @@ fun getPart(array: NodeList, name: String): String? {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getLessons(url: String): ArrayList<lesson> {
-    var selectedClass = getSelectedClass(url)?.childNodes
+suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesson>? {
+    val receivedClass = getSelectedClass(userSettings, url)
 
+    if (receivedClass == null) {
+        println("returning null")
+        return null
+    }
+    val selectedClass = receivedClass.childNodes
 
     val lessonNodes = selectedClass?.item(5)?.childNodes
-    var lessons = ArrayList<lesson>()
+    val lessons = ArrayList<lesson>()
 
 
     for (i in 0..<lessonNodes!!.length) {
@@ -80,7 +96,7 @@ suspend fun getLessons(url: String): ArrayList<lesson> {
         val start =  getPart(l, "Beginn")
         val end = getPart(l, "Ende")
         var subject = getPart(l, "Fa")
-        var canceled = false;
+        var canceled = false
         if (subject == "---") {
             canceled = true
             subject = getPart(l, "If").toString()
@@ -95,26 +111,28 @@ suspend fun getLessons(url: String): ArrayList<lesson> {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getKurse(url:String): ArrayList<Kurs> {
-    var selectedClass = getSelectedClass(url)?.childNodes
+suspend fun getKurse(userSettings: UserSettings, url: String): ArrayList<Kurs>? {
+    val receivedClass = getSelectedClass(userSettings, url)
+    if (receivedClass == null) {
+        return null
+    }
 
+    val selectedClass =receivedClass.childNodes
+    val kursNodes = selectedClass?.item(3)?.childNodes
+    val kurse = ArrayList<Kurs>()
 
-    val KursNodes = selectedClass?.item(3)?.childNodes
-    println(selectedClass?.item(3)?.textContent)
-    var Kurse = ArrayList<Kurs>()
-
-    for ( i in 0..<KursNodes!!.length) {
-        var text = KursNodes.item(i).firstChild.textContent
+    for ( i in 0..<kursNodes!!.length) {
+        var text = kursNodes.item(i).firstChild.textContent
         println("Kurs is named $text")
-        var teacher = KursNodes.item(i).firstChild.attributes.getNamedItem("KLe").textContent
+        val teacher = kursNodes.item(i).firstChild.attributes.getNamedItem("KLe").textContent
         if (text == "") {
-            text = KursNodes.item(i).firstChild.textContent
+            text = kursNodes.item(i).firstChild.textContent
         }
 
-        Kurse.add(Kurs(teacher,text))
+        kurse.add(Kurs(teacher,text))
     }
-    println(Kurse.joinToString())
-    println("finished loading Kurse")
+    println(kurse.joinToString())
+    println("finished loading kurse")
 
-    return Kurse
+    return kurse
 }

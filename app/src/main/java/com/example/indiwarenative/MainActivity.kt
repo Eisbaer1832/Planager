@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
             IndiwareNativeTheme {
                 Scaffold(
                     topBar = {
-                        TopBar("Tagesplan")
+                        TopBar("Tagesplan", true)
                     }, bottomBar = {
                         NavBar()
                     }
@@ -250,19 +250,19 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     val status by userSettings.ownSubjects.collectAsState(initial = HashMap())
-
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
     var currentAsString = current.format(formatter)
 
+
     LaunchedEffect(Unit) {
-        lessons = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl${currentAsString}.xml")
+        lessons = getLessons(userSettings,"/mobil/mobdaten/PlanKl${currentAsString}.xml")
     }
     val state = rememberPullToRefreshState()
     val isRefreshing = false
-    val onRefresh: () -> Unit = { coroutineScope.launch {lessons = getLessons("https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl${currentAsString}.xml") }}
+    val onRefresh: () -> Unit = { coroutineScope.launch {lessons = getLessons(userSettings,"/mobil/mobdaten/PlanKl${currentAsString}.xml") }}
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
