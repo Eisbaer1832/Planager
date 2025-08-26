@@ -15,7 +15,9 @@ import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -80,15 +82,18 @@ fun FriendsList (
     val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     val shouldShowDialog = remember { mutableStateOf(false) }
     val createFriendDialog = remember { mutableStateOf(false) }
-
+    val couroutineScope = rememberCoroutineScope()
+    var friendName = ""
     if (shouldShowDialog.value) {
-        SubjectDialog(shouldShowDialog, Kurse, userSettings, false)
+        SubjectDialog(shouldShowDialog, Kurse, userSettings, false, friendName)
     }
 
     if (createFriendDialog.value) {
         FriendCreateDialog({ createFriendDialog.value = false }, {name: String ->
             friends.put(name, HashMap())
             createFriendDialog.value = false
+            couroutineScope.launch{userSettings.updateFriendsSubjects(friends)}
+
         }, "Freund Erfinden")
     }
 
@@ -102,7 +107,16 @@ fun FriendsList (
         ) {
             Column {
                 friends.forEach {friend ->
-                    FriendItem(friend.key, {println("entering edit mode"); shouldShowDialog.value = true; }, {})
+                    FriendItem(friend.key, {
+                        shouldShowDialog.value = true;
+                        friendName = friend.key
+                    }, {
+                        val updatedFriends = HashMap(friends)
+                        updatedFriends.remove(friend.key)
+                        couroutineScope.launch {
+                            userSettings.updateFriendsSubjects(updatedFriends)
+                        }
+                    })
                 }
             }
             Row(
@@ -204,7 +218,8 @@ fun Settings(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text("App Einstellungen", style = MaterialTheme.typography.headlineMediumEmphasized)
