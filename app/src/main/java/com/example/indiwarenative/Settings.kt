@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Web
@@ -238,7 +239,17 @@ fun Settings(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Eigene Fächer", style = MaterialTheme.typography.bodyLarge)
-                Button(onClick = {OwnSubjectDialogToggle.value = true}) { Text("Ändern") }
+                Button(onClick = {OwnSubjectDialogToggle.value = true}) {
+                    Row (verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(30.dp)
+                        )
+                        Text("Ändern")
+                    }
+                }
             }
 
         }
@@ -255,7 +266,17 @@ fun Settings(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Fächer von Freunden", style = MaterialTheme.typography.bodyLarge)
-                Button(onClick = {FriendsListToggle.value = true}) { Text("Ändern") }
+                Button(onClick = {FriendsListToggle.value = true}) {
+                    Row (verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(30.dp)
+                        )
+                        Text("Ändern")
+                    }
+                }
             }
 
         }

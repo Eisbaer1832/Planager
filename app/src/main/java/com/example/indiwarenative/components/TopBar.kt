@@ -31,13 +31,13 @@ fun TopBar(title: String, showHamburger: Boolean) {
         title = { Text(title) },
 
         actions = {
-            if (showHamburger) MinimalDropdownMenu()
+            if (showHamburger) Hamburger()
         },
     )
 }
 
 @Composable
-fun MinimalDropdownMenu() {
+fun Hamburger() {
     var expanded by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
