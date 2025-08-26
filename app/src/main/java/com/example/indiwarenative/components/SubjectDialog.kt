@@ -1,5 +1,6 @@
 package com.example.indiwarenative.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +19,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,9 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.indiwarenative.Kurs
 import com.example.indiwarenative.UserSettings
+import kotlinx.coroutines.flow.compose
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.apply
 
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectDialog(
@@ -45,7 +52,16 @@ fun SubjectDialog(
     if (shouldShowDialog.value) {
         val title = if (own) "Eigene Fächer" else "Freund Fächer"
         val couroutineScope = rememberCoroutineScope()
-        val status by userSettings.ownSubjects.collectAsState(initial = HashMap<String, Boolean>())
+        val allFriends = userSettings.friendsSubjects.collectAsState(initial = HashMap())
+
+        val status: State<HashMap<String, Boolean>> = if (!own) {
+            println("not own subjects")
+            println("friend $friend: " + allFriends.value)
+            mutableStateOf(allFriends.value[friend] ?: HashMap())
+        } else {
+            userSettings.ownSubjects.collectAsState(initial = HashMap())
+        }
+
 
         BasicAlertDialog(
             onDismissRequest = {
@@ -80,14 +96,21 @@ fun SubjectDialog(
                                                 text = Kurse[i].subject + " " + Kurse[i].teacher
                                             )
                                             Spacer(modifier = Modifier.weight(1f))
-                                            var checked by remember { mutableStateOf(status.get(Kurse[i].subject) == true) }
+                                            var checked by remember { mutableStateOf(status.value.get(Kurse[i].subject) == true) }
                                             Switch(
                                                 checked = checked,
                                                 onCheckedChange = {
                                                     checked = it
-                                                    status.put(Kurse[i].subject, checked)
-                                                    couroutineScope.launch{userSettings.updateOwnSubjects(status)}
-                                                })
+                                                    status.value.put(Kurse[i].subject, checked)
+                                                    if (own) {
+                                                        couroutineScope.launch { userSettings.updateOwnSubjects(status.value) }
+                                                    }else {
+                                                        println("friend $friend: " + allFriends.value.get(friend))
+                                                        //TODO save the actual damn thing
+                                                    }
+
+                                                }
+                                            )
                                         }
                                     }
                                 }
@@ -96,7 +119,6 @@ fun SubjectDialog(
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-                                couroutineScope.launch{userSettings.updateOwnSubjects(status)}
                                 shouldShowDialog.value = false
                             })
                         {

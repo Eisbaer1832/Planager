@@ -85,7 +85,6 @@ fun SmallLessonCard (lesson: lesson) {
         modifier = Modifier
             .width(screenWidth / 6)
             .padding(3.dp)
-            .height(70.dp)
 
 
     ) {

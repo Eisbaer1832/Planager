@@ -83,8 +83,9 @@ fun FriendsList (
     val shouldShowDialog = remember { mutableStateOf(false) }
     val createFriendDialog = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
-    var friendName = ""
+    var friendName by remember { mutableStateOf("") }
     if (shouldShowDialog.value) {
+        println("friend opening with $friendName")
         SubjectDialog(shouldShowDialog, Kurse, userSettings, false, friendName)
     }
 
@@ -108,8 +109,9 @@ fun FriendsList (
             Column {
                 friends.forEach {friend ->
                     FriendItem(friend.key, {
-                        shouldShowDialog.value = true;
                         friendName = friend.key
+                        shouldShowDialog.value = true;
+                        println("creating friend ${friend.key}")
                     }, {
                         val updatedFriends = HashMap(friends)
                         updatedFriends.remove(friend.key)

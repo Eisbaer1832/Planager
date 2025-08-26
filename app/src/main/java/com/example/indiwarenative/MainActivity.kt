@@ -97,7 +97,7 @@ fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
         ),
         shape = shape,
         modifier = Modifier
-            .width(80.dp)
+            .width(90.dp)
             .padding(start = 10.dp, end = 10.dp)
             .height(80.dp)
     ){
@@ -371,7 +371,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                                 lastPos = pos;
                                 TimestampCard(l, numberShape)
                             } else {
-                              Spacer(Modifier.width(80.dp))
+                              Spacer(Modifier.width(90.dp))
                             }
 
                             println(l.subject)
