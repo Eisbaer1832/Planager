@@ -187,7 +187,9 @@ fun FriendsList (
 
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class,
+    ExperimentalMaterial3Api::class
+)
 @SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -301,6 +303,32 @@ fun Settings(modifier: Modifier = Modifier) {
                         couroutineScope.launch{userSettings.updateShowTeachers(checked)}
                     }
                 )
+            }
+        }
+
+        Card(
+            shape = RoundedCornerShape(16.dp,16.dp, 16.dp, 16.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Ende des Tages")
+                Spacer(modifier = Modifier.weight(1f))
+                Button(onClick = {FriendsListToggle.value = true}, enabled = false) {
+                    Row (verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(30.dp)
+                        )
+                        Text("Ändern")
+                    }
+                }
             }
         }
         Spacer(Modifier.height(20.dp))

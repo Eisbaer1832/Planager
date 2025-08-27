@@ -42,6 +42,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,12 +58,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.indiwarenative.DataSharer.FilterFriend
 import com.example.indiwarenative.DataSharer.doFilter
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
@@ -241,7 +244,7 @@ fun shapeCheck(pos: Int) {
 
 }
 
-@SuppressLint("MutableCollectionMutableState")
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -249,11 +252,23 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
-    val status by userSettings.ownSubjects.collectAsState(initial = HashMap())
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
+
+    val status: State<HashMap<String, Boolean>> = if (FilterFriend == "") {
+        userSettings.ownSubjects.collectAsState(initial = HashMap())
+    } else {
+        mutableStateOf(userSettings.friendsSubjects.collectAsState(initial = HashMap()).value.get(FilterFriend)?: HashMap())
+    }
+
+    val timeNow = LocalTime.now()
+    val endOfDay = LocalTime.parse("19:00:00")
+    if (timeNow.isAfter(endOfDay)) {
+        current = current.plusDays(1)
+    }
+
     var currentAsString = current.format(formatter)
 
 
@@ -301,7 +316,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 var lastPos = 0
 
                 if (doFilter) {
-                    currentLessons = currentLessons?.filter { status[it.subject.substringBefore(" ")] == true } as ArrayList<lesson>?
+                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true } as ArrayList<lesson>?
                 }
                 currentLessons?.forEachIndexed { i, l ->
                         val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)

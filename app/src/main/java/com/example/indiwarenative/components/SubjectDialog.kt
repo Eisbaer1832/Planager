@@ -106,7 +106,6 @@ fun SubjectDialog(
                                                         couroutineScope.launch { userSettings.updateOwnSubjects(status.value) }
                                                     }else {
                                                         println("friend $friend: " + allFriends.value.get(friend))
-                                                        //TODO save the actual damn thing
                                                         allFriends.value.put(friend, status.value)
                                                         couroutineScope.launch { userSettings.updateFriendsSubjects(allFriends.value) }
                                                     }

@@ -29,6 +29,7 @@ import kotlin.collections.HashMap
 object DataSharer {
     var doFilter by mutableStateOf(true);
     var NavbarSelectedItem by mutableIntStateOf(0)
+    var FilterFriend by mutableStateOf("")
 }
 
 
