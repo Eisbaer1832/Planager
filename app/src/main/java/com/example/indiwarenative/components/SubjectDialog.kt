@@ -19,7 +19,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -33,10 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.indiwarenative.Kurs
 import com.example.indiwarenative.UserSettings
-import kotlinx.coroutines.flow.compose
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlin.apply
 
 
 @SuppressLint("UnrememberedMutableState")

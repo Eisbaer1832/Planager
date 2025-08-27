@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.indiwarenative.DataSharer.FilterFriend
 import com.example.indiwarenative.DataSharer.doFilter
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
@@ -156,7 +157,7 @@ fun WeekView(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
-
+    val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -173,10 +174,9 @@ fun WeekView(modifier: Modifier = Modifier) {
                 week.add(lesson)
                 current = current.plusDays(1)
             }
+
         }
-        //largest  = SubjectCountPerLesson(week)
         isLoading = false
-        //TODO implement Week reorder
         orderedWeek = orderWeek(week)
     }
 
@@ -274,15 +274,23 @@ fun WeekView(modifier: Modifier = Modifier) {
 
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
-                                    // <<--- hier Spacer wenn ganze Zelle leer
                                     Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                 } else {
                                     Column {
                                         for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
+                                            var show = true
+                                            val currentSubject = orderedWeek.get(pos)?.get(i)?.get(j)?.subject
+                                            if (doFilter){
+                                                if (FilterFriend == "") {
+                                                    println("own $currentSubject")
+                                                    show = if (!(subjectsToShow[currentSubject?.substringBefore(" ")] ?: false)) false else true
+                                                }else {
+                                                    show = if (!(friendsSubjects.get(FilterFriend)?.get(currentSubject?.substringBefore(" ")) ?: false)) false else true
+                                                }
+                                            }
 
-                                            if (subjectsToShow[orderedWeek.get(pos)?.get(i)
-                                                    ?.get(j)?.subject?.substringBefore(" ") ?: true] == true || !doFilter
-                                            ) {
+
+                                            if (show){
                                                 println(
                                                     "showing in $pos $i $j: " + orderedWeek.get(
                                                         pos
