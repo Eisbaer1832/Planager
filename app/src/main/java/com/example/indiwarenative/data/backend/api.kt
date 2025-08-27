@@ -1,7 +1,10 @@
-package com.example.indiwarenative
+package com.example.indiwarenative.data.backend
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.indiwarenative.data.Kurs
+import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.lesson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -105,7 +108,17 @@ suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesso
         val room = getPart(l, "Ra")
 
         val formatter = DateTimeFormatter.ofPattern("H:mm")
-        lessons.add(lesson(pos, teacher, subject,  room, LocalTime.parse(start, formatter), LocalTime.parse(end, formatter), canceled))
+        lessons.add(
+            lesson(
+                pos,
+                teacher,
+                subject,
+                room,
+                LocalTime.parse(start, formatter),
+                LocalTime.parse(end, formatter),
+                canceled
+            )
+        )
     }
     return lessons
 }
@@ -129,7 +142,7 @@ suspend fun getKurse(userSettings: UserSettings, url: String): ArrayList<Kurs>? 
             text = kursNodes.item(i).firstChild.textContent
         }
 
-        kurse.add(Kurs(teacher,text))
+        kurse.add(Kurs(teacher, text))
     }
     println(kurse.joinToString())
     println("finished loading kurse")

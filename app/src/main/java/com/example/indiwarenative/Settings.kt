@@ -37,11 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.components.FriendCreateDialog
 import com.example.indiwarenative.components.FriendItem
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.SubjectDialog
 import com.example.indiwarenative.components.TopBar
+import com.example.indiwarenative.data.Kurs
+import com.example.indiwarenative.data.UserSettings
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
@@ -207,7 +210,7 @@ fun Settings(modifier: Modifier = Modifier) {
     val couroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        Kurse = getKurse(userSettings,"/mobil/mobdaten/Klassen.xml")
+        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml")
 
     }
 

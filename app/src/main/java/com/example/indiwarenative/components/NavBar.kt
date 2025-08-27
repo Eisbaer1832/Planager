@@ -14,7 +14,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.example.indiwarenative.DataSharer
+import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.MainActivity
 import com.example.indiwarenative.Settings
 import com.example.indiwarenative.WeekView

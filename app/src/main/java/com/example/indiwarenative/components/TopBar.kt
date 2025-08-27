@@ -25,9 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.indiwarenative.DataSharer.FilterFriend
-import com.example.indiwarenative.DataSharer.doFilter
-import com.example.indiwarenative.UserSettings
+import com.example.indiwarenative.data.DataSharer.FilterFriend
+import com.example.indiwarenative.data.DataSharer.doFilter
+import com.example.indiwarenative.data.UserSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

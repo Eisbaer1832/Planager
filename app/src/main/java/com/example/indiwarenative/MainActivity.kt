@@ -1,11 +1,16 @@
 
 package com.example.indiwarenative
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -58,10 +63,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.indiwarenative.DataSharer.FilterFriend
-import com.example.indiwarenative.DataSharer.doFilter
+import androidx.core.content.ContextCompat
+import com.example.indiwarenative.data.DataSharer.FilterFriend
+import com.example.indiwarenative.data.DataSharer.doFilter
+import com.example.indiwarenative.data.backend.getLessons
 import com.example.indiwarenative.components.NavBar
+import com.example.indiwarenative.components.NotificationPermissionPopup
 import com.example.indiwarenative.components.TopBar
+import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.backend.registerWorker
+import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -74,6 +85,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            registerWorker()
+
             IndiwareNativeTheme {
                 Scaffold(
                     topBar = {
@@ -240,11 +253,8 @@ fun LessonCard(
     }
 }
 
-fun shapeCheck(pos: Int) {
 
-}
-
-@SuppressLint("UnrememberedMutableState")
+@SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -256,6 +266,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
+
 
     val status: State<HashMap<String, Boolean>> = if (FilterFriend == "") {
         userSettings.ownSubjects.collectAsState(initial = HashMap())
@@ -273,11 +284,13 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 
     LaunchedEffect(Unit) {
-        lessons = getLessons(userSettings,"/mobil/mobdaten/PlanKl${currentAsString}.xml")
+        lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
     }
     val state = rememberPullToRefreshState()
     val isRefreshing = false
-    val onRefresh: () -> Unit = { coroutineScope.launch {lessons = getLessons(userSettings,"/mobil/mobdaten/PlanKl${currentAsString}.xml") }}
+    val onRefresh: () -> Unit = { coroutineScope.launch {lessons =
+        getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
+    }}
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,

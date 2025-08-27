@@ -30,8 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.example.indiwarenative.Kurs
-import com.example.indiwarenative.UserSettings
+import com.example.indiwarenative.data.Kurs
+import com.example.indiwarenative.data.UserSettings
 import kotlinx.coroutines.launch
 
 

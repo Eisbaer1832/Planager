@@ -1,7 +1,5 @@
-package com.example.indiwarenative;
+package com.example.indiwarenative.data;
 
-import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalTime;
 
 public class lesson {

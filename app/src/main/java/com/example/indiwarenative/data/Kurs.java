@@ -1,4 +1,4 @@
-package com.example.indiwarenative;
+package com.example.indiwarenative.data;
 
 public class Kurs {
     public String subject;

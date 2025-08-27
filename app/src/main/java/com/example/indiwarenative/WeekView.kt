@@ -43,10 +43,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.indiwarenative.DataSharer.FilterFriend
-import com.example.indiwarenative.DataSharer.doFilter
+import com.example.indiwarenative.data.DataSharer.FilterFriend
+import com.example.indiwarenative.data.DataSharer.doFilter
+import com.example.indiwarenative.data.backend.getLessons
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
+import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -169,7 +172,8 @@ fun WeekView(modifier: Modifier = Modifier) {
         // loading a full school week
         for (i in 0..4) {
             val currentAsString = current.format(formatter)
-            val lesson = getLessons(userSettings,"" + "/mobil/mobdaten/PlanKl${currentAsString}.xml")
+            val lesson =
+                getLessons(userSettings, "" + "/mobil/mobdaten/PlanKl${currentAsString}.xml")
             if (lesson != null) {
                 week.add(lesson)
                 current = current.plusDays(1)
