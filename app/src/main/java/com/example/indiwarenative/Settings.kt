@@ -41,6 +41,7 @@ import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.components.FriendCreateDialog
 import com.example.indiwarenative.components.FriendItem
 import com.example.indiwarenative.components.NavBar
+import com.example.indiwarenative.components.SettingsCardEdit
 import com.example.indiwarenative.components.SubjectDialog
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.Kurs
@@ -208,6 +209,9 @@ fun Settings(modifier: Modifier = Modifier) {
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
+    val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
+    val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
+    val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
 
     LaunchedEffect(Unit) {
         Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml")
@@ -232,69 +236,21 @@ fun Settings(modifier: Modifier = Modifier) {
     ) {
         Text("App Einstellungen", style = MaterialTheme.typography.headlineMediumEmphasized)
 
-        Card(
-            shape = RoundedCornerShape(16.dp, 16.dp, 0.dp,0.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Eigene Fächer", style = MaterialTheme.typography.bodyLarge)
-                Button(onClick = {OwnSubjectDialogToggle.value = true}) {
-                    Row (verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Favorite",
-                            modifier = Modifier
-                                .size(30.dp)
-                        )
-                        Text("Ändern")
-                    }
-                }
-            }
 
-        }
+        SettingsCardEdit("Eigene Fächer", topShape) { OwnSubjectDialogToggle.value = true }
+        SettingsCardEdit("Fächer von Freunden", bottomShape) { FriendsListToggle.value = true }
 
-        Card(
-            shape = RoundedCornerShape(0.dp,0.dp, 16.dp, 16.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Fächer von Freunden", style = MaterialTheme.typography.bodyLarge)
-                Button(onClick = {FriendsListToggle.value = true}) {
-                    Row (verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Favorite",
-                            modifier = Modifier
-                                .size(30.dp)
-                        )
-                        Text("Ändern")
-                    }
-                }
-            }
 
-        }
         var checked by remember { mutableStateOf(true) }
 
         Card(
-            shape = RoundedCornerShape(16.dp,16.dp, 16.dp, 16.dp),
+            shape = roundShape,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Lehrer anzeigen")
@@ -309,31 +265,6 @@ fun Settings(modifier: Modifier = Modifier) {
             }
         }
 
-        Card(
-            shape = RoundedCornerShape(16.dp,16.dp, 16.dp, 16.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Ende des Tages")
-                Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = {FriendsListToggle.value = true}, enabled = false) {
-                    Row (verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Favorite",
-                            modifier = Modifier
-                                .size(30.dp)
-                        )
-                        Text("Ändern")
-                    }
-                }
-            }
-        }
         Spacer(Modifier.height(20.dp))
         Text("Server Daten", style = MaterialTheme.typography.headlineMediumEmphasized)
         Card(
