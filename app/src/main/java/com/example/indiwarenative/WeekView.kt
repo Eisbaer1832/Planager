@@ -291,6 +291,11 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                 }else {
                                                     show = if (!(friendsSubjects.get(FilterFriend)?.get(currentSubject?.substringBefore(" ")) ?: false)) false else true
                                                 }
+                                                currentSubject?.contains(Regex("\\d"))?.let {
+                                                    if ( !it) {
+                                                        show = true
+                                                    }
+                                                }
                                             }
 
 

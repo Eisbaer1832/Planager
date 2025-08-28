@@ -329,7 +329,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 var lastPos = 0
 
                 if (doFilter) {
-                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true } as ArrayList<lesson>?
+                    // show subject if its not filtered or it doesnt contain in number since that would be a mandatory class subject (hopefully)
+                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true || !it.subject.contains(Regex("\\d"))} as ArrayList<lesson>?
                 }
                 currentLessons?.forEachIndexed { i, l ->
                         val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)

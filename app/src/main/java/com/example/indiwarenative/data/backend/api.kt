@@ -2,6 +2,8 @@ package com.example.indiwarenative.data.backend
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.lesson
@@ -48,13 +50,11 @@ suspend fun fetchTimetable(
     }
 
 }
-
-
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getSelectedClass(
+suspend fun getAllClasses(
     userSettings: UserSettings,
     url: String
-    ): Node? {
+): Array<String>? {
     val xmlTimeTable = fetchTimetable(userSettings, url)
     if (xmlTimeTable.isEmpty()) {
         return null;
@@ -62,14 +62,37 @@ suspend fun getSelectedClass(
     val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
     val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
 
+    var allClasses = arrayOf(String())
+    for (i in 0..<nodeList.length) {
+        allClasses = allClasses.plus(nodeList.item(i).textContent)
+    }
+    return allClasses
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun getSelectedClass(
+    userSettings: UserSettings,
+    url: String
+    ): Node? {
+    val ownClass = userSettings.ownClass.first()
+
+    val xmlTimeTable = fetchTimetable(userSettings, url)
+    if (xmlTimeTable.isEmpty()) {
+        return null;
+    }
+
+    val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
+    val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
+
 
     for (i in 0..<nodeList.length) {
-        if (nodeList.item(i).textContent == "13") {
+        if (nodeList.item(i).textContent == ownClass) {
             return nodeList.item(i).parentNode // kl node
         }
     }
     return null
 }
+
 fun getPart(array: NodeList, name: String): String? {
     for (i in 0..array.length) {
         val child = array.item(i)

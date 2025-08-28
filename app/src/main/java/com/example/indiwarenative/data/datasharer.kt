@@ -61,6 +61,16 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
 
+
+    val ownClass = dataStore.data.map { preferences ->
+        preferences[OWN_CLASS] ?: ""
+    }
+    suspend fun updateOwnClass(value: String) {
+        dataStore.edit { settings ->
+            settings[OWN_CLASS] = value
+        }
+    }
+
     val schoolID = dataStore.data.map { preferences ->
         preferences[SCHOOL_ID] ?: ""
     }
@@ -95,6 +105,7 @@ class UserSettings private constructor(private val appContext: Context) {
 
         private val SHOW_TEACHERS = booleanPreferencesKey("show_teachers")
         private val OWN_SUBJECTS = stringPreferencesKey("own_subjects")
+        private val OWN_CLASS = stringPreferencesKey("own_class")
         private val FRIENDS_SUBJECTS = stringPreferencesKey("friends_subjects")
         private val SCHOOL_ID = stringPreferencesKey("school_id")
         private val USERNAME = stringPreferencesKey("username")

@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.ui)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.glance.appwidget)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
