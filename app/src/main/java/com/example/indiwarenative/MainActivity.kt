@@ -74,6 +74,7 @@ import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.registerWorker
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -262,6 +263,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
+    val ownClass by userSettings.ownClass.collectAsState(initial = "1")
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -330,7 +332,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
                 if (doFilter) {
                     // show subject if its not filtered or it doesnt contain in number since that would be a mandatory class subject (hopefully)
-                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true || !it.subject.contains(Regex("\\d"))} as ArrayList<lesson>?
+                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true || !it.subject.contains(Regex("\\d"))  && ownClass != "13"} as ArrayList<lesson>?
                 }
                 currentLessons?.forEachIndexed { i, l ->
                         val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)

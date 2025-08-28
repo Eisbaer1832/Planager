@@ -32,7 +32,9 @@ import androidx.glance.layout.Row
 @Composable
 fun FriendItem(
     name: String,
+    selectedClass: String,
     edit: () -> Unit,
+    classEdit: () -> Unit,
     delete: () -> Unit,
     allClasses: Array<String>
     ) {
@@ -54,8 +56,8 @@ fun FriendItem(
 
 
             var expanded by remember { mutableStateOf(false) }
-            var selectedOptionText by remember { mutableStateOf("default") }
-            selectedOptionText = "default"
+            var selectedOptionText by remember { mutableStateOf(selectedClass) }
+            selectedOptionText = selectedClass
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
@@ -82,7 +84,7 @@ fun FriendItem(
                             onClick = {
                                 selectedOptionText = selectionOption
                                 expanded = false
-
+                                classEdit()
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         )

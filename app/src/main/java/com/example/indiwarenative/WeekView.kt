@@ -167,6 +167,7 @@ fun WeekView(modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
+    val ownClass by userSettings.ownClass.collectAsState(initial = "1")
 
     LaunchedEffect(Unit) {
         // loading a full school week
@@ -291,10 +292,19 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                 }else {
                                                     show = if (!(friendsSubjects.get(FilterFriend)?.get(currentSubject?.substringBefore(" ")) ?: false)) false else true
                                                 }
-                                                currentSubject?.contains(Regex("\\d"))?.let {
-                                                    if ( !it) {
-                                                        show = true
+                                                if (ownClass != "13") {
+                                                    currentSubject?.contains(Regex("verlegt|fällt", RegexOption.IGNORE_CASE))?.let {
+                                                        if (it) {
+                                                            show = true
+                                                        }
                                                     }
+
+                                                    currentSubject?.contains(Regex("\\d"))?.let {
+                                                        if (!it) {
+                                                            show = true
+                                                        }
+                                                    }
+
                                                 }
                                             }
 

@@ -122,10 +122,14 @@ fun FriendsList (
         ) {
             Column {
                 friends.forEach {friend ->
-                    FriendItem(friend.key, {
+                    FriendItem(
+                        //friends[friend.key].get("class") geht leider nicht :(
+                        friend.key, "",
+                        {
                         friendName = friend.key
                         shouldShowDialog.value = true;
-                        println("creating friend ${friend.key}")
+                    }, {
+                        println();
                     }, {
                         val updatedFriends = HashMap(friends)
                         updatedFriends.remove(friend.key)
