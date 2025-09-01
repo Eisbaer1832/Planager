@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="3600000"
+    android:minHeight="64dp"
+    android:minWidth="128dp"
+
+    android:minResizeHeight="64dp"
+    android:minResizeWidth="128dp"
+    android:widgetFeatures="configuration_optional|reconfigurable"
+    android:maxResizeHeight="512dp"
+    android:maxResizeWidth="512dp"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:initialLayout="@layout/glance_default_loading_layout">
+</appwidget-provider>
