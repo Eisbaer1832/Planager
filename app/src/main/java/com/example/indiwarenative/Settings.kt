@@ -50,6 +50,7 @@ import com.example.indiwarenative.components.SettingsCardDropdown
 import com.example.indiwarenative.components.SettingsCardEdit
 import com.example.indiwarenative.components.SubjectDialog
 import com.example.indiwarenative.components.TopBar
+import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.getAllClasses
@@ -94,10 +95,12 @@ fun FriendsList (
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
+    val friendsClasses by userSettings.friendsClass.collectAsState(initial = HashMap())
     val shouldShowDialog = remember { mutableStateOf(false) }
     val createFriendDialog = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
     var friendName by remember { mutableStateOf("") }
+
     if (shouldShowDialog.value) {
         println("friend opening with $friendName")
         SubjectDialog(shouldShowDialog, Kurse, userSettings, false, friendName)
@@ -124,12 +127,16 @@ fun FriendsList (
                 friends.forEach {friend ->
                     FriendItem(
                         //friends[friend.key].get("class") geht leider nicht :(
-                        friend.key, "",
+                        friend.key, friendsClasses.get(friend.key)?:"",
                         {
                         friendName = friend.key
                         shouldShowDialog.value = true;
-                    }, {
-                        println();
+                    }, {selected -> couroutineScope.launch{
+                            var current = userSettings.friendsSubjects.first()
+                            val newMap = HashMap<String, String>()
+                            newMap.put(friend.key, selected)
+                            userSettings.updateFriendsClass( newMap)
+                        }
                     }, {
                         val updatedFriends = HashMap(friends)
                         updatedFriends.remove(friend.key)

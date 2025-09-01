@@ -2,8 +2,7 @@ package com.example.indiwarenative.data.backend
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.lesson
@@ -74,7 +73,6 @@ suspend fun getSelectedClass(
     userSettings: UserSettings,
     url: String
     ): Node? {
-    val ownClass = userSettings.ownClass.first()
 
     val xmlTimeTable = fetchTimetable(userSettings, url)
     if (xmlTimeTable.isEmpty()) {
@@ -86,7 +84,7 @@ suspend fun getSelectedClass(
 
 
     for (i in 0..<nodeList.length) {
-        if (nodeList.item(i).textContent == ownClass) {
+        if (nodeList.item(i).textContent == FilterClass) {
             return nodeList.item(i).parentNode // kl node
         }
     }

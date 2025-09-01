@@ -48,6 +48,8 @@ import com.example.indiwarenative.data.DataSharer.doFilter
 import com.example.indiwarenative.data.backend.getLessons
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
+import com.example.indiwarenative.data.DataSharer
+import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
@@ -55,6 +57,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
+import kotlin.getValue
 
 class WeekView : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -167,14 +170,24 @@ fun WeekView(modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
-    val ownClass by userSettings.ownClass.collectAsState(initial = "1")
+    val filter by remember { DataSharer::FilterClass }
+    val ownClass by userSettings.ownClass.collectAsState(initial = String())
 
-    LaunchedEffect(Unit) {
+    if (filter.isEmpty()) {
+        FilterClass = ownClass
+    }
+
+    LaunchedEffect(Unit, filter) {
         // loading a full school week
+        week = arrayListOf<ArrayList<lesson>>()
+        isLoading = true
         for (i in 0..4) {
             val currentAsString = current.format(formatter)
             val lesson =
-                getLessons(userSettings, "" + "/mobil/mobdaten/PlanKl${currentAsString}.xml")
+                getLessons(
+                    userSettings,
+                    "" + "/mobil/mobdaten/PlanKl${currentAsString}.xml"
+                )
             if (lesson != null) {
                 week.add(lesson)
                 current = current.plusDays(1)
@@ -292,7 +305,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                 }else {
                                                     show = if (!(friendsSubjects.get(FilterFriend)?.get(currentSubject?.substringBefore(" ")) ?: false)) false else true
                                                 }
-                                                if (ownClass != "13") {
+                                                if (FilterClass != "13") {
                                                     currentSubject?.contains(Regex("verlegt|fällt", RegexOption.IGNORE_CASE))?.let {
                                                         if (it) {
                                                             show = true

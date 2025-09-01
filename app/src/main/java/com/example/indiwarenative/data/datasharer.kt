@@ -18,6 +18,7 @@ import kotlin.collections.HashMap
 object DataSharer {
     var doFilter by mutableStateOf(true);
     var NavbarSelectedItem by mutableIntStateOf(0)
+    var FilterClass by mutableStateOf("")
     var FilterFriend by mutableStateOf("")
 }
 
@@ -36,6 +37,17 @@ class UserSettings private constructor(private val appContext: Context) {
     suspend fun updateFriendsSubjects(newMap: HashMap<String, HashMap<String, Boolean>>) {
         dataStore.edit { settings ->
             settings[FRIENDS_SUBJECTS] = Json.encodeToString(newMap)
+        }
+    }
+
+    val friendsClass: Flow<HashMap<String, String>> = dataStore.data.map { preferences ->
+        preferences[FRIENDS_CLASS]?.let { json ->
+            Json.decodeFromString<HashMap<String, String>>(json)
+        } ?: HashMap()
+    }
+    suspend fun updateFriendsClass(newMap: HashMap<String, String>) {
+        dataStore.edit { settings ->
+            settings[FRIENDS_CLASS] = Json.encodeToString(newMap)
         }
     }
 
@@ -107,6 +119,7 @@ class UserSettings private constructor(private val appContext: Context) {
         private val OWN_SUBJECTS = stringPreferencesKey("own_subjects")
         private val OWN_CLASS = stringPreferencesKey("own_class")
         private val FRIENDS_SUBJECTS = stringPreferencesKey("friends_subjects")
+        private val FRIENDS_CLASS = stringPreferencesKey("friends_class")
         private val SCHOOL_ID = stringPreferencesKey("school_id")
         private val USERNAME = stringPreferencesKey("username")
         private val PASSWORD = stringPreferencesKey("password")

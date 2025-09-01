@@ -34,7 +34,7 @@ fun FriendItem(
     name: String,
     selectedClass: String,
     edit: () -> Unit,
-    classEdit: () -> Unit,
+    classEdit: (String) -> Unit,
     delete: () -> Unit,
     allClasses: Array<String>
     ) {
@@ -84,7 +84,7 @@ fun FriendItem(
                             onClick = {
                                 selectedOptionText = selectionOption
                                 expanded = false
-                                classEdit()
+                                classEdit(selectionOption)
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         )

@@ -25,9 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.DataSharer.FilterFriend
 import com.example.indiwarenative.data.DataSharer.doFilter
 import com.example.indiwarenative.data.UserSettings
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +48,9 @@ fun Hamburger() {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
+    val friendsClasses by userSettings.friendsClass.collectAsState(initial = HashMap())
 
+    val ownClass by userSettings.ownClass.collectAsState(initial = "")
     Box(
         modifier = Modifier
             .padding(16.dp)
@@ -63,7 +67,11 @@ fun Hamburger() {
             DropdownMenuItem(
                 leadingIcon = { Icon(Icons.Filled.Groups, contentDescription = "global info") },
                 text = { Text("Gesamter Plan") },
-                onClick = { doFilter = false }
+                onClick = {
+                    doFilter = false
+                    FilterClass = ownClass
+                }
+
             )
             DropdownMenuItem(
                 leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "global info") },
@@ -72,6 +80,7 @@ fun Hamburger() {
                 onClick = {
                     FilterFriend = ""
                     doFilter = true
+                    FilterClass = ownClass
                 }
             )
             HorizontalDivider()
@@ -81,6 +90,8 @@ fun Hamburger() {
                     onClick ={
                         doFilter = true
                         FilterFriend =  friend.key
+                        FilterClass = friendsClasses.get(friend.key) ?: ownClass
+
                     }
                 )
             }

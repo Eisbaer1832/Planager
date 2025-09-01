@@ -1,16 +1,11 @@
 
 package com.example.indiwarenative
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -63,18 +58,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import com.example.indiwarenative.data.DataSharer.FilterFriend
 import com.example.indiwarenative.data.DataSharer.doFilter
 import com.example.indiwarenative.data.backend.getLessons
 import com.example.indiwarenative.components.NavBar
-import com.example.indiwarenative.components.NotificationPermissionPopup
 import com.example.indiwarenative.components.TopBar
+import com.example.indiwarenative.data.DataSharer
+import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.registerWorker
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -132,7 +126,7 @@ fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LessonCardCanceled(l: lesson)  {
+fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -140,9 +134,9 @@ fun LessonCardCanceled(l: lesson)  {
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
-        shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 16.dp),
+        shape = shape,
         modifier = Modifier
-            .height(120.dp)
+            .height(80.dp)
             .fillMaxWidth()
     ) {
         Row(
@@ -165,7 +159,7 @@ fun LessonCardCanceled(l: lesson)  {
             }
             Text(
                 modifier = Modifier.padding(16.dp),
-                fontSize = 30.sp,
+                fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 text = l.subject
@@ -263,11 +257,16 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
-    val ownClass by userSettings.ownClass.collectAsState(initial = "1")
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
+    val ownClass by userSettings.ownClass.collectAsState(initial = String())
+    val filter by remember { DataSharer::FilterClass }
+
+    if (filter.isEmpty()) {
+        FilterClass = ownClass
+    }
 
 
     val status: State<HashMap<String, Boolean>> = if (FilterFriend == "") {
@@ -285,7 +284,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     var currentAsString = current.format(formatter)
 
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, filter) {
+        println("launching launch effect")
         lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
     }
     val state = rememberPullToRefreshState()
@@ -310,7 +310,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         },
     ) {
 
-    Box() {
+    Box {
         if (lessons == null) {
             Column(
                 Modifier
@@ -330,9 +330,10 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 var currentLessons = lessons
                 var lastPos = 0
 
-                if (doFilter) {
+                if (doFilter && !FilterClass.isEmpty()) {
+
                     // show subject if its not filtered or it doesnt contain in number since that would be a mandatory class subject (hopefully)
-                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true || !it.subject.contains(Regex("\\d"))  && ownClass != "13"} as ArrayList<lesson>?
+                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true || !it.subject.contains(Regex("\\d"))  && FilterClass != "13"} as ArrayList<lesson>?
                 }
                 currentLessons?.forEachIndexed { i, l ->
                         val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
@@ -409,7 +410,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                             if (!l.canceled) {
                                 LessonCard(l, showTeacher, shape, surfaceShape)
                             } else {
-                                LessonCardCanceled(l)
+                                LessonCardCanceled(l, shape)
                             }
                         }
                     }
