@@ -7,10 +7,12 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled._7k
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -20,29 +22,14 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.example.indiwarenative.data.UserSettings
+import kotlinx.coroutines.runBlocking
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 
-class NotificationService(
-    private val context:Context
-){
-    private val notificationManager=context.getSystemService(NotificationManager::class.java)
-    fun sendCancelNotification(){
-        val notification= NotificationCompat.Builder(context,"water_notification")
-            .setContentTitle("Water Reminder")
-            .setContentText("Time to drink a glass of water")
-            .setPriority(NotificationManager.IMPORTANCE_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(
-            Random.nextInt(),
-            notification
-        )
-    }
-
-}
 
 @Composable
 fun registerWorker() {
@@ -62,8 +49,15 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters):
     Worker(appContext, workerParams) {
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun doWork(): Result {
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+        var current = LocalDate.now()
+        var currentAsString = current.format(formatter)
+
+        //val lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
+
         println("executing BG Task")
         sendNotification(
             title = "Reminder",

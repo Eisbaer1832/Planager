@@ -233,7 +233,7 @@ fun Settings(modifier: Modifier = Modifier) {
     val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
     val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, FilterClass) {
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
         Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml")
 
@@ -278,7 +278,10 @@ fun Settings(modifier: Modifier = Modifier) {
 
 
 
-        SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") { OwnSubjectDialogToggle.value = true }
+        SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
+            FilterClass = ownClass
+            OwnSubjectDialogToggle.value = true
+        }
         SettingsCardDropdown("Jahrgang",bottomShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
                 userSettings.updateOwnClass(selected)
