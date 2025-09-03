@@ -1,10 +1,12 @@
 package com.example.indiwarenative.data
 
 import android.content.Context
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -20,6 +22,12 @@ object DataSharer {
     var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
     var FilterFriend by mutableStateOf("")
+
+    val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
+    val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
+    val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
+    val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
+
 }
 
 

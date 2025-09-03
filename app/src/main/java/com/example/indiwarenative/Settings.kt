@@ -21,7 +21,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -51,11 +50,14 @@ import com.example.indiwarenative.components.SettingsCardInput
 import com.example.indiwarenative.components.SubjectDialog
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.DataSharer.FilterClass
+import com.example.indiwarenative.data.DataSharer.bottomShape
+import com.example.indiwarenative.data.DataSharer.neutralShape
+import com.example.indiwarenative.data.DataSharer.roundShape
+import com.example.indiwarenative.data.DataSharer.topShape
 import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.getAllClasses
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 
 class Settings : ComponentActivity() {
@@ -229,14 +231,10 @@ fun Settings(modifier: Modifier = Modifier) {
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
-    val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
-    val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
-    val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
-    val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
 
     LaunchedEffect(Unit, FilterClass) {
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
-        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml")
+        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)
 
     }
 

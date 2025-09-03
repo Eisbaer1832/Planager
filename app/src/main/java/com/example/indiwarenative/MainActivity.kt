@@ -264,8 +264,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     val onboarding by userSettings.onboarding.collectAsState(initial =true)
+
     if (onboarding) {
-    //    context.startActivity(Intent(context, Onboarding::class.java))
+        context.startActivity(Intent(context, Onboarding::class.java))
     }
 
     val filter by remember { DataSharer::FilterClass }

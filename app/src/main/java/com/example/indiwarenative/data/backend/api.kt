@@ -26,7 +26,8 @@ import javax.xml.parsers.DocumentBuilderFactory
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun fetchTimetable(
     userSettings: UserSettings,
-    url: String
+    url: String,
+    localFilterClass: String? = null
 ): String = withContext(Dispatchers.IO){
 
     println("using: $url")
@@ -52,9 +53,10 @@ suspend fun fetchTimetable(
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun getAllClasses(
     userSettings: UserSettings,
-    url: String
+    url: String,
+
 ): Array<String>? {
-    val xmlTimeTable = fetchTimetable(userSettings, url)
+    val xmlTimeTable = fetchTimetable(userSettings, url, null)
     if (xmlTimeTable.isEmpty()) {
         return null;
     }
@@ -71,20 +73,23 @@ suspend fun getAllClasses(
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun getSelectedClass(
     userSettings: UserSettings,
-    url: String
-    ): Node? {
+    url: String,
+    localFilterClass: String? = null
+): Node? {
 
-    val xmlTimeTable = fetchTimetable(userSettings, url)
+    val xmlTimeTable = fetchTimetable(userSettings, url, localFilterClass)
     if (xmlTimeTable.isEmpty()) {
         return null;
     }
+    println("filter: " + localFilterClass)
+    val filter = localFilterClass ?: FilterClass
 
     val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
     val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
 
 
     for (i in 0..<nodeList.length) {
-        if (nodeList.item(i).textContent == FilterClass) {
+        if (nodeList.item(i).textContent == filter) {
             return nodeList.item(i).parentNode // kl node
         }
     }
@@ -101,7 +106,7 @@ fun getPart(array: NodeList, name: String): String? {
 
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesson>? {
-    val receivedClass = getSelectedClass(userSettings, url)
+    val receivedClass = getSelectedClass(userSettings, url, null)
 
     if (receivedClass == null) {
         println("returning null")
@@ -145,8 +150,8 @@ suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesso
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getKurse(userSettings: UserSettings, url: String): ArrayList<Kurs>? {
-    val receivedClass = getSelectedClass(userSettings, url)
+suspend fun getKurse(userSettings: UserSettings, url: String, localFilterClass: String? = null): ArrayList<Kurs>? {
+    val receivedClass = getSelectedClass(userSettings, url, localFilterClass)
     if (receivedClass == null) {
         return null
     }

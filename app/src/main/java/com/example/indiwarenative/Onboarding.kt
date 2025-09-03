@@ -1,9 +1,11 @@
 package com.example.indiwarenative
-
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,9 +22,12 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.twotone.Check
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Web
 import androidx.compose.material.icons.twotone.Password
 import androidx.compose.material.icons.twotone.School
+import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -30,25 +35,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.indiwarenative.components.SettingsCardDropdown
+import com.example.indiwarenative.components.SettingsCardEdit
+import com.example.indiwarenative.components.SettingsCardInput
+import com.example.indiwarenative.components.SubjectDialog
+import com.example.indiwarenative.data.DataSharer.bottomShape
+import com.example.indiwarenative.data.DataSharer.neutralShape
+import com.example.indiwarenative.data.DataSharer.topShape
+import com.example.indiwarenative.data.Kurs
+import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.backend.getAllClasses
+import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 // This file is based off of https://github.com/ahmmedrejowan/OnboardingScreen-JetpackCompose
 
 class Onboarding : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -65,12 +89,97 @@ class Onboarding : ComponentActivity() {
     }
 }
 
+@Composable
+fun SecondPageInput() {
+    val context = LocalContext.current
+    val userSettings = UserSettings.getInstance(context.applicationContext)
+    val schoolID by userSettings.schoolID.collectAsState(initial = "")
+    SettingsCardInput(
+        topShape,
+        userSettings,
+        "Nutzername",
+        Icons.Filled.Web,
+        schoolID,
+        { settings ->
+            settings.schoolID.first() // async load
+        },
+        { value, settings ->
+            settings.updateSchoolID(value) // async save
+        }
+    )
+
+    val username by userSettings.password.collectAsState(initial = "")
+    SettingsCardInput(
+        neutralShape,
+        userSettings,
+        "Schul ID",
+        Icons.Filled.Person,
+        username,
+        { settings ->
+            settings.username.first() // async load
+        },
+        { value, settings ->
+            settings.updateUsername(value) // async save
+        }
+    )
+
+    val pwd by userSettings.password.collectAsState(initial = "")
+    SettingsCardInput(
+        bottomShape,
+        userSettings,
+        "Passwort",
+        Icons.Filled.Password,
+        pwd,
+        { settings ->
+            settings.password.first() // async load
+        },
+        { value, settings ->
+            settings.updatePassword(value) // async save
+        },
+        true
+    )
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ThirdPageInput() {
+    val context = LocalContext.current
+    val userSettings = UserSettings.getInstance(context.applicationContext)
+    val schoolID by userSettings.schoolID.collectAsState(initial = "")
+    val ownClass by userSettings.ownClass.collectAsState(initial = "")
+    var allClasses: Array<String> by remember { mutableStateOf(arrayOf(String())) }
+    val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
+    val couroutineScope = rememberCoroutineScope()
+    var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(ArrayList()) }
+    var localFilterClass by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit, localFilterClass) {
+        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
+        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", localFilterClass)
+    }
+    if (OwnSubjectDialogToggle.value) {
+        SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse, userSettings, true)
+    }
+    SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
+
+        OwnSubjectDialogToggle.value = true
+    }
+    SettingsCardDropdown("Jahrgang",bottomShape,allClasses, default= ownClass, onclick =  {
+            selected -> couroutineScope.launch{
+            localFilterClass = selected
+            userSettings.updateOwnClass(selected)
+            userSettings.updateOwnSubjects(HashMap())
+    }}
+    )
+
+}
 
 sealed class OnboardingModel (
     val image: ImageVector,
     val title: String,
     val description: String,
-    input: () -> Unit = {},
+    val input: @Composable () -> Unit = {},
 ) {
 
     data object FirstPage : OnboardingModel(
@@ -84,14 +193,18 @@ sealed class OnboardingModel (
         title = "Gib deine Nutzerdaten ein",
         description = "Du solltest sie von deiner Schule erhalten haben",
         input = {
-
+            SecondPageInput()
         }
     )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     data object ThirdPages : OnboardingModel(
-        image = Icons.TwoTone.Check,
-        title = "Search and Filter",
-        description = "Get any book you want within a simple search across your device",
+        image = Icons.TwoTone.Settings,
+        title = "Wähle nun deine Klasse und ggf. Kurse",
+        description = "Keine Sorge, du kannst diese jederzeit in den Einstellungen ändern",
+        input = {
+            ThirdPageInput()
+        }
     )
 
 
@@ -113,7 +226,7 @@ fun Page(onboardingModel: OnboardingModel) {
                 .fillMaxWidth()
                 .size(100.dp)
                 .padding(40.dp, 0.dp),
-            )
+        )
 
         Spacer(
             modifier = Modifier.size(50.dp)
@@ -143,35 +256,24 @@ fun Page(onboardingModel: OnboardingModel) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
-
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
-                .size(60.dp)
+                .size(15.dp)
         )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(25.dp, 0.dp),
+
+            ) {
+            onboardingModel.input()
+        }
 
     }
 
 
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun OnboardingGraphUIPreview1() {
-    Page(OnboardingModel.FirstPage)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun OnboardingGraphUIPreview2() {
-    Page(OnboardingModel.SecondPage)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun OnboardingGraphUIPreview3() {
-    Page(OnboardingModel.ThirdPages)
 }
 
 
@@ -203,32 +305,6 @@ fun IndicatorUI(
 
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun IndicatorUIPreview1() {
-
-    IndicatorUI(pageSize = 3, currentPage = 0)
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun IndicatorUIPreview2() {
-
-    IndicatorUI(pageSize = 3, currentPage = 1)
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun IndicatorUIPreview3() {
-
-    IndicatorUI(pageSize = 3, currentPage = 2)
-
-}
-
-
 @Composable
 fun ButtonUi(
     text: String = "Next",
@@ -251,15 +327,6 @@ fun ButtonUi(
 }
 
 
-@Preview
-@Composable
-fun NextButton() {
-
-    ButtonUi (text = "Next") {
-
-    }
-
-}
 
 @Preview
 @Composable
@@ -274,6 +341,7 @@ fun BackButton() {
 
 
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Onboarding(name: String, modifier: Modifier = Modifier) {
     val pages = listOf(
@@ -323,16 +391,20 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
                 IndicatorUI(pageSize = pages.size, currentPage = pagerState.currentPage)
             }
 
+            val context = LocalContext.current
+            val userSettings = UserSettings.getInstance(context.applicationContext)
             Box(modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.CenterEnd) {
                 ButtonUi (text = buttonState.value[1],
                     backgroundColor = MaterialTheme.colorScheme.primary,
                     textColor = MaterialTheme.colorScheme.onPrimary) {
+
                     scope.launch {
                         if (pagerState.currentPage < pages.size - 1) {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         } else {
-                            //finished
+                            userSettings.updateOnboarding(false)
+                            context.startActivity(Intent(context, MainActivity::class.java))
                         }
                     }
                 }
@@ -348,6 +420,7 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
     })
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun OnboardingPreview() {
