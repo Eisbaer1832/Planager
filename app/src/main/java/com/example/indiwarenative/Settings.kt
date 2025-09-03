@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
 import com.example.indiwarenative.data.backend.getKurse
@@ -48,6 +47,7 @@ import com.example.indiwarenative.components.FriendItem
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.SettingsCardDropdown
 import com.example.indiwarenative.components.SettingsCardEdit
+import com.example.indiwarenative.components.SettingsCardInput
 import com.example.indiwarenative.components.SubjectDialog
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.DataSharer.FilterClass
@@ -134,6 +134,7 @@ fun FriendsList (
                     }, {selected -> couroutineScope.launch{
                             var current = userSettings.friendsSubjects.first()
                             val newMap = HashMap<String, String>()
+                            FilterClass = selected
                             newMap.put(friend.key, selected)
                             userSettings.updateFriendsClass( newMap)
                         }
@@ -317,122 +318,52 @@ fun Settings(modifier: Modifier = Modifier) {
 
         Spacer(Modifier.height(20.dp))
         Text("Server Daten", style = MaterialTheme.typography.headlineMediumEmphasized)
-        Card(
-            shape = RoundedCornerShape(16.dp,16.dp, 0.dp, 0.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                    var sID by remember { mutableStateOf("") }
 
-                    LaunchedEffect(Unit) {
-                        sID = userSettings.schoolID.first()
-                    }
-
-                    TextField(
-                        value = sID,
-                        onValueChange = {
-                            sID = it
-                        },
-
-                        label = { Text("Schul-ID") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.Web,
-                                contentDescription = "URL"
-                            )
-                        },
-                        singleLine = true,
-                    )
-                    LaunchedEffect(sID) {
-                        snapshotFlow { sID }
-                            .debounce(500)
-                            .collect { userSettings.updateSchoolID(it) }
-                    }
-                }
-        }
-
-        Card(
-            shape = RoundedCornerShape(0.dp,0.dp, 0.dp, 0.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                var uname by remember { mutableStateOf("") }
-
-                LaunchedEffect(Unit) {
-                    uname = userSettings.username.first()
-                }
-
-                TextField(
-                    value = uname,
-                    onValueChange = {
-                        uname = it
-                    },
-                    label = { Text("Nutzername") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "Nutzername"
-                        )
-                    },
-                    singleLine = true,
-                )
-                LaunchedEffect(uname) {
-                    snapshotFlow { uname }
-                        .debounce(500) // wait 500ms after the last keystroke
-                        .collect { userSettings.updateUsername(it) }
-                }
+        val schoolID by userSettings.schoolID.collectAsState(initial = "")
+        SettingsCardInput(
+            topShape,
+            userSettings,
+            "Nutzername",
+            Icons.Filled.Web,
+            schoolID,
+            { settings ->
+                settings.schoolID.first() // async load
+            },
+            { value, settings ->
+                settings.updateSchoolID(value) // async save
             }
-        }
+        )
 
-        Card(
-            shape = RoundedCornerShape(0.dp,0.dp, 16.dp, 16.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                var pwd by remember { mutableStateOf("") }
-
-                LaunchedEffect(Unit) {
-                    pwd = userSettings.password.first()
-                }
-
-                TextField(
-                    visualTransformation = PasswordVisualTransformation(),
-                    value = pwd,
-                    onValueChange = {
-                        pwd = it
-                    },
-
-                    label = { Text("Passwort") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Password,
-                            contentDescription = "Password"
-                        )
-                    },
-                    singleLine = true,
-                )
-                LaunchedEffect(pwd) {
-                    snapshotFlow { pwd }
-                        .debounce(500) // wait 500ms after the last keystroke
-                        .collect { userSettings.updatePassword(it) }
-                }
+        val username by userSettings.password.collectAsState(initial = "")
+        SettingsCardInput(
+            neutralShape,
+            userSettings,
+            "Schul ID",
+            Icons.Filled.Person,
+            username,
+            { settings ->
+                settings.username.first() // async load
+            },
+            { value, settings ->
+                settings.updateUsername(value) // async save
             }
-        }
+        )
+
+        val pwd by userSettings.password.collectAsState(initial = "")
+        SettingsCardInput(
+            bottomShape,
+            userSettings,
+            "Passwort",
+            Icons.Filled.Password,
+            pwd,
+            { settings ->
+               settings.password.first() // async load
+            },
+            { value, settings ->
+                settings.updatePassword(value) // async save
+            },
+            true
+        )
     }
 
 }

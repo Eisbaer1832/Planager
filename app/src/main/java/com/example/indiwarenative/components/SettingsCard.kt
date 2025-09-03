@@ -18,16 +18,26 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.indiwarenative.data.UserSettings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun SettingsCardEdit(
@@ -128,6 +138,67 @@ fun SettingsCardDropdown(
                     }
                 }
 
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingsCardInput(
+    shape: RoundedCornerShape,
+    userSettings: UserSettings,
+    title: String,
+    icon: ImageVector,
+    default: String,
+    initEffect: suspend CoroutineScope.(UserSettings) -> String = { settings ->
+        settings.password.first() // async load
+    },
+    updateEffect: suspend CoroutineScope.(String, UserSettings) -> Unit = { value, settings ->
+        settings.updatePassword(value) // async save
+    },
+    hide: Boolean = false
+) {
+    Card(
+        shape = shape,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var inVal by remember { mutableStateOf(default) }
+
+            TextField(
+                visualTransformation = if(hide)  PasswordVisualTransformation() else VisualTransformation.None,
+                value = inVal,
+                onValueChange = { inVal = it },
+                label = { Text(title) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = "Password"
+                    )
+                },
+                singleLine = true,
+            )
+
+            // run initEffect ONCE, override default if needed
+            LaunchedEffect(userSettings) {
+                val initial = initEffect(this, userSettings)
+                if (initial.isNotEmpty()) {
+                    inVal = initial
+                }
+            }
+
+            // update when user types
+            LaunchedEffect(inVal) {
+                snapshotFlow { inVal }
+                    .debounce(500)
+                    .collect { value ->
+                        updateEffect(this, value, userSettings)
+                    }
             }
         }
     }

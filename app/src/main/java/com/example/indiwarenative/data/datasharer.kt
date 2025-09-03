@@ -111,6 +111,17 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
 
+    val onboarding = dataStore.data.map { preferences ->
+        preferences[ONBOARDING] ?: true
+    }
+
+    suspend fun updateOnboarding(value: Boolean) {
+        dataStore.edit { settings ->
+            settings[ONBOARDING] = value
+        }
+    }
+
+
     companion object {
         @Volatile
         private var INSTANCE: UserSettings? = null
@@ -123,6 +134,7 @@ class UserSettings private constructor(private val appContext: Context) {
         private val SCHOOL_ID = stringPreferencesKey("school_id")
         private val USERNAME = stringPreferencesKey("username")
         private val PASSWORD = stringPreferencesKey("password")
+        private val ONBOARDING = booleanPreferencesKey("onboarding")
 
 
         fun getInstance(context: Context): UserSettings {

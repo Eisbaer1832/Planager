@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.glance.layout.Row
+import com.example.indiwarenative.data.DataSharer.FilterClass
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +99,10 @@ fun FriendItem(
                 Icon(Icons.Default.Delete, "delete")
             }
             IconButton(
-                onClick = {edit()},
+                onClick = {
+                    FilterClass= selectedClass
+                    edit()
+                          },
             ) {
                 Icon(Icons.Default.Edit, "edit")
             }

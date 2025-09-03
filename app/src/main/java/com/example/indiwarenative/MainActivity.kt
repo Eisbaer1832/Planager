@@ -1,6 +1,7 @@
 
 package com.example.indiwarenative
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -262,6 +263,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
+    val onboarding by userSettings.onboarding.collectAsState(initial =true)
+    if (onboarding) {
+    //    context.startActivity(Intent(context, Onboarding::class.java))
+    }
+
     val filter by remember { DataSharer::FilterClass }
 
     if (filter.isEmpty()) {
