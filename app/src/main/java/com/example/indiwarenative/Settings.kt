@@ -285,6 +285,7 @@ fun Settings(modifier: Modifier = Modifier) {
         }
         SettingsCardDropdown("Jahrgang",bottomShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
+                FilterClass = selected
                 userSettings.updateOwnClass(selected)
                 userSettings.updateOwnSubjects(HashMap())
             }}
