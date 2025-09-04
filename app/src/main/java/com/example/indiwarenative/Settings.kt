@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,7 @@ import androidx.core.content.ContextCompat
 import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.components.FriendCreateDialog
 import com.example.indiwarenative.components.FriendItem
+import com.example.indiwarenative.components.FriendsList
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.SettingsCardDropdown
 import com.example.indiwarenative.components.SettingsCardEdit
@@ -50,6 +52,7 @@ import com.example.indiwarenative.components.SettingsCardInput
 import com.example.indiwarenative.components.SubjectDialog
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.DataSharer.FilterClass
+import com.example.indiwarenative.data.DataSharer.Kurse
 import com.example.indiwarenative.data.DataSharer.bottomShape
 import com.example.indiwarenative.data.DataSharer.neutralShape
 import com.example.indiwarenative.data.DataSharer.roundShape
@@ -85,133 +88,6 @@ class Settings : ComponentActivity() {
     }
 }
 
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun FriendsList (
-    showBottomSheet: MutableState<Boolean>,
-    Kurse: ArrayList<Kurs>?,
-    userSettings: UserSettings,
-    allClasses: Array<String>,
-
-    ) {
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-    val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
-    val friendsClasses by userSettings.friendsClass.collectAsState(initial = HashMap())
-    val shouldShowDialog = remember { mutableStateOf(false) }
-    val createFriendDialog = remember { mutableStateOf(false) }
-    val couroutineScope = rememberCoroutineScope()
-    var friendName by remember { mutableStateOf("") }
-
-    if (shouldShowDialog.value) {
-        println("friend opening with $friendName")
-        SubjectDialog(shouldShowDialog, Kurse, userSettings, false, friendName)
-    }
-
-    if (createFriendDialog.value) {
-        FriendCreateDialog({ createFriendDialog.value = false }, {name: String ->
-            friends.put(name, HashMap())
-            createFriendDialog.value = false
-            couroutineScope.launch{userSettings.updateFriendsSubjects(friends)}
-
-        }, "Freund Erfinden")
-    }
-
-    if (showBottomSheet.value) {
-
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBottomSheet.value = false
-            },
-            sheetState = sheetState
-        ) {
-            Column {
-                friends.forEach {friend ->
-                    FriendItem(
-                        //friends[friend.key].get("class") geht leider nicht :(
-                        friend.key, friendsClasses.get(friend.key)?:"",
-                        {
-                        friendName = friend.key
-                        shouldShowDialog.value = true;
-                    }, {selected -> couroutineScope.launch{
-                            var current = userSettings.friendsSubjects.first()
-                            val newMap = HashMap<String, String>()
-                            FilterClass = selected
-                            newMap.put(friend.key, selected)
-                            userSettings.updateFriendsClass( newMap)
-                        }
-                    }, {
-                        val updatedFriends = HashMap(friends)
-                        updatedFriends.remove(friend.key)
-                        couroutineScope.launch {
-                            userSettings.updateFriendsSubjects(updatedFriends)
-                        }
-                    },allClasses)
-                }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp)
-                        .height(60.dp)
-                        .weight(1f),
-                    onClick = {
-                    createFriendDialog.value = true
-                }) {
-                    Row (verticalAlignment = Alignment.CenterVertically){
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Favorite",
-                            modifier = Modifier
-                                .size(30.dp)
-                                .weight(1f)
-
-                        )
-                        Text(
-                            text= "Freund",
-                            modifier =  Modifier
-                                .weight(2f),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-                Button(
-
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp)
-                        .height(60.dp)
-                        .weight(1.5f),
-                    onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            showBottomSheet.value = false
-                        }
-                    }
-                }) {
-                    Row (verticalAlignment = Alignment.CenterVertically){
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Favorite",
-                            modifier = Modifier
-                                .size(30.dp)
-                                .weight(1f)
-
-                        )
-                        Text(
-                            text= "Fertig",
-                            modifier =  Modifier
-                                .weight(2f),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class,
@@ -225,7 +101,6 @@ fun Settings(modifier: Modifier = Modifier) {
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
-    var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(ArrayList()) }
     var allClasses: Array<String> by remember { mutableStateOf(arrayOf(String())) }
 
     val FriendsListToggle = remember { mutableStateOf(false) }
@@ -234,7 +109,10 @@ fun Settings(modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit, FilterClass) {
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
-        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)
+        if (Kurse.isEmpty()) {
+            Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+        }
+
 
     }
 
@@ -363,9 +241,10 @@ fun Settings(modifier: Modifier = Modifier) {
             },
             true
         )
-
+        Spacer(Modifier.height(20.dp))
         Text("Sonstiges", style = MaterialTheme.typography.headlineMediumEmphasized)
-        SettingsCardEdit("Einrichtung neustarten", roundShape, buttonText = "") {
+        SettingsCardEdit("Einrichtung neustarten", roundShape, buttonText = "", buttonIcon = Icons.Default.Replay
+        ) {
             couroutineScope.launch {userSettings.updateOnboarding(true)}
         }
     }

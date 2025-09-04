@@ -61,6 +61,7 @@ import com.example.indiwarenative.components.SettingsCardDropdown
 import com.example.indiwarenative.components.SettingsCardEdit
 import com.example.indiwarenative.components.SettingsCardInput
 import com.example.indiwarenative.components.SubjectDialog
+import com.example.indiwarenative.data.DataSharer.Kurse
 import com.example.indiwarenative.data.DataSharer.bottomShape
 import com.example.indiwarenative.data.DataSharer.neutralShape
 import com.example.indiwarenative.data.DataSharer.topShape
@@ -156,13 +157,15 @@ fun ThirdPageInput() {
     var loading: Boolean by remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
-    var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(ArrayList()) }
     var localFilterClass by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit, localFilterClass) {
         loading = true
-        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
-        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", localFilterClass)
+
+        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", localFilterClass)?: ArrayList()
+        if (Kurse.isEmpty()) {
+            allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
+        }
         loading = false
     }
     if (OwnSubjectDialogToggle.value) {

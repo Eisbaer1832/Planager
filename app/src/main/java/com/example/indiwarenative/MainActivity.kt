@@ -66,7 +66,9 @@ import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
+import com.example.indiwarenative.data.DataSharer.Kurse
 import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.data.backend.registerWorker
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
@@ -294,8 +296,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         }
     }
     LaunchedEffect(Unit, filter) {
-
-        println("launching launch effect")
+        if (Kurse.isEmpty()) {
+            Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+        }
         lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
     }
     val state = rememberPullToRefreshState()

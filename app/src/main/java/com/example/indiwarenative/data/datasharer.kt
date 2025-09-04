@@ -22,7 +22,7 @@ object DataSharer {
     var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
     var FilterFriend by mutableStateOf("")
-
+    var Kurse by mutableStateOf(ArrayList<Kurs>())
     val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
     val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
     val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
