@@ -30,7 +30,9 @@ import androidx.compose.material.icons.twotone.School
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -141,6 +143,7 @@ fun SecondPageInput() {
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ThirdPageInput() {
@@ -149,29 +152,46 @@ fun ThirdPageInput() {
     val schoolID by userSettings.schoolID.collectAsState(initial = "")
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
     var allClasses: Array<String> by remember { mutableStateOf(arrayOf(String())) }
+    var loading: Boolean by remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
     var Kurse by remember { mutableStateOf<ArrayList<Kurs>?>(ArrayList()) }
     var localFilterClass by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit, localFilterClass) {
+        loading = true
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
         Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", localFilterClass)
+        loading = false
     }
     if (OwnSubjectDialogToggle.value) {
         SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse, userSettings, true)
     }
-    SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
+    if (loading) {
+        Column (
+            modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){ LoadingIndicator() }
 
-        OwnSubjectDialogToggle.value = true
+    }else {
+        SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
+
+            OwnSubjectDialogToggle.value = true
+        }
+        SettingsCardDropdown(
+            "Jahrgang",
+            bottomShape,
+            allClasses,
+            default = ownClass,
+            onclick = { selected ->
+                couroutineScope.launch {
+                    localFilterClass = selected
+                    userSettings.updateOwnClass(selected)
+                    userSettings.updateOwnSubjects(HashMap())
+                }
+            }
+        )
     }
-    SettingsCardDropdown("Jahrgang",bottomShape,allClasses, default= ownClass, onclick =  {
-            selected -> couroutineScope.launch{
-            localFilterClass = selected
-            userSettings.updateOwnClass(selected)
-            userSettings.updateOwnSubjects(HashMap())
-    }}
-    )
 
 }
 
