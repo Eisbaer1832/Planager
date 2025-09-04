@@ -1,4 +1,5 @@
 package com.example.indiwarenative
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -374,9 +375,9 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
     val buttonState = remember {
         derivedStateOf {
             when (pagerState.currentPage) {
-                0 -> listOf("", "Next")
-                1 -> listOf("Back", "Next")
-                2 -> listOf("Back", "Start")
+                0 -> listOf("", "Weiter")
+                1 -> listOf("Zurück", "Weiter")
+                2 -> listOf("Zurück", "Start")
                 else -> listOf("", "")
             }
         }
@@ -425,6 +426,7 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
                         } else {
                             userSettings.updateOnboarding(false)
                             context.startActivity(Intent(context, MainActivity::class.java))
+                            (context as? Activity)?.finish()
                         }
                     }
                 }

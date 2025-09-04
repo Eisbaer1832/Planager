@@ -363,6 +363,11 @@ fun Settings(modifier: Modifier = Modifier) {
             },
             true
         )
+
+        Text("Sonstiges", style = MaterialTheme.typography.headlineMediumEmphasized)
+        SettingsCardEdit("Einrichtung neustarten", roundShape, buttonText = "") {
+            couroutineScope.launch {userSettings.updateOnboarding(true)}
+        }
     }
 
 }

@@ -263,11 +263,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
-    val onboarding by userSettings.onboarding.collectAsState(initial =true)
+    val onboarding by userSettings.onboarding.collectAsState(initial = null)
 
-    if (onboarding) {
-        context.startActivity(Intent(context, Onboarding::class.java))
-    }
+    println("starting main activity")
 
     val filter by remember { DataSharer::FilterClass }
 
@@ -287,11 +285,16 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     if (timeNow.isAfter(endOfDay)) {
         current = current.plusDays(1)
     }
-
     var currentAsString = current.format(formatter)
 
-
+    LaunchedEffect(onboarding) {
+        if (onboarding == true) {
+            println("doing onboarding")
+            context.startActivity(Intent(context, Onboarding::class.java))
+        }
+    }
     LaunchedEffect(Unit, filter) {
+
         println("launching launch effect")
         lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
     }
