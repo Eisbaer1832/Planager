@@ -40,9 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.indiwarenative.data.DataSharer.FilterFriend
 import com.example.indiwarenative.data.DataSharer.doFilter
 import com.example.indiwarenative.data.backend.getLessons
@@ -87,7 +90,6 @@ class WeekView : ComponentActivity() {
 fun SmallLessonCard (lesson: lesson) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-
     Card(
         modifier = Modifier
             .width(screenWidth / 6)
@@ -106,6 +108,7 @@ fun SmallLessonCard (lesson: lesson) {
                 modifier = Modifier.fillMaxWidth()
             ){
                 Text(
+                    fontSize = 16.sp,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     text = lesson.subject
@@ -127,6 +130,14 @@ fun SmallLessonCardCanceled (lesson: lesson) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
+    var text = lesson.subject
+    text = text
+        .replace(Regex("fällt aus"), "")
+        .replace(Regex("Herr"), "")
+        .replace(Regex("Frau"), "")
+    val textArray = text.split("  ") //yes actually 2 spaces
+    println("ausfall ${textArray.joinToString()}")
+
     Card(
         modifier = Modifier
             .width(screenWidth / 6)
@@ -135,22 +146,29 @@ fun SmallLessonCardCanceled (lesson: lesson) {
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Surface  (
-                color = MaterialTheme.colorScheme.errorContainer,
-                modifier = Modifier.fillMaxSize()
-            ){
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.error,
+            ) {
                 Text(
+                    fontSize = 19.sp,
+                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    text = lesson.subject
+                    text = textArray[0]
                 )
             }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                text = textArray[1]
+            )
         }
     }
+
 }
 
 
@@ -259,7 +277,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                         Card(
                             modifier = Modifier
                                 .width(screenWidth / 6)
-                                .height(70.dp)
+                                .height(80.dp)
                                 .padding(15.dp, 7.dp, 15.dp, 7.dp),
                         ) {
                             Box(

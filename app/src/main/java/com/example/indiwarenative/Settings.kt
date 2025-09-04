@@ -158,6 +158,7 @@ fun Settings(modifier: Modifier = Modifier) {
         SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
             FilterClass = ownClass
             OwnSubjectDialogToggle.value = true
+            couroutineScope.launch {Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList() }
         }
         SettingsCardDropdown("Jahrgang",bottomShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
