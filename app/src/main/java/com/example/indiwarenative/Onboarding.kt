@@ -29,10 +29,12 @@ import androidx.compose.material.icons.filled.Web
 import androidx.compose.material.icons.twotone.Password
 import androidx.compose.material.icons.twotone.School
 import androidx.compose.material.icons.twotone.Settings
+import androidx.compose.material.icons.twotone.Widgets
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -55,8 +57,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.example.indiwarenative.components.SettingsCardDropdown
 import com.example.indiwarenative.components.SettingsCardEdit
 import com.example.indiwarenative.components.SettingsCardInput
@@ -143,7 +147,39 @@ fun SecondPageInput() {
         true
     )
 }
+@Composable
+fun FourthPageInput() {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    Column (
+        modifier = Modifier.fillMaxWidth().padding(top = 20.dp).height(100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+                        receiver = RoomWidgetReceiver::class.java,
+                        preview = RoomWidget(),
+                        previewState = DpSize(245.dp, 115.dp)
+                    )
+                }
+            }
+        ) {}
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+                        receiver = DayWidgetReceiver::class.java,
+                        preview = DayWidget(),
+                        previewState = DpSize(245.dp, 115.dp)
+                    )
+                }
+            }
+        ) {}
+    }
 
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -228,6 +264,15 @@ sealed class OnboardingModel (
         description = "Keine Sorge, du kannst diese jederzeit in den Einstellungen ändern",
         input = {
             ThirdPageInput()
+        }
+    )
+    @RequiresApi(Build.VERSION_CODES.O)
+    data object FourthPage : OnboardingModel(
+        image = Icons.TwoTone.Widgets,
+        title = "Schmancyge Widgets",
+        description = "Mit Widgets kannst du dir ganz bequem deinen nächsten Raum oder den heutigen Stundenplan anzeigen lassen",
+        input = {
+            FourthPageInput()
         }
     )
 
@@ -369,7 +414,7 @@ fun BackButton() {
 @Composable
 fun Onboarding(name: String, modifier: Modifier = Modifier) {
     val pages = listOf(
-        OnboardingModel.FirstPage, OnboardingModel.SecondPage, OnboardingModel.ThirdPages
+        OnboardingModel.FirstPage, OnboardingModel.SecondPage, OnboardingModel.ThirdPages, OnboardingModel.FourthPage
     )
 
     val pagerState = rememberPagerState(initialPage = 0) {
@@ -380,7 +425,8 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
             when (pagerState.currentPage) {
                 0 -> listOf("", "Weiter")
                 1 -> listOf("Zurück", "Weiter")
-                2 -> listOf("Zurück", "Start")
+                2 -> listOf("Zurück", "Weiter")
+                3 -> listOf("Zurück", "Start")
                 else -> listOf("", "")
             }
         }
