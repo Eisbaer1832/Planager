@@ -13,6 +13,8 @@ import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.ArrayList
@@ -22,6 +24,22 @@ import javax.xml.parsers.DocumentBuilderFactory
 // API Endpoints
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl20250814.xml -- Format yyyymmdd - 20250814
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun fixDay(timeNow: LocalTime?, current: LocalDate): LocalDate {
+    val endOfDay = LocalTime.parse("19:00:00")
+    var returnCurrent = current
+
+    if (current.dayOfWeek == DayOfWeek.SATURDAY) {
+        returnCurrent = current.plusDays(2)
+    }else if (current.dayOfWeek == DayOfWeek.SUNDAY) {
+        returnCurrent = current.plusDays(1)
+    }else if (timeNow != null) {
+        if (timeNow.isAfter(endOfDay)) returnCurrent = current.plusDays(1)
+    }
+    return returnCurrent
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun fetchTimetable(

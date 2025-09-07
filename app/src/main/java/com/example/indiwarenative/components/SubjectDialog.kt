@@ -28,11 +28,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.glance.appwidget.updateAll
+import com.example.indiwarenative.DayWidget
+import com.example.indiwarenative.RoomWidget
 import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -46,6 +54,7 @@ fun SubjectDialog(
     friend: String = ""
 ) {
     if (shouldShowDialog.value) {
+        val context = LocalContext.current
         val title = if (own) "Eigene Fächer" else "Freund Fächer"
         val couroutineScope = rememberCoroutineScope()
         val allFriends = userSettings.friendsSubjects.collectAsState(initial = HashMap())
@@ -99,7 +108,9 @@ fun SubjectDialog(
                                                     checked = it
                                                     status.value.put(Kurse[i].subject, checked)
                                                     if (own) {
-                                                        couroutineScope.launch { userSettings.updateOwnSubjects(status.value) }
+                                                        couroutineScope.launch {
+                                                            userSettings.updateOwnSubjects(status.value)
+                                                        }
                                                     }else {
                                                         println("friend $friend: " + allFriends.value.get(friend))
                                                         allFriends.value.put(friend, status.value)
@@ -117,6 +128,12 @@ fun SubjectDialog(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
                                 shouldShowDialog.value = false
+                                couroutineScope.launch {
+                                    println("updating widgets")
+                                    RoomWidget().updateAll(context.applicationContext)
+                                    DayWidget().updateAll(context.applicationContext)
+                                }
+
                             })
                         {
                             Text("Speichern")

@@ -54,6 +54,7 @@ import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import java.time.DayOfWeek
@@ -186,7 +187,7 @@ fun WeekView(modifier: Modifier = Modifier) {
     var isLoading by remember { mutableStateOf(true) }
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
-    current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    current = fixDay(null, current)
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
     val filter by remember { DataSharer::FilterClass }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())

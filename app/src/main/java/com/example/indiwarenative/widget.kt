@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,9 +63,12 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.backend.getLessons
 import com.example.indiwarenative.data.lesson
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -80,10 +84,8 @@ class RoomWidget : GlanceAppWidget() {
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         var current = LocalDate.now()
         val timeNow = LocalTime.now()
-        val endOfDay = LocalTime.parse("19:00:00")
-        if (timeNow.isAfter(endOfDay)) {
-            current = current.plusDays(1)
-        }
+        current = fixDay(timeNow, current)
+        println("current"+ current)
         var currentAsString = current.format(formatter)
 
         val status: Map<String, Boolean> = userSettings.ownSubjects.first()
@@ -94,21 +96,24 @@ class RoomWidget : GlanceAppWidget() {
         } as ArrayList<lesson>
 
         var index: Int
-        index = if (timeNow.isBefore(LocalTime.parse("11:05:00")))
-        {
+        index = if (timeNow.isBefore(LocalTime.parse("11:05:00"))) {
             2
         } else if (timeNow.isBefore(LocalTime.parse("13:00:00"))) {
             4
         } else if (timeNow.isBefore(LocalTime.parse("15:30:00"))) {
             7
-        }
-        else {
+        } else {
             9
         }
         // if the user has less than 11 lessons a day
+
         if (index > lessons.size) {
             index = lessons.size - 1
         }
+
+        println("Subject: ${lessons[index].subject}")
+        val subject = lessons[index].subject?: "Kein Unterricht heute"
+        val room = lessons[index].room?: ""
 
         provideContent {
             GlanceTheme{
@@ -123,9 +128,11 @@ class RoomWidget : GlanceAppWidget() {
                             .padding(4.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column (horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = GlanceModifier.clickable {} //ensures updates on click,
+                            ) {
                             Text(
-                                text = lessons[index].subject,
+                                text = subject,
                                 style = TextStyle(
                                     color = GlanceTheme.colors.primary,
                                     fontWeight = FontWeight.Bold,
@@ -134,7 +141,7 @@ class RoomWidget : GlanceAppWidget() {
                                 ),
                             )
                             Text(
-                                text = lessons[index].room,
+                                text = room,
                                 style = TextStyle(
                                     color = GlanceTheme.colors.primary,
                                     fontWeight = FontWeight.Bold,
@@ -150,6 +157,21 @@ class RoomWidget : GlanceAppWidget() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+suspend fun getWidgetData(userSettings: UserSettings, currentAsString: String): ArrayList<lesson> {
+    println("Getting widget Data")
+    val status: Map<String, Boolean> = userSettings.ownSubjects.first()
+    var lessons: ArrayList<lesson> = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml") ?: arrayListOf()
+    lessons = lessons.filter { lesson ->
+        val key = lesson.subject.substringBefore(" ")
+        status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
+    } as ArrayList<lesson>
+
+    if (lessons.isEmpty()) {
+        lessons.add(lesson())
+    }
+    return lessons
+}
 
 //TODO implement data updates
 class DayWidget : GlanceAppWidget() {
@@ -162,21 +184,13 @@ class DayWidget : GlanceAppWidget() {
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         var current = LocalDate.now()
         val timeNow = LocalTime.now()
-        val endOfDay = LocalTime.parse("19:00:00")
-        if (timeNow.isAfter(endOfDay)) {
-            current = current.plusDays(1)
-        }
+        current = fixDay(timeNow, current)
+
+
         var currentAsString = current.format(formatter)
-
-        val status: Map<String, Boolean> = userSettings.ownSubjects.first()
-        var lessons: ArrayList<lesson> = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml") ?: arrayListOf()
-        lessons = lessons.filter { lesson ->
-            val key = lesson.subject.substringBefore(" ")
-            status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
-        } as ArrayList<lesson>
-
-
+        var lessons = getWidgetData(userSettings, currentAsString)
         provideContent {
+            println("Setting widget content")
             GlanceTheme{
                 Scaffold(
                     backgroundColor = GlanceTheme.colors.background,
@@ -201,7 +215,6 @@ class DayWidget : GlanceAppWidget() {
                                             )
                                             .cornerRadius(16.dp)
                                             .clickable {
-                                                // Call the person
                                             },
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {

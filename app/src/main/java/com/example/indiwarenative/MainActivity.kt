@@ -64,15 +64,18 @@ import com.example.indiwarenative.data.DataSharer.doFilter
 import com.example.indiwarenative.data.backend.getLessons
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
+import com.example.indiwarenative.components.getSubjectIcon
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.DataSharer.Kurse
 import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.data.backend.registerWorker
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -212,7 +215,7 @@ fun LessonCard(
                         ){
                             Icon(
                                 modifier = Modifier.size(40.dp),
-                                imageVector = Icons.AutoMirrored.Filled.Assignment,
+                                imageVector = getSubjectIcon(l.subject),
                                 contentDescription = "Localized description",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
@@ -283,10 +286,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     }
 
     val timeNow = LocalTime.now()
-    val endOfDay = LocalTime.parse("19:00:00")
-    if (timeNow.isAfter(endOfDay)) {
-        current = current.plusDays(1)
-    }
+    current = fixDay(timeNow, current)
+    println("current" + current.dayOfWeek)
     var currentAsString = current.format(formatter)
 
     LaunchedEffect(onboarding) {

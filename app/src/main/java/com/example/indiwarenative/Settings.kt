@@ -41,6 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.updateAll
 import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.components.FriendCreateDialog
 import com.example.indiwarenative.components.FriendItem
@@ -158,7 +160,11 @@ fun Settings(modifier: Modifier = Modifier) {
         SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
             FilterClass = ownClass
             OwnSubjectDialogToggle.value = true
-            couroutineScope.launch {Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList() }
+
+
+            couroutineScope.launch {
+                Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+            }
         }
         SettingsCardDropdown("Jahrgang",bottomShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{

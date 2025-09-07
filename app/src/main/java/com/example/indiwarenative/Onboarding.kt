@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Room
+import androidx.compose.material.icons.filled.ViewDay
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material.icons.twotone.Password
 import androidx.compose.material.icons.twotone.School
@@ -165,7 +167,10 @@ fun FourthPageInput() {
                     )
                 }
             }
-        ) {}
+        ) {
+            Icon(Icons.Default.ViewDay, "")
+            Text("Unterricht des Tages")
+        }
         Button(
             onClick = {
                 coroutineScope.launch {
@@ -176,7 +181,10 @@ fun FourthPageInput() {
                     )
                 }
             }
-        ) {}
+        ) {
+            Icon(Icons.Default.Room, "")
+            Text("Nächster Raum")
+        }
     }
 
 }

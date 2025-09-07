@@ -62,7 +62,7 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/room_widget_info" />
+                android:resource="@xml/day_widget_info" />
         </receiver>
     </application>
 
