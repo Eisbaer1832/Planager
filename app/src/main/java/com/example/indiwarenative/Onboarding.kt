@@ -107,7 +107,7 @@ fun SecondPageInput() {
     SettingsCardInput(
         topShape,
         userSettings,
-        "Nutzername",
+        "Schul ID",
         Icons.Filled.Web,
         schoolID,
         { settings ->
@@ -122,7 +122,7 @@ fun SecondPageInput() {
     SettingsCardInput(
         neutralShape,
         userSettings,
-        "Schul ID",
+        "Nutzername",
         Icons.Filled.Person,
         username,
         { settings ->
@@ -169,7 +169,7 @@ fun FourthPageInput() {
             }
         ) {
             Icon(Icons.Default.ViewDay, "")
-            Text("Unterricht des Tages")
+            Text("Nächster Raum")
         }
         Button(
             onClick = {
@@ -183,7 +183,7 @@ fun FourthPageInput() {
             }
         ) {
             Icon(Icons.Default.Room, "")
-            Text("Nächster Raum")
+            Text("Unterricht des Tages")
         }
     }
 

@@ -207,7 +207,7 @@ fun Settings(modifier: Modifier = Modifier) {
         SettingsCardInput(
             topShape,
             userSettings,
-            "Nutzername",
+            "Schul ID",
             Icons.Filled.Web,
             schoolID,
             { settings ->
@@ -222,7 +222,7 @@ fun Settings(modifier: Modifier = Modifier) {
         SettingsCardInput(
             neutralShape,
             userSettings,
-            "Schul ID",
+            "Nutzername",
             Icons.Filled.Person,
             username,
             { settings ->
