@@ -3,7 +3,7 @@
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="3600000"
     android:widgetFeatures="configuration_optional|reconfigurable"
-    android:targetCellWidth="1"
-    android:targetCellHeight="1"
+    android:targetCellWidth="2"
+    android:targetCellHeight="3"
     android:initialLayout="@layout/glance_default_loading_layout">
 </appwidget-provider>

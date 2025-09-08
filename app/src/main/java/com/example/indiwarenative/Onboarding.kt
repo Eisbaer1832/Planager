@@ -168,7 +168,7 @@ fun FourthPageInput() {
                 }
             }
         ) {
-            Icon(Icons.Default.ViewDay, "")
+            Icon(Icons.Default.Room, "")
             Text("Nächster Raum")
         }
         Button(
@@ -182,7 +182,7 @@ fun FourthPageInput() {
                 }
             }
         ) {
-            Icon(Icons.Default.Room, "")
+            Icon(Icons.Default.ViewDay, "")
             Text("Unterricht des Tages")
         }
     }
@@ -222,13 +222,9 @@ fun ThirdPageInput() {
         ){ LoadingIndicator() }
 
     }else {
-        SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
-
-            OwnSubjectDialogToggle.value = true
-        }
         SettingsCardDropdown(
-            "Jahrgang",
-            bottomShape,
+            "Jahrgang / Klasse",
+            topShape,
             allClasses,
             default = ownClass,
             onclick = { selected ->
@@ -239,6 +235,10 @@ fun ThirdPageInput() {
                 }
             }
         )
+        SettingsCardEdit("Eigene Fächer", bottomShape, buttonText = "") {
+
+            OwnSubjectDialogToggle.value = true
+        }
     }
 
 }
@@ -259,7 +259,7 @@ sealed class OnboardingModel (
     data object SecondPage : OnboardingModel(
         image = Icons.TwoTone.Password,
         title = "Gib deine Nutzerdaten ein",
-        description = "Du solltest sie von deiner Schule erhalten haben",
+        description = "Du solltest sie bereits von deiner Schule erhalten haben",
         input = {
             SecondPageInput()
         }
@@ -277,7 +277,7 @@ sealed class OnboardingModel (
     @RequiresApi(Build.VERSION_CODES.O)
     data object FourthPage : OnboardingModel(
         image = Icons.TwoTone.Widgets,
-        title = "Schmancyge Widgets",
+        title = "Widgets",
         description = "Mit Widgets kannst du dir ganz bequem deinen nächsten Raum oder den heutigen Stundenplan anzeigen lassen",
         input = {
             FourthPageInput()

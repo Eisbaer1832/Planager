@@ -279,7 +279,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                             modifier = Modifier
                                 .width(screenWidth / 6)
                                 .height(80.dp)
-                                .padding(15.dp, 7.dp, 15.dp, 7.dp),
+                                .padding( 10.dp, 3.dp),
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -294,7 +294,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(70.dp)
+                                    .height(80.dp)
                                     .padding(3.dp)
                             ) {
                                 Box(

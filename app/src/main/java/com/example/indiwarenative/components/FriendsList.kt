@@ -111,7 +111,7 @@ fun FriendsList (
                     Row (verticalAlignment = Alignment.CenterVertically){
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Favorite",
+                            contentDescription = "Add",
                             modifier = Modifier
                                 .size(30.dp)
                                 .weight(1f)

@@ -117,7 +117,6 @@ fun SettingsCardDropdown(
                     readOnly = true,
                     value = selectedOptionText,
                     onValueChange = {},
-                    label = { Text("Klasse") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
                 )

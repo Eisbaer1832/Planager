@@ -166,7 +166,7 @@ fun Settings(modifier: Modifier = Modifier) {
                 Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
             }
         }
-        SettingsCardDropdown("Jahrgang",bottomShape,allClasses, default= ownClass, onclick =  {
+        SettingsCardDropdown("Jahrgang / Klasse",bottomShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
                 FilterClass = selected
                 userSettings.updateOwnClass(selected)

@@ -3,6 +3,7 @@ package com.example.indiwarenative.components
 import android.graphics.drawable.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.AlertDialog
@@ -43,7 +44,7 @@ fun FriendCreateDialog(
                 label = { Text("Name") },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Filled.Web,
+                        imageVector = Icons.Filled.Person,
                         contentDescription = "Name"
                     )
                 },

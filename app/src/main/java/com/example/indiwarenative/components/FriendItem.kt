@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -101,10 +103,9 @@ fun FriendItem(
             IconButton(
                 onClick = {
                     FilterClass= selectedClass
-                    edit()
-                          },
+                    edit() },
             ) {
-                Icon(Icons.Default.Edit, "edit")
+                Icon(Icons.Default.Settings, "edit")
             }
         }
     }

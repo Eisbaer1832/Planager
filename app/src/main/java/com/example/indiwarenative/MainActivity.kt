@@ -236,8 +236,7 @@ fun LessonCard(
 
                     Text(
                         modifier = Modifier.fillMaxSize(),
-                        fontSize = 40.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
                         textAlign = TextAlign.Center,
                         text = l.room
                     )

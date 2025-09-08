@@ -96,18 +96,24 @@ class RoomWidget : GlanceAppWidget() {
         } as ArrayList<lesson>
 
         var index: Int
-        index = if (timeNow.isBefore(LocalTime.parse("11:05:00"))) {
-            2
-        } else if (timeNow.isBefore(LocalTime.parse("13:00:00"))) {
-            4
-        } else if (timeNow.isBefore(LocalTime.parse("15:30:00"))) {
-            7
-        } else {
-            9
+        if (current == LocalDate.now()) {
+            index = if (timeNow.isBefore(LocalTime.parse("09:15:00"))) {
+                0
+            }  else if (timeNow.isBefore(LocalTime.parse("11:05:00"))) {
+                2
+            } else if (timeNow.isBefore(LocalTime.parse("13:00:00"))) {
+                4
+            } else if (timeNow.isBefore(LocalTime.parse("15:30:00"))) {
+                7
+            } else {
+                9
+            }
+        }else {
+            index = 0
         }
         // if the user has less than 11 lessons a day
 
-        if (index > lessons.size) {
+        if (index > lessons.size - 1) {
             index = lessons.size - 1
         }
 
