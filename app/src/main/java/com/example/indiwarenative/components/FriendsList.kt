@@ -1,5 +1,7 @@
 package com.example.indiwarenative.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,13 +29,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.backend.getKurse
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun FriendsList (
@@ -51,10 +56,10 @@ fun FriendsList (
     val createFriendDialog = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
     var friendName by remember { mutableStateOf("") }
-
+    var kurse = remember { mutableStateOf(Kurse) }
     if (shouldShowDialog.value) {
         println("friend opening with $friendName")
-        SubjectDialog(shouldShowDialog, Kurse, userSettings, false, friendName)
+        SubjectDialog(shouldShowDialog, kurse.value, userSettings, false, friendName)
     }
 
     if (createFriendDialog.value) {
@@ -81,12 +86,16 @@ fun FriendsList (
                         friend.key, friendsClasses.get(friend.key)?:"",
                         {
                             friendName = friend.key
+                            FilterClass = friendsClasses.get(friendName)?: ""
+                            couroutineScope.launch {
+                                kurse.value = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+                            }
                             shouldShowDialog.value = true;
                         }, {selected -> couroutineScope.launch{
-                            var current = userSettings.friendsClass.first()
                             FilterClass = selected
-                            current.put(friend.key, selected)
-                            userSettings.updateFriendsClass( current)
+
+                            friendsClasses.put(friend.key, selected)
+                            userSettings.updateFriendsClass( friendsClasses)
                         }
                         }, {
                             val updatedFriends = HashMap(friends)

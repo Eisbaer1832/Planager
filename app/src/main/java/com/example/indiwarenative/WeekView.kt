@@ -194,15 +194,17 @@ fun WeekView(modifier: Modifier = Modifier) {
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
     val filter by remember { DataSharer::FilterClass }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
-    val weekDates = ArrayList<LocalDate>()
+    var weekDates = ArrayList<LocalDate>()
     if (filter.isEmpty()) {
         FilterClass = ownClass
     }
+
 
     LaunchedEffect(Unit, filter) {
         // loading a full school week
         week = arrayListOf<ArrayList<lesson>>()
         isLoading = true
+        weekDates = ArrayList<LocalDate>()
         for (i in 0..4) {
             val currentAsString = current.format(formatter)
             val lesson =
@@ -212,10 +214,10 @@ fun WeekView(modifier: Modifier = Modifier) {
                 )
             if (lesson != null) {
                 week.add(lesson)
-                weekDates.add(current)
                 current = current.plusDays(1)
-
             }
+            weekDates.add(current)
+
 
         }
         isLoading = false
@@ -277,9 +279,11 @@ fun WeekView(modifier: Modifier = Modifier) {
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(top=5.dp, start = 5.dp, end = 10.dp)
                                 )
+                                val dayofWeek = if (!weekDates.isEmpty()) weekDates[i].format(formatterDisplay) else ""
                                 Text(
                                     modifier = Modifier.padding(bottom=5.dp, start = 5.dp, end = 0.dp),
-                                    text = weekDates[i].format(formatterDisplay)?:"",
+
+                                    text = dayofWeek,
                                 )
                             }
                         }
