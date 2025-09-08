@@ -194,7 +194,9 @@ fun Settings(modifier: Modifier = Modifier) {
                     checked = showTeacher,
                     onCheckedChange = {
                         checked = it
-                        couroutineScope.launch{userSettings.updateShowTeachers(checked)}
+                        couroutineScope.launch{
+                            userSettings.updateShowTeachers(checked)
+                        }
                     }
                 )
             }

@@ -68,6 +68,7 @@ class WeekView : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             IndiwareNativeTheme {
@@ -278,7 +279,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 )
                                 Text(
                                     modifier = Modifier.padding(bottom=5.dp, start = 5.dp, end = 0.dp),
-                                    text = weekDates[i].format(formatterDisplay),
+                                    text = weekDates[i].format(formatterDisplay)?:"",
                                 )
                             }
                         }
