@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -186,12 +187,13 @@ fun WeekView(modifier: Modifier = Modifier) {
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+    val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
     var current = LocalDate.now()
     current = fixDay(null, current)
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
     val filter by remember { DataSharer::FilterClass }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
-
+    val weekDates = ArrayList<LocalDate>()
     if (filter.isEmpty()) {
         FilterClass = ownClass
     }
@@ -209,7 +211,9 @@ fun WeekView(modifier: Modifier = Modifier) {
                 )
             if (lesson != null) {
                 week.add(lesson)
+                weekDates.add(current)
                 current = current.plusDays(1)
+
             }
 
         }
@@ -266,10 +270,17 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 .width(screenWidth / 6)
                                 .padding(3.dp)
                         ) {
-                            Text(
-                                text = days[i],
-                                modifier = Modifier.padding(10.dp)
-                            )
+                            Column {
+                                Text(
+                                    text = days[i],
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top=5.dp, start = 5.dp, end = 10.dp)
+                                )
+                                Text(
+                                    modifier = Modifier.padding(bottom=5.dp, start = 5.dp, end = 0.dp),
+                                    text = weekDates[i].format(formatterDisplay),
+                                )
+                            }
                         }
                     }
                 }
