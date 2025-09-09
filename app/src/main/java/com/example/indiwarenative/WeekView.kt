@@ -190,6 +190,7 @@ fun WeekView(modifier: Modifier = Modifier) {
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
     var current = LocalDate.now()
+    current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     current = fixDay(null, current)
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
     val filter by remember { DataSharer::FilterClass }
