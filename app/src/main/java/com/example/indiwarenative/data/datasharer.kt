@@ -1,5 +1,6 @@
 package com.example.indiwarenative.data
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
@@ -11,12 +12,14 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.indiwarenative.data.backend.getLessons
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import kotlin.collections.HashMap
 
 
+@SuppressLint("MutableCollectionMutableState")
 object DataSharer {
     var doFilter by mutableStateOf(true);
     var NavbarSelectedItem by mutableIntStateOf(0)
@@ -27,6 +30,8 @@ object DataSharer {
     val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
     val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
     val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
+
+    var lessons by mutableStateOf( ArrayList<lesson>())
 
 }
 

@@ -61,7 +61,9 @@ import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
+import com.example.indiwarenative.data.DataSharer.lessons
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.backend.getLessons
@@ -79,7 +81,6 @@ class RoomWidget : GlanceAppWidget() {
     @SuppressLint("RestrictedApi")
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-
         val userSettings = UserSettings.getInstance(context)
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         var current = LocalDate.now()
@@ -88,12 +89,11 @@ class RoomWidget : GlanceAppWidget() {
         println("current"+ current)
         var currentAsString = current.format(formatter)
 
-        val status: Map<String, Boolean> = userSettings.ownSubjects.first()
-        var lessons: ArrayList<lesson> = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml") ?: arrayListOf()
-        lessons = lessons.filter { lesson ->
-            val key = lesson.subject.substringBefore(" ")
-            status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
-        } as ArrayList<lesson>
+        if (lessons.isEmpty()) {
+            lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml") ?: arrayListOf()
+        }
+
+
 
         var index: Int
         if (current == LocalDate.now()) {
@@ -106,6 +106,7 @@ class RoomWidget : GlanceAppWidget() {
             } else if (timeNow.isBefore(LocalTime.parse("15:30:00"))) {
                 7
             } else {
+
                 9
             }
         }else {
@@ -122,6 +123,14 @@ class RoomWidget : GlanceAppWidget() {
         val room = lessons[index].room?: ""
 
         provideContent {
+            val status= userSettings.ownSubjects.collectAsState(initial = mapOf<String, Boolean>())
+
+
+            lessons = lessons.filter { lesson ->
+                val key = lesson.subject.substringBefore(" ")
+                status.value[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
+            } as ArrayList<lesson>
+
             GlanceTheme{
                 Scaffold(
                     backgroundColor = GlanceTheme.colors.background,

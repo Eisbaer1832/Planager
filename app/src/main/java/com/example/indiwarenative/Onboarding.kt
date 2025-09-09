@@ -36,7 +36,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -71,7 +70,6 @@ import com.example.indiwarenative.data.DataSharer.Kurse
 import com.example.indiwarenative.data.DataSharer.bottomShape
 import com.example.indiwarenative.data.DataSharer.neutralShape
 import com.example.indiwarenative.data.DataSharer.topShape
-import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.getAllClasses
 import com.example.indiwarenative.data.backend.getKurse
@@ -207,9 +205,7 @@ fun ThirdPageInput() {
         loading = true
 
         Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", localFilterClass)?: ArrayList()
-        if (Kurse.isEmpty()) {
-            allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
-        }
+        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
         loading = false
     }
     if (OwnSubjectDialogToggle.value) {
@@ -236,7 +232,7 @@ fun ThirdPageInput() {
             }
         )
         SettingsCardEdit("Eigene Fächer", bottomShape, buttonText = "") {
-
+            localFilterClass = ownClass
             OwnSubjectDialogToggle.value = true
         }
     }

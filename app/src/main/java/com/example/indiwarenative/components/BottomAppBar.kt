@@ -1,6 +1,7 @@
 package com.example.indiwarenative.components
 
 import android.content.Intent
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CalendarViewWeek
@@ -14,6 +15,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.MainActivity
 import com.example.indiwarenative.Settings
@@ -28,7 +30,10 @@ fun NavBar() {
     val unselectedIcons =
         listOf(Icons.Outlined.CalendarToday, Icons.Outlined.CalendarViewWeek, Icons.Outlined.Settings)
 
-    NavigationBar {
+    NavigationBar(
+        tonalElevation = 0.dp,
+    ) {
+
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = {

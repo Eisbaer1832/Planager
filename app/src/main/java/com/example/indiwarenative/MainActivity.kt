@@ -54,6 +54,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,12 +73,14 @@ import com.example.indiwarenative.components.getSubjectIcon
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.DataSharer.Kurse
+import com.example.indiwarenative.data.RobotoFlexVariable
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.data.backend.registerWorker
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
+import com.google.android.material.transition.MaterialSharedAxis
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -106,6 +113,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
 @Composable
 fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
     Card(
@@ -123,8 +132,9 @@ fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
                 .padding(16.dp)
                 .fillMaxSize(),
             text = l.pos.toString(),
-            fontSize = 25.sp,
+
             textAlign = TextAlign.Center,
+            fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -168,6 +178,7 @@ fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
+
                 text = l.subject
             )
         }
@@ -325,13 +336,13 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
     Box {
         if (lessons == null) {
-            Column(
+            Box(
                 Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center,
             )
             {
-                LoadingIndicator()
+                LoadingIndicator(modifier = Modifier.size(150.dp))
             }
         } else {
             Column(
@@ -419,7 +430,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                               Spacer(Modifier.width(90.dp))
                             }
 
-                            println(l.subject)
                             if (!l.canceled) {
                                 LessonCard(l, showTeacher, shape, surfaceShape)
                             } else {

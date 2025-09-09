@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -249,13 +250,13 @@ fun WeekView(modifier: Modifier = Modifier) {
         },
     ) {
         if (isLoading) {
-            Column(
+            Box(
                 Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center,
             )
             {
-                LoadingIndicator()
+                LoadingIndicator(modifier = Modifier.size(150.dp))
             }
         } else {
             val days = arrayOf("Mo.", "Di.", "Mi.", "Do.", "Fr.")
@@ -290,6 +291,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                     }
                 }
                 for ( pos in 1..orderedWeek.size - 1 ) {
+
                     Row {
                         Card(
                             modifier = Modifier

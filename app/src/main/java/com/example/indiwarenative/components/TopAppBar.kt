@@ -1,7 +1,6 @@
 package com.example.indiwarenative.components
 
 
-import android.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,6 +16,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,12 +28,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.DataSharer.FilterFriend
 import com.example.indiwarenative.data.DataSharer.doFilter
+import com.example.indiwarenative.data.RobotoFlexVariable
 import com.example.indiwarenative.data.UserSettings
-import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -40,6 +43,7 @@ fun TopBar(title: String, showHamburger: Boolean) {
     CenterAlignedTopAppBar(
         title = {
             Text(
+
                 text = title,
             )},
 

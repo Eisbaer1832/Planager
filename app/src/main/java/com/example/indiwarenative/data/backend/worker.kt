@@ -88,7 +88,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
                 if (lesson.canceled) {
                     sendNotification(
                         title = "Entfall!",
-                        message = "${lesson.subject} fällt aus \uD83C\uDF89"
+                        message = "${lesson.subject.substringBefore("fällt")}in der ${lesson.pos}. Stunde fällt aus! \uD83C\uDF89"
                     )
                 }
 
@@ -116,7 +116,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             .setContentTitle(title)
             .setContentText(message)
             .setAutoCancel(true)
-            .setSmallIcon(R.drawable.ic_menu_send)
+            .setSmallIcon(R.drawable.ic_delete)
             .build()
 
         // Show notification

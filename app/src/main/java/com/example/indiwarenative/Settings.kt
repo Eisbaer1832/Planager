@@ -130,7 +130,7 @@ fun Settings(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(start = 16.dp, end=16.dp, bottom = 0.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -152,7 +152,7 @@ fun Settings(modifier: Modifier = Modifier) {
             }
         }
 
-        if (!hasPermission) SettingsCardEdit("Benachrichtigungen", roundShape, Icons.Default.Check, "Erlauben", 30.dp, ) {permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)}
+        if (!hasPermission) SettingsCardEdit("Benachrichtigungen", roundShape, Icons.Default.Check, "Erlauben") {permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)}
 
 
 
