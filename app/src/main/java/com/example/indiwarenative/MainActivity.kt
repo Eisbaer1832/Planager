@@ -80,7 +80,6 @@ import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.data.backend.registerWorker
 import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
-import com.google.android.material.transition.MaterialSharedAxis
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
