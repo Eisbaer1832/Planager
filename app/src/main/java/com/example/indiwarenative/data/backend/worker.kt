@@ -82,7 +82,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
                 val key = lesson.subject.substringBefore(" ")
                 status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
             } as ArrayList<lesson>
-            println("lessons" + lessons.joinToString())
+            //println("lessons" + lessons.joinToString())
             for (lesson in lessons) {
                 println("lesson $lesson")
                 if (lesson.canceled) {

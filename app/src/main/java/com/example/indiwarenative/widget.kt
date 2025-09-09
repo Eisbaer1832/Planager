@@ -196,7 +196,7 @@ class DayWidget : GlanceAppWidget() {
         var currentAsString = current.format(formatter)
         var lessons = getWidgetData(userSettings, currentAsString)
         provideContent {
-            println("Setting widget content")
+            //println("Setting widget content")
             GlanceTheme{
                 Scaffold(
                     backgroundColor = GlanceTheme.colors.background,

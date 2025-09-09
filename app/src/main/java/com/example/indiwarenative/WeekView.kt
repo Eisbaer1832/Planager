@@ -139,7 +139,6 @@ fun SmallLessonCardCanceled (lesson: lesson) {
         .replace(Regex("Herr"), "")
         .replace(Regex("Frau"), "")
     val textArray = text.split("  ") //yes actually 2 spaces
-    println("ausfall ${textArray.joinToString()}")
 
     Card(
         modifier = Modifier
@@ -336,7 +335,6 @@ fun WeekView(modifier: Modifier = Modifier) {
                                             val currentSubject = orderedWeek.get(pos)?.get(i)?.get(j)?.subject
                                             if (doFilter){
                                                 if (FilterFriend == "") {
-                                                    println("own $currentSubject")
                                                     show = if (!(subjectsToShow[currentSubject?.substringBefore(" ")] ?: false)) false else true
                                                 }else {
                                                     show = if (!(friendsSubjects.get(FilterFriend)?.get(currentSubject?.substringBefore(" ")) ?: false)) false else true
@@ -375,11 +373,6 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                     )
                                                 }
                                             } else {
-                                                println(
-                                                    "not showing in $pos : " + orderedWeek.get(
-                                                        pos
-                                                    )?.get(i)?.get(j)?.subject
-                                                )
                                                 Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                             }
                                         }

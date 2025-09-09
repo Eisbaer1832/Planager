@@ -99,7 +99,7 @@ suspend fun getSelectedClass(
     if (xmlTimeTable.isEmpty()) {
         return null;
     }
-    println("filter: " + localFilterClass)
+    //println("filter: " + localFilterClass)
     val filter = localFilterClass ?: FilterClass
 
     val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
