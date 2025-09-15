@@ -51,22 +51,18 @@ class RoomWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val userSettings = UserSettings.getInstance(context)
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         var current = LocalDate.now()
         val timeNow = LocalTime.now()
         current = fixDay(timeNow, current)
         println("current"+ current)
-        var currentAsString = current.format(formatter)
 
-        if (lessons.isEmpty()) {
-            lessons = getLessons(userSettings, current.dayOfWeek) ?: arrayListOf()
-        }
+        lessons = getLessons(userSettings, current.dayOfWeek) ?: arrayListOf()
 
 
 
         var index: Int
-        if (current == LocalDate.now()) {
-            index = if (timeNow.isBefore(LocalTime.parse("09:15:00"))) {
+        index = if (current == LocalDate.now()) {
+            if (timeNow.isBefore(LocalTime.parse("09:15:00"))) {
                 0
             }  else if (timeNow.isBefore(LocalTime.parse("11:05:00"))) {
                 2
@@ -75,15 +71,21 @@ class RoomWidget : GlanceAppWidget() {
             } else if (timeNow.isBefore(LocalTime.parse("15:30:00"))) {
                 7
             } else {
-
                 9
             }
         }else {
-            index = 0
+            0
         }
-        // if the user has less than 11 lessons a day
 
+        val status= userSettings.ownSubjects.first()
+
+
+        lessons = lessons.filter { lesson ->
+            val key = lesson.subject.substringBefore(" ")
+            status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
+        } as ArrayList<lesson>
         if (index > lessons.size - 1) {
+            println("after last lesson")
             index = lessons.size - 1
         }
 
@@ -92,13 +94,7 @@ class RoomWidget : GlanceAppWidget() {
         val room = lessons[index].room?: ""
 
         provideContent {
-            val status= userSettings.ownSubjects.collectAsState(initial = mapOf<String, Boolean>())
 
-
-            lessons = lessons.filter { lesson ->
-                val key = lesson.subject.substringBefore(" ")
-                status.value[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
-            } as ArrayList<lesson>
 
             GlanceTheme{
                 Scaffold(
