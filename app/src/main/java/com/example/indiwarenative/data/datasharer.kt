@@ -14,11 +14,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.indiwarenative.data.backend.getLessons
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
-import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlin.collections.HashMap
 
@@ -69,13 +67,13 @@ class UserSettings private constructor(private val appContext: Context) {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    val notificationHistory: Flow<notificationHistory> = dataStore.data.map { preferences ->
+    val notificationHistory: Flow<NotificationHistory> = dataStore.data.map { preferences ->
         preferences[NOTIFICATION_HISTORY]?.let { json ->
-            Json.decodeFromString<notificationHistory>(json)
-        }?: notificationHistory(LocalDate.now(), arrayListOf<notificationSubject>())
+            Json.decodeFromString<NotificationHistory>(json)
+        }?: NotificationHistory(LocalDate.now(), arrayListOf<NotificationSubject>())
     }
 
-    suspend fun updateNotificationHistory(newList: notificationHistory) {
+    suspend fun updateNotificationHistory(newList: NotificationHistory) {
         dataStore.edit { settings ->
             settings[NOTIFICATION_HISTORY] = Json.encodeToString(newList)
         }

@@ -22,32 +22,25 @@ import com.example.indiwarenative.Settings
 import com.example.indiwarenative.WeekView
 
 @Composable
-fun NavBar() {
-    val context = LocalContext.current
+fun NavBar(currentScreen: Int, onNavigate: (Int) -> Unit) {
     val items = listOf("Tagesplan", "Wochenplan", "Einstellungen")
     val selectedIcons = listOf(Icons.Filled.CalendarToday, Icons.Filled.CalendarViewWeek, Icons.Filled.Settings)
-    val href = listOf(MainActivity::class.java, WeekView::class.java, Settings::class.java)
-    val unselectedIcons =
-        listOf(Icons.Outlined.CalendarToday, Icons.Outlined.CalendarViewWeek, Icons.Outlined.Settings)
+    val unselectedIcons = listOf(Icons.Outlined.CalendarToday, Icons.Outlined.CalendarViewWeek, Icons.Outlined.Settings)
 
     NavigationBar(
         tonalElevation = 0.dp,
     ) {
-
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = {
                     Icon(
-                        if ( DataSharer.NavbarSelectedItem == index) selectedIcons[index] else unselectedIcons[index],
+                        if (currentScreen == index) selectedIcons[index] else unselectedIcons[index],
                         contentDescription = item,
                     )
                 },
                 label = { Text(item) },
-                selected =  DataSharer.NavbarSelectedItem == index,
-                onClick = {
-                    DataSharer.NavbarSelectedItem = index
-                    context.startActivity(Intent(context, href[index]))
-                },
+                selected = currentScreen == index,
+                onClick = { onNavigate(index) }
             )
         }
     }

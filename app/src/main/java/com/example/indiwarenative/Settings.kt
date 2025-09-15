@@ -70,8 +70,6 @@ class Settings : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopBar("Einstellungen", false)
-                    }, bottomBar = {
-                        NavBar()
                     }
                 ) { innerPadding ->
 

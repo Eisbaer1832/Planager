@@ -8,6 +8,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -88,6 +96,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalAnimationApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,17 +105,26 @@ class MainActivity : ComponentActivity() {
             registerWorker()
 
             IndiwareNativeTheme {
+                var currentScreen by remember { mutableStateOf(0) }
                 Scaffold(
                     topBar = {
                         TopBar("Tagesplan", true)
                     }, bottomBar = {
-                        NavBar()
-                    }
+                        NavBar(currentScreen) { currentScreen = it } }
                 ){ innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    AnimatedContent(
+                        targetState = currentScreen,
+                        transitionSpec = {
+                            slideInHorizontally { width -> width }.togetherWith(slideOutHorizontally { width -> -width })
+                        }
+                    ) { screen ->
+                        when (screen) {
+                            0 -> Greeting(name = "Android", modifier = Modifier.padding(innerPadding))
+                            1 -> WeekView(modifier = Modifier.padding(innerPadding))
+                            2 -> Settings(modifier = Modifier.padding(innerPadding))
+                        }
+                    }
+
                 }
             }
         }
@@ -279,6 +297,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
+    var loading by remember { mutableStateOf<Boolean>(true) }
 
     println("starting main activity")
 
@@ -306,11 +325,13 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         }
     }
     LaunchedEffect(Unit, filter) {
+        loading = true
         if (Kurse.isEmpty()) {
             Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
         }
         println("getting DayData for " + current.dayOfWeek)
         lessons = getLessons(userSettings, current.dayOfWeek)
+        loading = false
     }
     val state = rememberPullToRefreshState()
     var isRefreshing = false
@@ -348,14 +369,14 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     ) {
 
     Box {
-        if (lessons == null) {
-            Box(
+        if (loading || isRefreshing) {
+            Row(
                 Modifier
                     .fillMaxSize(),
-                contentAlignment = Alignment.Center,
+                horizontalArrangement = Arrangement.Center,
             )
             {
-                LoadingIndicator(modifier = Modifier.size(150.dp))
+                LoadingIndicator(modifier = Modifier.size(60.dp))
             }
         } else {
             Column(

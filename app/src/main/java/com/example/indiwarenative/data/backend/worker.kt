@@ -20,8 +20,8 @@ import androidx.work.WorkerParameters
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.lesson
-import com.example.indiwarenative.data.notificationHistory
-import com.example.indiwarenative.data.notificationSubject
+import com.example.indiwarenative.data.NotificationHistory
+import com.example.indiwarenative.data.NotificationSubject
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalTime
@@ -105,14 +105,14 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
                             title = "Entfall!",
                             message = "${lesson.subject.substringBefore("fällt")}in der ${lesson.pos}. Stunde fällt aus! \uD83C\uDF89"
                         )
-                        history.plus(notificationSubject(lesson, index))
+                        history.plus(NotificationSubject(lesson, index))
                         println("history: " + history.joinToString())
                     }
                 }
 
             }
         }
-        userSettings.updateNotificationHistory(notificationHistory(current, history))
+        userSettings.updateNotificationHistory(NotificationHistory(current, history))
         return Result.success()
     }
 

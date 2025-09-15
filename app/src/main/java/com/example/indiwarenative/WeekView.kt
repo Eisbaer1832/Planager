@@ -78,8 +78,6 @@ class WeekView : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopBar("Wochenplan", true)
-                    }, bottomBar = {
-                        NavBar()
                     }
                 ){ innerPadding ->
                     WeekView(
@@ -211,8 +209,8 @@ fun WeekView(modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit, filter, refreshTrigger) {
         // loading a full school week
-        week = arrayListOf<ArrayList<lesson>>()
         isLoading = true
+        week = arrayListOf<ArrayList<lesson>>()
         weekDates = ArrayList<LocalDate>()
         for (i in 0..4) {
             println("cdom: "+ current.dayOfMonth)
@@ -232,7 +230,6 @@ fun WeekView(modifier: Modifier = Modifier) {
         isLoading = false
         orderedWeek = orderWeek(week)
     }
-
 
 
     val state = rememberPullToRefreshState()
@@ -269,13 +266,13 @@ fun WeekView(modifier: Modifier = Modifier) {
         },
     ) {
         if (isLoading) {
-            Box(
+            Row(
                 Modifier
                     .fillMaxSize(),
-                contentAlignment = Alignment.Center,
+                horizontalArrangement = Arrangement.Center,
             )
             {
-                LoadingIndicator(modifier = Modifier.size(150.dp))
+                LoadingIndicator(modifier = Modifier.size(60.dp))
             }
         } else {
             val days = arrayOf("Mo.", "Di.", "Mi.", "Do.", "Fr.")

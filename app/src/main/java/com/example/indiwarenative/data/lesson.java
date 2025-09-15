@@ -2,6 +2,9 @@ package com.example.indiwarenative.data;
 
 import java.time.LocalTime;
 
+import kotlinx.serialization.Serializable;
+
+@Serializable
 public class lesson {
     public int pos;
     public String teacher;
