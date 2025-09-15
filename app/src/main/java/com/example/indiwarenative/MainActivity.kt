@@ -73,6 +73,7 @@ import com.example.indiwarenative.components.getSubjectIcon
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.DataSharer.Kurse
+import com.example.indiwarenative.data.GlobalPlan.days
 import com.example.indiwarenative.data.RobotoFlexVariable
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.fixDay
@@ -243,12 +244,13 @@ fun LessonCard(
                 Box(
                     contentAlignment = Alignment.Center
                 ) {
-
+                    val roomColor =  if (l.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
                     Text(
                         modifier = Modifier.fillMaxSize(),
                         fontSize = 30.sp,
                         textAlign = TextAlign.Center,
-                        text = l.room
+                        text = l.room,
+                        color = roomColor
                     )
                 }
             }
@@ -274,7 +276,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     val coroutineScope = rememberCoroutineScope()
-    val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
@@ -297,7 +298,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     val timeNow = LocalTime.now()
     current = fixDay(timeNow, current)
     println("current" + current.dayOfWeek)
-    var currentAsString = current.format(formatter)
 
     LaunchedEffect(onboarding) {
         if (onboarding == true) {
@@ -307,15 +307,29 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     }
     LaunchedEffect(Unit, filter) {
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+            Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
         }
-        lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
+        println("getting DayData for " + current.dayOfWeek)
+        lessons = getLessons(userSettings, current.dayOfWeek)
     }
     val state = rememberPullToRefreshState()
-    val isRefreshing = false
-    val onRefresh: () -> Unit = { coroutineScope.launch {lessons =
-        getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml")
-    }}
+    var isRefreshing = false
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        days = mutableStateOf(
+            mutableMapOf(
+                DayOfWeek.MONDAY to "",
+                DayOfWeek.TUESDAY to "",
+                DayOfWeek.WEDNESDAY to "",
+                DayOfWeek.THURSDAY to "",
+                DayOfWeek.FRIDAY to ""
+            )
+        )
+        coroutineScope.launch {lessons =
+            getLessons(userSettings, current.dayOfWeek)
+        }
+        isRefreshing = false
+    }
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,

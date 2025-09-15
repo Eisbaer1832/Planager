@@ -76,6 +76,7 @@ import com.example.indiwarenative.data.backend.getKurse
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 // This file is based off of https://github.com/ahmmedrejowan/OnboardingScreen-JetpackCompose
 
@@ -200,11 +201,11 @@ fun ThirdPageInput() {
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
     var localFilterClass by remember { mutableStateOf("") }
-
+    val current = LocalDate.now()
     LaunchedEffect(Unit, localFilterClass) {
         loading = true
 
-        Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", localFilterClass)?: ArrayList()
+        Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass)?: ArrayList()
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
         loading = false
     }

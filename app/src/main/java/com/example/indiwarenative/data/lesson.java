@@ -7,14 +7,16 @@ public class lesson {
     public String teacher;
     public String subject;
     public String room;
+    public Boolean roomChanged;
     public LocalTime start;
     public LocalTime end;
     public boolean canceled;
 
-    public lesson(int pos, String teacher, String subject, String room, LocalTime start, LocalTime end, boolean canceled) {
+    public lesson(int pos, String teacher, String subject, String room, Boolean roomChanged, LocalTime start, LocalTime end, boolean canceled) {
         this.teacher = teacher;
         this.subject = subject;
         this.room = room;
+        this.roomChanged = roomChanged;
         this.start = start;
         this.end = end;
         this.pos = pos;

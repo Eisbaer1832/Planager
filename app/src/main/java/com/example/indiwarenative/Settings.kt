@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
@@ -39,13 +38,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.updateAll
 import com.example.indiwarenative.data.backend.getKurse
-import com.example.indiwarenative.components.FriendCreateDialog
-import com.example.indiwarenative.components.FriendItem
 import com.example.indiwarenative.components.FriendsList
 import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.SettingsCardDropdown
@@ -59,11 +53,11 @@ import com.example.indiwarenative.data.DataSharer.bottomShape
 import com.example.indiwarenative.data.DataSharer.neutralShape
 import com.example.indiwarenative.data.DataSharer.roundShape
 import com.example.indiwarenative.data.DataSharer.topShape
-import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.getAllClasses
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.first
+import java.time.LocalDate
 
 class Settings : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -104,7 +98,7 @@ fun Settings(modifier: Modifier = Modifier) {
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
     var allClasses: Array<String> by remember { mutableStateOf(arrayOf(String())) }
-
+    val current = LocalDate.now()
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
@@ -112,7 +106,7 @@ fun Settings(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit, FilterClass) {
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+            Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
         }
 
 
@@ -163,7 +157,7 @@ fun Settings(modifier: Modifier = Modifier) {
 
 
             couroutineScope.launch {
-                Kurse = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+                Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
             }
         }
         SettingsCardDropdown("Jahrgang / Klasse",bottomShape,allClasses, default= ownClass, onclick =  {

@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
+import com.example.indiwarenative.data.getDayXML
+import com.example.indiwarenative.data.getKurseXML
 import com.example.indiwarenative.data.lesson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -48,7 +50,7 @@ suspend fun fetchTimetable(
     localFilterClass: String? = null
 ): String = withContext(Dispatchers.IO){
 
-    println("using: $url")
+    println("using: $url for outgoing network call")
     val username = userSettings.username.first()
     val password = userSettings.password.first()
     val schoolID = userSettings.schoolID.first()
@@ -74,7 +76,7 @@ suspend fun getAllClasses(
     url: String,
 
 ): Array<String>? {
-    val xmlTimeTable = fetchTimetable(userSettings, url, null)
+    val xmlTimeTable = getKurseXML(userSettings)
     if (xmlTimeTable.isEmpty()) {
         return null;
     }
@@ -91,11 +93,11 @@ suspend fun getAllClasses(
 @RequiresApi(Build.VERSION_CODES.O)
 suspend fun getSelectedClass(
     userSettings: UserSettings,
-    url: String,
+    day: DayOfWeek,
     localFilterClass: String? = null
 ): Node? {
 
-    val xmlTimeTable = fetchTimetable(userSettings, url, localFilterClass)
+    val xmlTimeTable = getDayXML(day, userSettings)
     if (xmlTimeTable.isEmpty()) {
         return null;
     }
@@ -123,8 +125,8 @@ fun getPart(array: NodeList, name: String): String? {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesson>? {
-    val receivedClass = getSelectedClass(userSettings, url, null)
+suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek): ArrayList<lesson>? {
+    val receivedClass = getSelectedClass(userSettings, day, null)
 
     if (receivedClass == null) {
         println("returning null")
@@ -139,6 +141,7 @@ suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesso
     for (i in 0..<lessonNodes!!.length) {
 
         val l = lessonNodes.item(i).childNodes
+
         val pos = getPart(l, "St")!!.toInt()
         val start =  getPart(l, "Beginn")
         val end = getPart(l, "Ende")
@@ -150,14 +153,25 @@ suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesso
         }
         val teacher = getPart(l, "Le")
         val room = getPart(l, "Ra")
-
         val formatter = DateTimeFormatter.ofPattern("H:mm")
+        var roomChanged = false
+        for (i in 0..l.length) {
+            val child = l.item(i)
+            if (child != null) {
+                if (child.nodeName == "Ra") {
+                    if (child.attributes.getNamedItem("RaAe") != null) roomChanged = true
+                }
+            }
+        }
+
+
         lessons.add(
             lesson(
                 pos,
                 teacher,
                 subject,
                 room,
+                roomChanged,
                 LocalTime.parse(start, formatter),
                 LocalTime.parse(end, formatter),
                 canceled
@@ -168,8 +182,8 @@ suspend fun getLessons(userSettings: UserSettings, url: String): ArrayList<lesso
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getKurse(userSettings: UserSettings, url: String, localFilterClass: String? = null): ArrayList<Kurs>? {
-    val receivedClass = getSelectedClass(userSettings, url, localFilterClass)
+suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null): ArrayList<Kurs>? {
+    val receivedClass = getSelectedClass(userSettings, day, localFilterClass)
     if (receivedClass == null) {
         return null
     }

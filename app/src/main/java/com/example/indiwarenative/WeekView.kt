@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,6 +56,7 @@ import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
+import com.example.indiwarenative.data.GlobalPlan.days
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.lesson
@@ -121,8 +123,12 @@ fun SmallLessonCard (lesson: lesson) {
             Text(
                 text = lesson.teacher
             )
+            val roomColor =  if (lesson.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+
             Text(
-                text = lesson.room
+                text = lesson.room,
+                color = roomColor
+
             )
         }
     }
@@ -194,6 +200,7 @@ fun WeekView(modifier: Modifier = Modifier) {
     current = fixDay(null, current)
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
     val filter by remember { DataSharer::FilterClass }
+    var refreshTrigger by remember { mutableIntStateOf(0) }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     var weekDates = ArrayList<LocalDate>()
     if (filter.isEmpty()) {
@@ -201,17 +208,18 @@ fun WeekView(modifier: Modifier = Modifier) {
     }
 
 
-    LaunchedEffect(Unit, filter) {
+
+    LaunchedEffect(Unit, filter, refreshTrigger) {
         // loading a full school week
         week = arrayListOf<ArrayList<lesson>>()
         isLoading = true
         weekDates = ArrayList<LocalDate>()
         for (i in 0..4) {
-            val currentAsString = current.format(formatter)
+            println("cdom: "+ current.dayOfMonth)
             val lesson =
                 getLessons(
                     userSettings,
-                    "" + "/mobil/mobdaten/PlanKl${currentAsString}.xml"
+                    current.dayOfWeek
                 )
             if (lesson != null) {
                 week.add(lesson)
@@ -229,7 +237,18 @@ fun WeekView(modifier: Modifier = Modifier) {
 
     val state = rememberPullToRefreshState()
     val isRefreshing = false
-    val onRefresh: () -> Unit = {}//TODO implement refresh behaviour
+    val onRefresh: () -> Unit = {
+        days = mutableStateOf(
+            mutableMapOf(
+                DayOfWeek.MONDAY to "",
+                DayOfWeek.TUESDAY to "",
+                DayOfWeek.WEDNESDAY to "",
+                DayOfWeek.THURSDAY to "",
+                DayOfWeek.FRIDAY to ""
+            )
+        )
+        refreshTrigger++ // this is a bit dumm, since it takes up memory space - should probaply reimplemented in the future #TODO
+    }
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp

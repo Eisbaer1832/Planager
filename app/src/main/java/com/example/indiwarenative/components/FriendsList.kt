@@ -36,6 +36,7 @@ import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.getKurse
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -88,7 +89,8 @@ fun FriendsList (
                             friendName = friend.key
                             FilterClass = friendsClasses.get(friendName)?: ""
                             couroutineScope.launch {
-                                kurse.value = getKurse(userSettings, "/mobil/mobdaten/Klassen.xml", null)?: ArrayList()
+                                // TODO muss das : sein "/mobil/mobdaten/Klassen.xml"
+                                kurse.value = getKurse(userSettings, LocalDate.now().dayOfWeek, null)?: ArrayList()
                             }
                             shouldShowDialog.value = true;
                         }, {selected -> couroutineScope.launch{

@@ -9,11 +9,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -21,12 +16,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.lesson
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalTime
@@ -69,7 +62,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             val lesson =
                 getLessons(
                     userSettings,
-                    "" + "/mobil/mobdaten/PlanKl${currentAsString}.xml"
+                    current.dayOfWeek
                 )
             if (lesson != null) {
                 week.add(lesson)

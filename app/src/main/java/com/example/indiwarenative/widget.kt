@@ -1,47 +1,19 @@
 package com.example.indiwarenative
 
 import android.annotation.SuppressLint
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
-import android.content.ComponentName
 import android.content.Context
 import android.os.Build
-import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material3.Card
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.cornerRadius
@@ -61,16 +33,13 @@ import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.DataSharer.lessons
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.backend.getLessons
 import com.example.indiwarenative.data.lesson
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -90,7 +59,7 @@ class RoomWidget : GlanceAppWidget() {
         var currentAsString = current.format(formatter)
 
         if (lessons.isEmpty()) {
-            lessons = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml") ?: arrayListOf()
+            lessons = getLessons(userSettings, current.dayOfWeek) ?: arrayListOf()
         }
 
 
@@ -176,7 +145,7 @@ class RoomWidget : GlanceAppWidget() {
 suspend fun getWidgetData(userSettings: UserSettings, currentAsString: String): ArrayList<lesson> {
     println("Getting widget Data")
     val status: Map<String, Boolean> = userSettings.ownSubjects.first()
-    var lessons: ArrayList<lesson> = getLessons(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml") ?: arrayListOf()
+    var lessons: ArrayList<lesson> = getLessons(userSettings, LocalDate.now().dayOfWeek) ?: arrayListOf()
     lessons = lessons.filter { lesson ->
         val key = lesson.subject.substringBefore(" ")
         status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
