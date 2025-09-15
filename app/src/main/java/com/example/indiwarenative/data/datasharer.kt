@@ -2,6 +2,8 @@ package com.example.indiwarenative.data
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -16,6 +18,8 @@ import com.example.indiwarenative.data.backend.getLessons
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
+import java.time.DayOfWeek
+import java.time.LocalDate
 import kotlin.collections.HashMap
 
 
@@ -64,6 +68,18 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    val notificationHistory: Flow<notificationHistory> = dataStore.data.map { preferences ->
+        preferences[NOTIFICATION_HISTORY]?.let { json ->
+            Json.decodeFromString<notificationHistory>(json)
+        }?: notificationHistory(LocalDate.now(), arrayListOf<notificationSubject>())
+    }
+
+    suspend fun updateNotificationHistory(newList: notificationHistory) {
+        dataStore.edit { settings ->
+            settings[NOTIFICATION_HISTORY] = Json.encodeToString(newList)
+        }
+    }
 
     val ownSubjects: Flow<HashMap<String, Boolean>> = dataStore.data.map { preferences ->
         preferences[OWN_SUBJECTS]?.let { json ->
@@ -148,6 +164,7 @@ class UserSettings private constructor(private val appContext: Context) {
         private val USERNAME = stringPreferencesKey("username")
         private val PASSWORD = stringPreferencesKey("password")
         private val ONBOARDING = booleanPreferencesKey("onboarding")
+        private val NOTIFICATION_HISTORY = stringPreferencesKey("notification_history")
 
 
         fun getInstance(context: Context): UserSettings {

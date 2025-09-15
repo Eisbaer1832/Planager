@@ -20,10 +20,14 @@ import androidx.work.WorkerParameters
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.lesson
+import com.example.indiwarenative.data.notificationHistory
+import com.example.indiwarenative.data.notificationSubject
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.WeekFields
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
@@ -55,7 +59,18 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
         current = fixDay(timeNow, current)
         val userSettings = UserSettings.getInstance(applicationContext)
         val status: Map<String, Boolean> = userSettings.ownSubjects.first()
+        val notificationHistory = userSettings.notificationHistory.first()
+
         var week =  arrayListOf<ArrayList<lesson>>()
+        val weekField = WeekFields.of(Locale.getDefault())
+        var history = notificationHistory.allreadyNotified
+        var startDate = notificationHistory.startDate.get(weekField.weekBasedYear())
+        val currentDate = current.get(weekField.weekBasedYear())
+
+        if (startDate != currentDate) {
+            startDate = currentDate
+            history = arrayListOf()
+        }
 
         for (i in 0..4) {
             val currentAsString = current.format(formatter)
@@ -70,7 +85,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             }
 
         }
-        for (day in week) {
+        for ((index, day) in week.withIndex()) {
             var lessons = day.filter { lesson ->
                 val key = lesson.subject.substringBefore(" ")
                 status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
@@ -79,15 +94,25 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             for (lesson in lessons) {
                 println("lesson $lesson")
                 if (lesson.canceled) {
-                    sendNotification(
-                        title = "Entfall!",
-                        message = "${lesson.subject.substringBefore("fällt")}in der ${lesson.pos}. Stunde fällt aus! \uD83C\uDF89"
-                    )
+                    var allreadyNotified = false
+                    for (historyLesson in history) {
+                        if (historyLesson.lesson.pos == lesson.pos && historyLesson.lesson.subject == lesson.subject && historyLesson.day == index) {
+                            allreadyNotified = true
+                        }
+                    }
+                    if (!allreadyNotified) {
+                        sendNotification(
+                            title = "Entfall!",
+                            message = "${lesson.subject.substringBefore("fällt")}in der ${lesson.pos}. Stunde fällt aus! \uD83C\uDF89"
+                        )
+                        history.plus(notificationSubject(lesson, index))
+                        println("history: " + history.joinToString())
+                    }
                 }
 
             }
         }
-
+        userSettings.updateNotificationHistory(notificationHistory(current, history))
         return Result.success()
     }
 
