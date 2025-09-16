@@ -77,24 +77,23 @@ class RoomWidget : GlanceAppWidget() {
         }
 
         val status= userSettings.ownSubjects.first()
+        var room = ""
+        var subject = ""
+        if (!lessons.isNotEmpty()) {
+            lessons = lessons.filter { lesson ->
+                val key = lesson.subject.substringBefore(" ")
+                status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
+            } as ArrayList<lesson>
+            if (index > lessons.size - 1) {
+                println("after last lesson")
+                index = lessons.size - 1
+            }
 
-
-        lessons = lessons.filter { lesson ->
-            val key = lesson.subject.substringBefore(" ")
-            status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
-        } as ArrayList<lesson>
-        if (index > lessons.size - 1) {
-            println("after last lesson")
-            index = lessons.size - 1
+            println("Subject: ${lessons[index].subject}")
+            subject = lessons[index].subject ?: "Kein Unterricht heute"
+            room = lessons[index].room ?: ""
         }
-
-        println("Subject: ${lessons[index].subject}")
-        val subject = lessons[index].subject?: "Kein Unterricht heute"
-        val room = lessons[index].room?: ""
-
         provideContent {
-
-
             GlanceTheme{
                 Scaffold(
                     backgroundColor = GlanceTheme.colors.background,

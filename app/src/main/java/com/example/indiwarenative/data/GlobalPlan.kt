@@ -39,7 +39,12 @@ suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings): String {
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()
     current = fixDay(null, current)
-    current = current.with(TemporalAdjusters.nextOrSame(day))
+    if (current.dayOfWeek > day) {
+        current = current.with(TemporalAdjusters.previousOrSame(day))
+    }else{
+        current = current.with(TemporalAdjusters.nextOrSame(day))
+    }
+
     val currentAsString = current.format(formatter)
 
 
