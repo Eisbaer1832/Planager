@@ -79,7 +79,8 @@ class RoomWidget : GlanceAppWidget() {
         val status= userSettings.ownSubjects.first()
         var room = ""
         var subject = ""
-        if (!lessons.isNotEmpty()) {
+        if (lessons.isNotEmpty()) {
+            println("showing widget data")
             lessons = lessons.filter { lesson ->
                 val key = lesson.subject.substringBefore(" ")
                 status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
