@@ -4,9 +4,11 @@ import android.content.Intent
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CalendarViewDay
 import androidx.compose.material.icons.filled.CalendarViewWeek
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.CalendarViewDay
 import androidx.compose.material.icons.outlined.CalendarViewWeek
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -24,8 +26,8 @@ import com.example.indiwarenative.WeekView
 @Composable
 fun NavBar(currentScreen: Int, onNavigate: (Int) -> Unit) {
     val items = listOf("Tagesplan", "Wochenplan", "Einstellungen")
-    val selectedIcons = listOf(Icons.Filled.CalendarToday, Icons.Filled.CalendarViewWeek, Icons.Filled.Settings)
-    val unselectedIcons = listOf(Icons.Outlined.CalendarToday, Icons.Outlined.CalendarViewWeek, Icons.Outlined.Settings)
+    val selectedIcons = listOf(Icons.Filled.CalendarViewDay, Icons.Filled.CalendarViewWeek, Icons.Filled.Settings)
+    val unselectedIcons = listOf(Icons.Outlined.CalendarViewDay, Icons.Outlined.CalendarViewWeek, Icons.Outlined.Settings)
 
     NavigationBar(
         tonalElevation = 0.dp,

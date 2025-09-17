@@ -11,9 +11,10 @@ val RobotoFlexVariable = FontFamily(
     Font(
         R.font.robotoflex_variable,
         variationSettings = FontVariation.Settings(
+            FontVariation.grade(10),
             FontVariation.weight(850),
             FontVariation.width(30f),
-            FontVariation.slant(-12f),
+            FontVariation.slant(-20f),
         )
     )
 )

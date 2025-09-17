@@ -385,6 +385,20 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             )
             {
+
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 50.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        fontSize = 40.sp,
+                        fontFamily = RobotoFlexVariable,
+                        text = current.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL_STANDALONE ,java.util.Locale.GERMANY),
+                    )
+                }
+
                 var currentLessons = lessons
                 var lastPos = 0
 
