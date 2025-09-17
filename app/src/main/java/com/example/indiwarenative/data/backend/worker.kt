@@ -55,10 +55,8 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
     CoroutineWorker(context, workerParams) {
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         var current = LocalDate.now()
         val timeNow = LocalTime.now()
         current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))

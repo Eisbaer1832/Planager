@@ -43,7 +43,6 @@ fun fixDay(timeNow: LocalTime?, current: LocalDate): LocalDate {
     return returnCurrent
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 suspend fun fetchTimetable(
     userSettings: UserSettings,
     url: String,
@@ -70,7 +69,6 @@ suspend fun fetchTimetable(
     }
 
 }
-@RequiresApi(Build.VERSION_CODES.O)
 suspend fun getAllClasses(
     userSettings: UserSettings,
     url: String,
@@ -90,7 +88,6 @@ suspend fun getAllClasses(
     return allClasses
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 suspend fun getSelectedClass(
     userSettings: UserSettings,
     day: DayOfWeek,
@@ -124,7 +121,6 @@ fun getPart(array: NodeList, name: String): String? {
     return null
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek): ArrayList<lesson>? {
     val receivedClass = getSelectedClass(userSettings, day, null)
 
@@ -181,7 +177,6 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek): ArrayList<le
     return lessons
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null): ArrayList<Kurs>? {
     val receivedClass = getSelectedClass(userSettings, day, localFilterClass)
     if (receivedClass == null) {

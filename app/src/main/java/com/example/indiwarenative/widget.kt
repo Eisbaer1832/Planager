@@ -178,7 +178,7 @@ class DayWidget : GlanceAppWidget() {
                     Column{
                         TitleBar(
                             title = "Unterricht",
-                            startIcon = ImageProvider(R.drawable.ic_launcher_background),
+                            startIcon = ImageProvider(R.drawable.ic_notification),
                         )
                         LazyColumn {
                             items(lessons.size) {index ->
@@ -197,11 +197,13 @@ class DayWidget : GlanceAppWidget() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
+                                            style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer),
                                             text = lessons[index].subject,
                                             modifier = GlanceModifier.defaultWeight()
                                         )
 
                                         Text(
+                                            style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer),
                                             text = lessons[index].room,
                                         )
                                     }
