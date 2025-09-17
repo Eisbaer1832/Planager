@@ -1,37 +1,21 @@
-package com.example.indiwarenative.data;
+package com.example.indiwarenative
 
-import java.time.LocalTime;
-
-import kotlinx.serialization.Serializable;
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.indiwarenative.data.LocalTimeSerializer
+import kotlinx.serialization.Serializable
+import java.time.LocalTime
 
 @Serializable
-public class lesson {
-    public int pos;
-    public String teacher;
-    public String subject;
-    public String room;
-    public Boolean roomChanged;
-    public LocalTime start;
-    public LocalTime end;
-    public boolean canceled;
-
-    public lesson(int pos, String teacher, String subject, String room, Boolean roomChanged, LocalTime start, LocalTime end, boolean canceled) {
-        this.teacher = teacher;
-        this.subject = subject;
-        this.room = room;
-        this.roomChanged = roomChanged;
-        this.start = start;
-        this.end = end;
-        this.pos = pos;
-        this.canceled = canceled;
-    }
-
-    public  lesson () {
-        this.pos = 0;
-        this.subject = "error";
-        this.room = "error";
-        this.teacher = "error";
-    }
-}
-
-
+data class lesson  constructor(
+    val pos: Int = 0,
+    val teacher: String = "error",
+    val subject: String = "error",
+    val room: String = "error",
+    val roomChanged: Boolean = false,
+    @Serializable(with = LocalTimeSerializer::class)
+    val start: LocalTime? = null,
+    @Serializable(with = LocalTimeSerializer::class)
+    val end: LocalTime? = null,
+    val canceled: Boolean = false
+)

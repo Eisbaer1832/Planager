@@ -37,7 +37,6 @@ import com.example.indiwarenative.data.DataSharer.lessons
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.fixDay
 import com.example.indiwarenative.data.backend.getLessons
-import com.example.indiwarenative.data.lesson
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalTime

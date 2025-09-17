@@ -7,7 +7,7 @@ import com.example.indiwarenative.data.Kurs
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.getDayXML
 import com.example.indiwarenative.data.getKurseXML
-import com.example.indiwarenative.data.lesson
+import com.example.indiwarenative.lesson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -145,14 +145,14 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek): ArrayList<le
         val pos = getPart(l, "St")!!.toInt()
         val start =  getPart(l, "Beginn")
         val end = getPart(l, "Ende")
-        var subject = getPart(l, "Fa")
+        var subject = getPart(l, "Fa")?:""
         var canceled = false
         if (subject == "---") {
             canceled = true
-            subject = getPart(l, "If").toString()
+            subject = getPart(l, "If")?:""
         }
-        val teacher = getPart(l, "Le")
-        val room = getPart(l, "Ra")
+        val teacher = getPart(l, "Le")?:""
+        val room = getPart(l, "Ra")?:""
         val formatter = DateTimeFormatter.ofPattern("H:mm")
         var roomChanged = false
         for (i in 0..l.length) {

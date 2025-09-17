@@ -8,6 +8,9 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
@@ -19,13 +22,15 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.UserSettings
-import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.data.NotificationHistory
 import com.example.indiwarenative.data.NotificationSubject
+import com.example.indiwarenative.lesson
 import kotlinx.coroutines.flow.first
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import java.time.temporal.WeekFields
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -56,6 +61,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         var current = LocalDate.now()
         val timeNow = LocalTime.now()
+        current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         current = fixDay(timeNow, current)
         val userSettings = UserSettings.getInstance(applicationContext)
         val status: Map<String, Boolean> = userSettings.ownSubjects.first()
@@ -64,21 +70,17 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
         var week =  arrayListOf<ArrayList<lesson>>()
         val weekField = WeekFields.of(Locale.getDefault())
         var history = notificationHistory.allreadyNotified
-        var startDate = notificationHistory.startDate.get(weekField.weekBasedYear())
-        val currentDate = current.get(weekField.weekBasedYear())
+        var startDate = notificationHistory.startDate
+        val currentWeek = current.get(weekField.weekBasedYear())
 
-        if (startDate != currentDate) {
-            startDate = currentDate
+        if (startDate.get(weekField.weekBasedYear()) != currentWeek) {
+            startDate = current
             history = arrayListOf()
         }
 
         for (i in 0..4) {
-            val currentAsString = current.format(formatter)
-            val lesson =
-                getLessons(
-                    userSettings,
-                    current.dayOfWeek
-                )
+            println("current: " + current.dayOfWeek)
+            val lesson = getLessons(userSettings,current.dayOfWeek)
             if (lesson != null) {
                 week.add(lesson)
                 current = current.plusDays(1)
@@ -95,7 +97,9 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
                 println("lesson $lesson")
                 if (lesson.canceled) {
                     var allreadyNotified = false
+                    println("history: " + history.joinToString())
                     for (historyLesson in history) {
+                        println("allready notified ${historyLesson.day}, $index")
                         if (historyLesson.lesson.pos == lesson.pos && historyLesson.lesson.subject == lesson.subject && historyLesson.day == index) {
                             allreadyNotified = true
                         }
@@ -105,14 +109,15 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
                             title = "Entfall!",
                             message = "${lesson.subject.substringBefore("fällt")}in der ${lesson.pos}. Stunde fällt aus! \uD83C\uDF89"
                         )
-                        history.plus(NotificationSubject(lesson, index))
+                        history = history.plus(NotificationSubject(lesson, index))
+                        println("new history" + history)
                         println("history: " + history.joinToString())
                     }
                 }
 
             }
         }
-        userSettings.updateNotificationHistory(NotificationHistory(current, history))
+        userSettings.updateNotificationHistory(NotificationHistory(startDate, history))
         return Result.success()
     }
 
@@ -134,7 +139,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             .setContentTitle(title)
             .setContentText(message)
             .setAutoCancel(true)
-            .setSmallIcon(R.drawable.ic_delete)
+            .setSmallIcon(R.drawable.stat_sys_warning)
             .build()
 
         // Show notification

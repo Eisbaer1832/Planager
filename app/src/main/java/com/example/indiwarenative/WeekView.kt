@@ -52,14 +52,12 @@ import androidx.compose.ui.unit.sp
 import com.example.indiwarenative.data.DataSharer.FilterFriend
 import com.example.indiwarenative.data.DataSharer.doFilter
 import com.example.indiwarenative.data.backend.getLessons
-import com.example.indiwarenative.components.NavBar
 import com.example.indiwarenative.components.TopBar
 import com.example.indiwarenative.data.DataSharer
 import com.example.indiwarenative.data.DataSharer.FilterClass
 import com.example.indiwarenative.data.GlobalPlan.days
 import com.example.indiwarenative.data.UserSettings
 import com.example.indiwarenative.data.backend.fixDay
-import com.example.indiwarenative.data.lesson
 import com.example.indiwarenative.ui.theme.IndiwareNativeTheme
 import java.time.DayOfWeek
 import java.time.LocalDate
