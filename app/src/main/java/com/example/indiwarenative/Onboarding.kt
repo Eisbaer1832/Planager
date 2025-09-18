@@ -249,24 +249,23 @@ sealed class OnboardingModel (
 
     data object FirstPage : OnboardingModel(
         image = Icons.TwoTone.School,
-        title = "Wilkommen bei deinem persönlichen Stundenplaner!",
-        description = "Nimm dir kurz Zeit um alles einzurichten",
+        title = "Willkommen bei deinem persönlichen Stundenplaner!",
+        description = "Nimm dir kurz Zeit um alles einzurichten.",
     )
 
     data object SecondPage : OnboardingModel(
         image = Icons.TwoTone.Password,
         title = "Gib deine Nutzerdaten ein",
-        description = "Du solltest sie bereits von deiner Schule erhalten haben",
+        description = "Du solltest sie bereits von deiner Schule erhalten haben.",
         input = {
             SecondPageInput()
         }
     )
 
-    @RequiresApi(Build.VERSION_CODES.O)
     data object ThirdPages : OnboardingModel(
         image = Icons.TwoTone.Settings,
         title = "Wähle nun deine Klasse und ggf. Kurse",
-        description = "Keine Sorge, du kannst diese jederzeit in den Einstellungen ändern",
+        description = "Keine Sorge, du kannst diese jederzeit in den Einstellungen ändern.",
         input = {
             ThirdPageInput()
         }
@@ -275,7 +274,7 @@ sealed class OnboardingModel (
     data object FourthPage : OnboardingModel(
         image = Icons.TwoTone.Widgets,
         title = "Widgets",
-        description = "Mit Widgets kannst du dir ganz bequem deinen nächsten Raum oder den heutigen Stundenplan anzeigen lassen",
+        description = "Mit Widgets kannst du dir ganz bequem deinen nächsten Raum oder den heutigen Stundenplan anzeigen lassen.",
         input = {
             FourthPageInput()
         }

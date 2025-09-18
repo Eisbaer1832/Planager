@@ -97,7 +97,13 @@ class MainActivity : ComponentActivity() {
                 var currentScreen by remember { mutableStateOf(0) }
                 Scaffold(
                     topBar = {
-                        TopBar("Tagesplan", true)
+                        when (currentScreen) {
+                            0 -> TopBar("Tagesplan", true)
+                            1 -> TopBar("Wochenplan", true)
+                            2 -> TopBar("Einstellungen", false)
+
+
+                        }
                     }, bottomBar = {
                         NavBar(currentScreen) { currentScreen = it } }
                 ){ innerPadding ->
@@ -275,7 +281,6 @@ fun LessonCard(
 
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -377,7 +382,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
                 Row(
                     modifier = Modifier
-                        .padding(vertical = 50.dp)
+                        .padding(vertical = 30.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {

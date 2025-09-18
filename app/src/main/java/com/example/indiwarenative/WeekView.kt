@@ -334,7 +334,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = "Pauseee \uD83C\uDF89",
+                                        text = "Mittagspause \uD83C\uDF89",
                                         textAlign = TextAlign.Center
                                     )
                                 }
