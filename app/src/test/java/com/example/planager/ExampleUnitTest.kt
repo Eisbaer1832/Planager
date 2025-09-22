@@ -1,4 +1,4 @@
-package com.example.indiwarenative
+package com.example.planager
 
 import org.junit.Test
 

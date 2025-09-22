@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.indiwarenative"
+    namespace = "com.capputinodevelopment.planager"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.indiwarenative"
+        applicationId = "com.capputinodevelopment.planager"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

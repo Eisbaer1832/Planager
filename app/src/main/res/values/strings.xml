@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">IndiwareNative</string>
+    <string name="app_name">Planager</string>
     <string name="title_activity_home_page">HomePage</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_week_view">WeekView</string>

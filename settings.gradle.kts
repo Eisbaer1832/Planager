@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "IndiwareNative"
+rootProject.name = "planager"
 include(":app")
  
