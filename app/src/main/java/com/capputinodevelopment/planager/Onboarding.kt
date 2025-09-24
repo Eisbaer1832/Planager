@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,8 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Room
@@ -54,13 +57,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.getDrawable
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.capputinodevelopment.planager.components.SettingsCardDropdown
 import com.capputinodevelopment.planager.components.SettingsCardEdit
@@ -75,6 +81,7 @@ import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -82,7 +89,6 @@ import java.time.LocalDate
 // This file is based off of https://github.com/ahmmedrejowan/OnboardingScreen-JetpackCompose
 
 class Onboarding : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -149,48 +155,7 @@ fun SecondPageInput() {
         true
     )
 }
-@Composable
-fun FourthPageInput() {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    Column (
-        modifier = Modifier.fillMaxWidth().padding(top = 20.dp).height(100.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
-                        receiver = RoomWidgetReceiver::class.java,
-                        preview = RoomWidget(),
-                        previewState = DpSize(245.dp, 115.dp)
-                    )
-                }
-            }
-        ) {
-            Icon(Icons.Default.Room, "")
-            Text("Nächster Raum")
-        }
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
-                        receiver = DayWidgetReceiver::class.java,
-                        preview = DayWidget(),
-                        previewState = DpSize(245.dp, 115.dp)
-                    )
-                }
-            }
-        ) {
-            Icon(Icons.Default.ViewDay, "")
-            Text("Unterricht des Tages")
-        }
-    }
-
-}
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ThirdPageInput() {
     val context = LocalContext.current
@@ -234,19 +199,93 @@ fun ThirdPageInput() {
                 }
             }
         )
-        SettingsCardEdit("Eigene Fächer", bottomShape, buttonText = "") {
-            localFilterClass = ownClass
-            OwnSubjectDialogToggle.value = true
+        SettingsCardEdit(
+            "Eigene Fächer", bottomShape, buttonText = "",
+            onclick = {
+                localFilterClass = ownClass
+                OwnSubjectDialogToggle.value = true
+            },
+        )
+    }
+
+}
+
+@Composable
+fun FourthPageInput() {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    Column (
+        modifier = Modifier.fillMaxWidth().padding(top = 20.dp).height(100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+                        receiver = RoomWidgetReceiver::class.java,
+                        preview = RoomWidget(),
+                        previewState = DpSize(245.dp, 115.dp)
+                    )
+                }
+            }
+        ) {
+            Icon(Icons.Default.Room, "")
+            Text("Nächster Raum")
+        }
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+                        receiver = DayWidgetReceiver::class.java,
+                        preview = DayWidget(),
+                        previewState = DpSize(245.dp, 115.dp)
+                    )
+                }
+            }
+        ) {
+            Icon(Icons.Default.ViewDay, "")
+            Text("Unterricht des Tages")
         }
     }
 
 }
+
+
+@Composable
+fun FithPageInput() {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    Column (
+        modifier = Modifier.fillMaxWidth().padding(top = 20.dp).height(100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        val uriHandler = LocalUriHandler.current
+        Button(
+            onClick = {
+                uriHandler.openUri("https://ko-fi.com/capputinodevelopment")
+            },
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorite",
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+                Text("Spenden")
+            }
+        }
+    }
+
+}
+
 
 sealed class OnboardingModel (
     val image: ImageVector,
     val title: String,
     val description: String,
     val input: @Composable () -> Unit = {},
+    val gif: Int? = null,
 ) {
 
     data object FirstPage : OnboardingModel(
@@ -261,7 +300,7 @@ sealed class OnboardingModel (
         description = "Du solltest sie bereits von deiner Schule erhalten haben.",
         input = {
             SecondPageInput()
-        }
+        },
     )
 
     data object ThirdPages : OnboardingModel(
@@ -270,15 +309,26 @@ sealed class OnboardingModel (
         description = "Keine Sorge, du kannst diese jederzeit in den Einstellungen ändern.",
         input = {
             ThirdPageInput()
-        }
+        },
     )
-    @RequiresApi(Build.VERSION_CODES.O)
+
     data object FourthPage : OnboardingModel(
         image = Icons.TwoTone.Widgets,
         title = "Widgets",
         description = "Mit Widgets kannst du dir ganz bequem deinen nächsten Raum oder den heutigen Stundenplan anzeigen lassen.",
         input = {
             FourthPageInput()
+        },
+    )
+
+    data object FithPage : OnboardingModel(
+        image = Icons.TwoTone.Widgets,
+        gif = R.drawable.sparkle_mug,
+        title = "Unterstütze die Entwicklung von Planager",
+        description = "Planager ist ein komplett kostenfreies Hobbyprojekt! Wenn du mich unterstützen möchtest, spende doch gerne einen Kaffee!",
+        input = {
+            FithPageInput()
+
         }
     )
 
@@ -293,15 +343,31 @@ fun Page(onboardingModel: OnboardingModel) {
         verticalArrangement = Arrangement.Center) {
 
 
-        Icon(
-            onboardingModel.image,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .fillMaxWidth()
-                .size(100.dp)
-                .padding(40.dp, 0.dp),
-        )
+        if (onboardingModel.gif != null) {
+            Image(
+                modifier = Modifier.clip(CircleShape)
+                    .fillMaxWidth()
+                    .padding(40.dp, 0.dp),   //crops the image to circle shape
+                painter = rememberDrawablePainter(
+                    drawable = getDrawable(
+                        LocalContext.current,
+                        onboardingModel.gif
+                    )
+                ),
+                contentDescription = "Loading animation",
+                contentScale = ContentScale.FillWidth,
+            )
+        }else {
+            Icon(
+                onboardingModel.image,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(100.dp)
+                    .padding(40.dp, 0.dp),
+            )
+        }
 
         Spacer(
             modifier = Modifier.size(50.dp)
@@ -416,12 +482,10 @@ fun BackButton() {
 
 
 }
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Onboarding(name: String, modifier: Modifier = Modifier) {
     val pages = listOf(
-        OnboardingModel.FirstPage, OnboardingModel.SecondPage, OnboardingModel.ThirdPages, OnboardingModel.FourthPage
-    )
+        OnboardingModel.FirstPage, OnboardingModel.SecondPage, OnboardingModel.ThirdPages, OnboardingModel.FourthPage, OnboardingModel.FithPage    )
 
     val pagerState = rememberPagerState(initialPage = 0) {
         pages.size
@@ -432,7 +496,8 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
                 0 -> listOf("", "Weiter")
                 1 -> listOf("Zurück", "Weiter")
                 2 -> listOf("Zurück", "Weiter")
-                3 -> listOf("Zurück", "Start")
+                3 -> listOf("Zurück", "Weiter")
+                4 -> listOf("Zurück", "Start")
                 else -> listOf("", "")
             }
         }

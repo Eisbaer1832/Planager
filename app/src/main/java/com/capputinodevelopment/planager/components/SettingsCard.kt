@@ -1,5 +1,6 @@
 package com.capputinodevelopment.planager.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,10 +30,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.capputinodevelopment.planager.R
 import com.capputinodevelopment.planager.data.UserSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
@@ -46,6 +49,7 @@ fun SettingsCardEdit(
     buttonText: String = "Ändern",
     size: Dp = 16.dp,
     onclick: () -> Unit,
+    leadingIcon: Int? = null,
 
     ) {
     Card(
@@ -58,6 +62,13 @@ fun SettingsCardEdit(
                 .padding(size),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (leadingIcon != null) {
+                Image(
+                    modifier = Modifier.size(30.dp).padding(end = 10.dp),
+                    painter = painterResource(id = leadingIcon),
+                    contentDescription = "KoFi Logo"
+                )
+            }
             Text(title)
             Spacer(modifier = Modifier.weight(1f))
             Button(

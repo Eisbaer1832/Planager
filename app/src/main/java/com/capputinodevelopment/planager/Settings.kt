@@ -2,6 +2,7 @@ package com.capputinodevelopment.planager
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -19,11 +20,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Replay
@@ -38,6 +41,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.components.FriendsList
@@ -100,6 +105,7 @@ fun Settings(modifier: Modifier = Modifier) {
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
+    val onboarding by userSettings.onboarding.collectAsState(initial = null)
 
     LaunchedEffect(Unit, FilterClass) {
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
@@ -110,9 +116,13 @@ fun Settings(modifier: Modifier = Modifier) {
             AGs = getKurse(userSettings, current.dayOfWeek, "AG")?: ArrayList()
         }
 
-
     }
-
+    LaunchedEffect(onboarding) {
+        if (onboarding == true) {
+            println("doing onboarding")
+            context.startActivity(Intent(context, Onboarding::class.java))
+        }
+    }
     if (OwnSubjectDialogToggle.value) {
         SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse, AGs, userSettings, true)
     }
@@ -147,20 +157,29 @@ fun Settings(modifier: Modifier = Modifier) {
             }
         }
 
-        if (!hasPermission) SettingsCardEdit("Benachrichtigungen", roundShape, Icons.Default.Check, "Erlauben") {permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)}
+        if (!hasPermission) SettingsCardEdit(
+            "Benachrichtigungen",
+            roundShape,
+            Icons.Default.Check,
+            "Erlauben",
+            onclick = {permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)},
+        )
 
 
 
 
-        SettingsCardEdit("Eigene Fächer", topShape, buttonText = "") {
-            FilterClass = ownClass
-            OwnSubjectDialogToggle.value = true
+        SettingsCardEdit(
+            "Eigene Fächer", topShape, buttonText = "",
+            onclick = {
+                FilterClass = ownClass
+                OwnSubjectDialogToggle.value = true
 
 
-            couroutineScope.launch {
-                Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
-            }
-        }
+                couroutineScope.launch {
+                    Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
+                }
+            },
+        )
         SettingsCardDropdown("Jahrgang / Klasse",bottomShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
                 FilterClass = selected
@@ -168,7 +187,12 @@ fun Settings(modifier: Modifier = Modifier) {
                 userSettings.updateOwnSubjects(HashMap())
             }}
         )
-        SettingsCardEdit("Fächer von Freunden",roundShape, buttonText = "") { FriendsListToggle.value = true }
+        SettingsCardEdit(
+            "Fächer von Freunden",
+            roundShape,
+            buttonText = "",
+            onclick = { FriendsListToggle.value = true },
+        )
 
 
         var checked by remember { mutableStateOf(true) }
@@ -247,10 +271,23 @@ fun Settings(modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.height(20.dp))
         Text("Sonstiges", style = MaterialTheme.typography.headlineMediumEmphasized)
-        SettingsCardEdit("Einrichtung neustarten", roundShape, buttonText = "", buttonIcon = Icons.Default.Replay
-        ) {
-            couroutineScope.launch {userSettings.updateOnboarding(true)}
-        }
+
+        val uriHandler = LocalUriHandler.current
+        SettingsCardEdit(
+            "Spenden", roundShape, buttonIcon = Icons.Default.Favorite, buttonText = "", leadingIcon = R.drawable.kofi_symbol,
+            onclick = {
+                uriHandler.openUri("https://ko-fi.com/capputinodevelopment")
+            },
+        )
+        SettingsCardEdit(
+            "Einrichtung neustarten",
+            roundShape,
+            buttonIcon = Icons.Default.Replay,
+            buttonText = "",
+            onclick = {
+                couroutineScope.launch {userSettings.updateOnboarding(true)}
+            },
+        )
     }
 
 }
