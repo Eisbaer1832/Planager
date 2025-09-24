@@ -349,27 +349,17 @@ fun WeekView(modifier: Modifier = Modifier) {
                                     Column {
                                         for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
                                             var show = true
-                                            val currentSubject = orderedWeek.get(pos)?.get(i)?.get(j)?.subject
+                                            val lesson = orderedWeek.get(pos)?.get(i)?.get(j)?: lesson()
+                                            val currentSubject = lesson.subject
                                             if (doFilter){
-                                                if (FilterFriend == "") {
-                                                    show = if (!(subjectsToShow[currentSubject?.substringBefore(" ")] ?: false)) false else true
-                                                }else {
-                                                    show = if (!(friendsSubjects.get(FilterFriend)?.get(currentSubject?.substringBefore(" ")) ?: false)) false else true
-                                                }
-                                                if (FilterClass != "13") {
-                                                    currentSubject?.contains(Regex("verlegt|fällt", RegexOption.IGNORE_CASE))?.let {
-                                                        if (it) {
-                                                            show = true
-                                                        }
+                                                if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(Regex("-P")) || lesson.ag) {
+                                                    if (FilterFriend == "") {
+                                                        show = subjectsToShow[currentSubject.substringBefore(" ")] == true
+                                                    }else {
+                                                        show = friendsSubjects.get(FilterFriend)?.get(currentSubject.substringBefore(" ")) == true
                                                     }
-
-                                                    currentSubject?.contains(Regex("\\d"))?.let {
-                                                        if (!it) {
-                                                            show = true
-                                                        }
-                                                    }
-
                                                 }
+
                                             }else {
                                                 if (orderedWeek.get(pos)?.get(i)?.get(j)?.ag?:false){
                                                     show = false

@@ -325,7 +325,7 @@ sealed class OnboardingModel (
         image = Icons.TwoTone.Widgets,
         gif = R.drawable.sparkle_mug,
         title = "Unterstütze die Entwicklung von Planager",
-        description = "Planager ist ein komplett kostenfreies Hobbyprojekt! Wenn du mich unterstützen möchtest, spende doch gerne einen Kaffee!",
+        description = "Planager ist ein für dich komplett kostenloses Hobbyprojekt! Wenn du mich unterstützen möchtest, spende doch gerne einen Kaffee!",
         input = {
             FithPageInput()
 

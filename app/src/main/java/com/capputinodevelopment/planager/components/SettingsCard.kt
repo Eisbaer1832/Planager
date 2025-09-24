@@ -64,7 +64,7 @@ fun SettingsCardEdit(
         ) {
             if (leadingIcon != null) {
                 Image(
-                    modifier = Modifier.size(30.dp).padding(end = 10.dp),
+                    modifier = Modifier.size(40.dp).padding(end = 10.dp),
                     painter = painterResource(id = leadingIcon),
                     contentDescription = "KoFi Logo"
                 )
