@@ -352,7 +352,8 @@ fun WeekView(modifier: Modifier = Modifier) {
                                             val lesson = orderedWeek.get(pos)?.get(i)?.get(j)?: lesson()
                                             val currentSubject = lesson.subject
                                             if (doFilter){
-                                                if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(Regex("-P")) || lesson.ag) {
+                                                if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(Regex("-P")) || currentSubject.contains(Regex("-W")) || lesson.ag) {
+                                                    println("filtering object" + currentSubject)
                                                     if (FilterFriend == "") {
                                                         show = subjectsToShow[currentSubject.substringBefore(" ")] == true
                                                     }else {

@@ -45,7 +45,6 @@ import java.time.format.DateTimeFormatter
 
 //TODO implement data updates
 class RoomWidget : GlanceAppWidget() {
-    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("RestrictedApi")
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {

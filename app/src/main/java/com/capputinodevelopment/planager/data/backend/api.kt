@@ -175,12 +175,12 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterCl
         val lesson = parseLesson(l, false)
         lessons.add(lesson)
 
-        if (lastPos !=lesson.pos) {
+        if (lastPos !=lesson.pos ) {
             lastPos = lesson.pos
-            for (i in 0..<agClasses!!.length) {
-                val agL = agClasses.item(i).childNodes
+            for (j in 0..<agClasses!!.length) {
+                val agL = agClasses.item(j).childNodes
                 val ag = parseLesson(agL, true)
-                if (ag.pos == lastPos) {
+                if (ag.pos == lastPos || i >= lessonNodes.length -1) {
                     lessons.add(ag)
                 }
                 println("AG Namen ${ag.subject}")

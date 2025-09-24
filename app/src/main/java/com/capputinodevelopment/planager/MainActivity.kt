@@ -401,9 +401,19 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 var lastPos = 0
 
                 if (doFilter && !FilterClass.isEmpty()) {
+                    currentLessons = currentLessons
+                        ?.filter { lesson ->
+                            val key = lesson.subject.substringBefore(" ")
+                            status.value[key] == true || (
+                                        !lesson.subject.contains(Regex("\\d")) &&
+                                                !lesson.subject.contains(Regex("-P")) &&
+                                                !lesson.subject.contains(Regex("-W")) &&
+                                                !lesson.ag
+                                    )
+                        }
+                        ?.toCollection(ArrayList())
 
                     // show subject if its not filtered or it doesnt contain in number since that would be a mandatory class subject (hopefully)
-                    currentLessons = currentLessons?.filter { status.value[it.subject.substringBefore(" ")] == true || !it.subject.contains(Regex("\\d"))  && FilterClass != "13"} as ArrayList<lesson>?
                 }else{
                     currentLessons = currentLessons?.filter { !it.ag } as ArrayList<lesson>?
                 }
