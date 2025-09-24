@@ -56,6 +56,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.accompanist:accompanist-drawablepainter:0.37.3")
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
