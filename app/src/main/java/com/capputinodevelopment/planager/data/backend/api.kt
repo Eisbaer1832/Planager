@@ -200,9 +200,25 @@ suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClas
     }
 
     val selectedClass =receivedClass.childNodes
+
+
+
     val kursNodes = selectedClass?.item(3)?.childNodes
     val kurse = ArrayList<Kurs>()
 
+
+    // normal classes (P/W)
+    var normalClasses = selectedClass?.item(4)?.childNodes
+    for (i in 0..<normalClasses!!.length) {
+        val c = normalClasses.item(i).firstChild
+        val teacher = c.attributes.getNamedItem("UeLe").textContent
+        val name = c.attributes.getNamedItem("UeFa").textContent
+        if (name.contains("-P") || name.contains("-W")) {
+            kurse.add(Kurs(teacher, name))
+
+        }
+    }
+    //Kurse
     for ( i in 0..<kursNodes!!.length) {
         var text = kursNodes.item(i).firstChild.textContent
         println("Kurs is named $text")
