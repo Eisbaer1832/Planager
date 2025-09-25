@@ -216,7 +216,8 @@ fun WeekView(modifier: Modifier = Modifier) {
             val lesson =
                 getLessons(
                     userSettings,
-                    current.dayOfWeek
+                    current.dayOfWeek,
+                    context = context
                 )
             if (lesson != null) {
                 week.add(lesson)

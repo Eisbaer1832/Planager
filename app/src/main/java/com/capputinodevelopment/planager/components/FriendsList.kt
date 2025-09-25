@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.DataSharer.AGs
@@ -81,6 +82,7 @@ fun FriendsList (
             sheetState = sheetState
         ) {
             Column {
+                val context = LocalContext.current
                 friends.forEach {friend ->
                     FriendItem(
                         //friends[friend.key].get("class") geht leider nicht :(
@@ -90,7 +92,7 @@ fun FriendsList (
                             FilterClass = friendsClasses.get(friendName)?: ""
                             couroutineScope.launch {
                                 // TODO muss das : sein "/mobil/mobdaten/Klassen.xml"
-                                kurse.value = getKurse(userSettings, LocalDate.now().dayOfWeek, null)?: ArrayList()
+                                kurse.value = getKurse(userSettings, LocalDate.now().dayOfWeek, null, context)?: ArrayList()
                             }
                             shouldShowDialog.value = true;
                         }, {selected -> couroutineScope.launch{

@@ -1,5 +1,6 @@
 package com.capputinodevelopment.planager.data
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
@@ -32,7 +33,7 @@ object GlobalPlan {
 
 
 
-suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings): String {
+suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings, context: Context): String {
 
 
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -50,7 +51,7 @@ suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings): String {
     var dayXML= days.value[day]?:""
     if (dayXML.isEmpty()) {
         println("Updating global Variable")
-        var result = fetchTimetable(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml", null)
+        var result = fetchTimetable(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml", null, context)
         days.value = days.value.toMutableMap().apply {this[day] = result}
 
         dayXML = result
@@ -59,10 +60,10 @@ suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings): String {
     return dayXML
 }
 
-suspend fun getKurseXML(userSettings: UserSettings): String {
+suspend fun getKurseXML(userSettings: UserSettings, context: Context): String {
     if (kurse == "") {
         println("Updating global Variable")
-        kurse = fetchTimetable(userSettings, "/mobil/mobdaten/Klassen.xml", null)
+        kurse = fetchTimetable(userSettings, "/mobil/mobdaten/Klassen.xml", null, context)
     }
     return kurse
 }

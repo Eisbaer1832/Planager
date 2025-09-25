@@ -171,9 +171,9 @@ fun ThirdPageInput() {
     LaunchedEffect(Unit, localFilterClass) {
         loading = true
 
-        Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass)?: ArrayList()
-        AGs = getKurse(userSettings, current.dayOfWeek, "AG")?: ArrayList()
-        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
+        Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass, context)?: ArrayList()
+        AGs = getKurse(userSettings, current.dayOfWeek, "AG", context)?: ArrayList()
+        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
         loading = false
     }
     if (OwnSubjectDialogToggle.value) {

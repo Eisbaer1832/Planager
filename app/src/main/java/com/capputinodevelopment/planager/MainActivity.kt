@@ -324,11 +324,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     LaunchedEffect(Unit, filter) {
         loading = true
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
+            Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
         }
         println("getting DayData for " + current.dayOfWeek)
-        lessons = getLessons(userSettings, current.dayOfWeek)
-        ags = getLessons(userSettings, current.dayOfWeek, "AG")?:arrayListOf()
+        lessons = getLessons(userSettings, current.dayOfWeek, context= context)
+        ags = getLessons(userSettings, current.dayOfWeek, "AG", context)?:arrayListOf()
         loading = false
     }
     val state = rememberPullToRefreshState()
@@ -345,7 +345,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             )
         )
         coroutineScope.launch {lessons =
-            getLessons(userSettings, current.dayOfWeek)
+            getLessons(userSettings, current.dayOfWeek, context = context)
         }
         isRefreshing = false
     }

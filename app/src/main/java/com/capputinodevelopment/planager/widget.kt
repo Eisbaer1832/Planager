@@ -54,7 +54,7 @@ class RoomWidget : GlanceAppWidget() {
         current = fixDay(timeNow, current)
         println("current"+ current)
 
-        lessons = getLessons(userSettings, current.dayOfWeek) ?: arrayListOf()
+        lessons = getLessons(userSettings, current.dayOfWeek, context = context) ?: arrayListOf()
 
 
 
@@ -136,10 +136,10 @@ class RoomWidget : GlanceAppWidget() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-suspend fun getWidgetData(userSettings: UserSettings, currentAsString: String): ArrayList<lesson> {
+suspend fun getWidgetData(userSettings: UserSettings, currentAsString: String, context: Context): ArrayList<lesson> {
     println("Getting widget Data")
     val status: Map<String, Boolean> = userSettings.ownSubjects.first()
-    var lessons: ArrayList<lesson> = getLessons(userSettings, LocalDate.now().dayOfWeek) ?: arrayListOf()
+    var lessons: ArrayList<lesson> = getLessons(userSettings, LocalDate.now().dayOfWeek, context = context) ?: arrayListOf()
     lessons = lessons.filter { lesson ->
         val key = lesson.subject.substringBefore(" ")
         status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
@@ -166,7 +166,7 @@ class DayWidget : GlanceAppWidget() {
 
 
         var currentAsString = current.format(formatter)
-        var lessons = getWidgetData(userSettings, currentAsString)
+        var lessons = getWidgetData(userSettings, currentAsString, context)
         provideContent {
             //println("Setting widget content")
             GlanceTheme{

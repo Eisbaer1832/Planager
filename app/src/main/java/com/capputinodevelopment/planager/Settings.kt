@@ -108,12 +108,12 @@ fun Settings(modifier: Modifier = Modifier) {
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
 
     LaunchedEffect(Unit, FilterClass) {
-        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf(String())
+        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
+            Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
         }
         if (AGs.isEmpty()) {
-            AGs = getKurse(userSettings, current.dayOfWeek, "AG")?: ArrayList()
+            AGs = getKurse(userSettings, current.dayOfWeek, "AG", context)?: ArrayList()
         }
 
     }
@@ -176,7 +176,7 @@ fun Settings(modifier: Modifier = Modifier) {
 
 
                 couroutineScope.launch {
-                    Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
+                    Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
                 }
             },
         )

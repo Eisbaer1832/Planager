@@ -1,7 +1,10 @@
 package com.capputinodevelopment.planager.data.backend
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.glance.LocalContext
+import com.capputinodevelopment.planager.R
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.Kurs
 import com.capputinodevelopment.planager.data.UserSettings
@@ -13,6 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.DayOfWeek
@@ -22,6 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.util.ArrayList
 import java.util.Base64
 import javax.xml.parsers.DocumentBuilderFactory
+import androidx.compose.ui.platform.LocalResources
 
 // API Endpoints
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml
@@ -46,14 +51,24 @@ fun fixDay(timeNow: LocalTime?, current: LocalDate): LocalDate {
 suspend fun fetchTimetable(
     userSettings: UserSettings,
     url: String,
-    localFilterClass: String? = null
+    localFilterClass: String? = null,
+    lContext: Context,
 ): String = withContext(Dispatchers.IO){
 
     println("using: $url for outgoing network call")
     val username = userSettings.username.first()
     val password = userSettings.password.first()
     val schoolID = userSettings.schoolID.first()
-
+    if (username == "google" && password == "google" && schoolID == "google") {
+        return@withContext try {
+            lContext.resources.openRawResource(R.raw.plan)
+                .bufferedReader(Charsets.UTF_8)
+                .use { it.readText() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+    }
     try {
         val connection = URL("https://www.stundenplan24.de/$schoolID$url").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
@@ -72,9 +87,10 @@ suspend fun fetchTimetable(
 suspend fun getAllClasses(
     userSettings: UserSettings,
     url: String,
+    context: Context
 
 ): Array<String>? {
-    val xmlTimeTable = getKurseXML(userSettings)
+    val xmlTimeTable = getKurseXML(userSettings, context)
     if (xmlTimeTable.isEmpty()) {
         return null;
     }
@@ -91,10 +107,11 @@ suspend fun getAllClasses(
 suspend fun getSelectedClass(
     userSettings: UserSettings,
     day: DayOfWeek,
-    localFilterClass: String? = null
+    localFilterClass: String? = null,
+    context: Context
 ): Node? {
 
-    val xmlTimeTable = getDayXML(day, userSettings)
+    val xmlTimeTable = getDayXML(day, userSettings, context)
     if (xmlTimeTable.isEmpty()) {
         return null;
     }
@@ -155,9 +172,9 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         isAg
     )
 }
-suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null): ArrayList<lesson>? {
-    val receivedClass = getSelectedClass(userSettings, day, localFilterClass)
-    val agClasses = getSelectedClass(userSettings, day, "AG")?.childNodes?.item(5)?.childNodes
+suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context): ArrayList<lesson>? {
+    val receivedClass = getSelectedClass(userSettings, day, localFilterClass, context)
+    val agClasses = getSelectedClass(userSettings, day, "AG", context)?.childNodes?.item(5)?.childNodes
 
     val lessons = ArrayList<lesson>()
 
@@ -193,8 +210,8 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterCl
     return lessons
 }
 
-suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null): ArrayList<Kurs>? {
-    val receivedClass = getSelectedClass(userSettings, day, localFilterClass)
+suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context): ArrayList<Kurs>? {
+    val receivedClass = getSelectedClass(userSettings, day, localFilterClass, context)
     if (receivedClass == null) {
         return null
     }

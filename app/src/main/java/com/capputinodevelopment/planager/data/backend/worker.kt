@@ -73,7 +73,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
 
         for (i in 0..4) {
             println("current: " + current.dayOfWeek)
-            val lesson = getLessons(userSettings,current.dayOfWeek)
+            val lesson = getLessons(userSettings,current.dayOfWeek, context = applicationContext)
             if (lesson != null) {
                 week.add(lesson)
                 current = current.plusDays(1)
