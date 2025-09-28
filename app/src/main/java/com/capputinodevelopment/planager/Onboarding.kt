@@ -42,6 +42,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,6 +85,7 @@ import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -105,11 +108,14 @@ class Onboarding : ComponentActivity() {
         }
     }
 }
-
 @Composable
-fun SecondPageInput() {
+fun SecondPageInput(
+    onValidationChanged: (Boolean) -> Unit,
+    snackbarHostState: SnackbarHostState
+) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
+    val couroutineScope = rememberCoroutineScope()
     val schoolID by userSettings.schoolID.collectAsState(initial = "")
     SettingsCardInput(
         topShape,
@@ -117,33 +123,20 @@ fun SecondPageInput() {
         "Schul ID",
         Icons.Filled.Web,
         schoolID,
-        { settings ->
-            settings.schoolID.first() // async load
-        },
-        { value, settings ->
-            settings.updateSchoolID(value) // async save
-        }
+        { settings -> settings.schoolID.first() },
+        { value, settings -> settings.updateSchoolID(value) }
     )
 
-    val username by userSettings.password.collectAsState(initial = "")
+    val username by userSettings.username.collectAsState(initial = "")
     SettingsCardInput(
         neutralShape,
         userSettings,
         "Nutzername",
         Icons.Filled.Person,
         username,
-        { settings ->
-            settings.username.first() // async load
-        },
+        { settings -> settings.username.first() },
         { value, settings ->
-            settings.updateUsername(value) // async save
-            if(fetchTimetable(
-                    userSettings = userSettings,
-                    url = "/mobil/mobdaten/Klassen.xml",
-                    lContext = context
-                ) == "") {
-                println("update failed")
-            }
+            settings.updateUsername(value)
         }
     )
 
@@ -154,15 +147,45 @@ fun SecondPageInput() {
         "Passwort",
         Icons.Filled.Password,
         pwd,
-        { settings ->
-            settings.password.first() // async load
-        },
-        { value, settings ->
-            settings.updatePassword(value) // async save
-        },
+        { settings -> settings.password.first() },
+        { value, settings -> settings.updatePassword(value) },
         true
     )
+    Button(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {
+            couroutineScope.launch {
+                val result = fetchTimetable(
+                    userSettings = userSettings,
+                    url = "/mobil/mobdaten/Klassen.xml",
+                    lContext = context
+                )
+
+                if (result.isEmpty()) {
+                    println("update failed")
+                    couroutineScope.launch {
+                        snackbarHostState.showSnackbar("Nutzerdaten inkorrekt!")
+                    }
+                    onValidationChanged(false)
+                } else {
+                    couroutineScope.launch {
+                        snackbarHostState.showSnackbar("Nutzerdaten korrekt!!")
+                    }
+                    onValidationChanged(true)
+                }
+            }
+        },
+        colors = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        ), shape = RoundedCornerShape(10.dp)
+    ) {
+        Text(
+            text = "Verbindung testen"
+        )
+    }
 }
+
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ThirdPageInput() {
@@ -189,7 +212,9 @@ fun ThirdPageInput() {
     }
     if (loading) {
         Column (
-            modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ){ LoadingIndicator() }
 
@@ -223,7 +248,10 @@ fun FourthPageInput() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     Column (
-        modifier = Modifier.fillMaxWidth().padding(top = 20.dp).height(100.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp)
+            .height(100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Button(
@@ -264,7 +292,10 @@ fun FithPageInput() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     Column (
-        modifier = Modifier.fillMaxWidth().padding(top = 20.dp).height(100.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp)
+            .height(100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         val uriHandler = LocalUriHandler.current
@@ -287,46 +318,38 @@ fun FithPageInput() {
 
 }
 
-
-sealed class OnboardingModel (
+sealed class OnboardingModel(
     val image: ImageVector,
     val title: String,
     val description: String,
     val input: @Composable () -> Unit = {},
     val gif: Int? = null,
 ) {
-
     data object FirstPage : OnboardingModel(
         image = Icons.TwoTone.School,
         title = "Willkommen bei deinem persönlichen Stundenplaner!",
-        description = "Nimm dir kurz Zeit um alles einzurichten.",
+        description = "Nimm dir kurz Zeit um alles einzurichten."
     )
 
-    data object SecondPage : OnboardingModel(
+    class SecondPage(val onValidationChanged: (Boolean) -> Unit, snackbarHostState: SnackbarHostState) : OnboardingModel(
         image = Icons.TwoTone.Password,
         title = "Gib deine Nutzerdaten ein",
         description = "Du solltest sie bereits von deiner Schule erhalten haben.",
-        input = {
-            SecondPageInput()
-        },
+        input = { SecondPageInput(onValidationChanged, snackbarHostState) }
     )
 
     data object ThirdPages : OnboardingModel(
         image = Icons.TwoTone.Settings,
         title = "Wähle nun deine Klasse und ggf. Kurse",
         description = "Keine Sorge, du kannst diese jederzeit in den Einstellungen ändern.",
-        input = {
-            ThirdPageInput()
-        },
+        input = { ThirdPageInput() }
     )
 
     data object FourthPage : OnboardingModel(
         image = Icons.TwoTone.Widgets,
         title = "Widgets",
         description = "Mit Widgets kannst du dir ganz bequem deinen nächsten Raum oder den heutigen Stundenplan anzeigen lassen.",
-        input = {
-            FourthPageInput()
-        },
+        input = { FourthPageInput() }
     )
 
     data object FithPage : OnboardingModel(
@@ -334,13 +357,8 @@ sealed class OnboardingModel (
         gif = R.drawable.sparkle_mug,
         title = "Unterstütze die Entwicklung von Planager",
         description = "Planager ist ein für dich komplett kostenloses Hobbyprojekt! Wenn du mich unterstützen möchtest, spende doch gerne einen Kaffee!",
-        input = {
-            FithPageInput()
-
-        }
+        input = { FithPageInput() }
     )
-
-
 }
 
 @Composable
@@ -353,7 +371,8 @@ fun Page(onboardingModel: OnboardingModel) {
 
         if (onboardingModel.gif != null) {
             Image(
-                modifier = Modifier.clip(CircleShape)
+                modifier = Modifier
+                    .clip(CircleShape)
                     .fillMaxWidth()
                     .padding(40.dp, 0.dp),   //crops the image to circle shape
                 painter = rememberDrawablePainter(
@@ -442,7 +461,7 @@ fun IndicatorUI(
                 .height(14.dp)
                 .width(width = if (it == currentPage) 32.dp else 14.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(color = if(it == currentPage) selectedColor else unselectedColor)
+                .background(color = if (it == currentPage) selectedColor else unselectedColor)
 
             )
             Spacer(modifier = Modifier.size(2.5.dp))
@@ -492,12 +511,19 @@ fun BackButton() {
 }
 @Composable
 fun Onboarding(name: String, modifier: Modifier = Modifier) {
-    val pages = listOf(
-        OnboardingModel.FirstPage, OnboardingModel.SecondPage, OnboardingModel.ThirdPages, OnboardingModel.FourthPage, OnboardingModel.FithPage    )
+    var canContinue by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    val pagerState = rememberPagerState(initialPage = 0) {
-        pages.size
-    }
+    val pages = listOf(
+        OnboardingModel.FirstPage,
+        OnboardingModel.SecondPage ({ isValid -> canContinue = isValid},snackbarHostState),
+        OnboardingModel.ThirdPages,
+        OnboardingModel.FourthPage,
+        OnboardingModel.FithPage
+    )
+
+    val pagerState = rememberPagerState(initialPage = 0) { pages.size }
     val buttonState = remember {
         derivedStateOf {
             when (pagerState.currentPage) {
@@ -511,64 +537,84 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
         }
     }
 
-    val scope = rememberCoroutineScope()
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, bottom = 50.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (buttonState.value[0].isNotEmpty()) {
+                        ButtonUi(
+                            text = buttonState.value[0],
+                            backgroundColor = Color.Transparent,
+                            textColor = Color.Gray
+                        ) {
+                            scope.launch {
+                                if (pagerState.currentPage > 0) {
+                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                }
+                            }
+                        }
+                    }
+                }
 
-    Scaffold(bottomBar = {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp,bottom= 50.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IndicatorUI(pageSize = pages.size, currentPage = pagerState.currentPage)
+                }
 
-            Box(modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.CenterStart) { if (buttonState.value[0].isNotEmpty()) {
-                ButtonUi (text = buttonState.value[0],
-                    backgroundColor = Color.Transparent,
-                    textColor = Color.Gray) {
-                    scope.launch {
-                        if (pagerState.currentPage > 0) {
-                            pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                val context = LocalContext.current
+                val userSettings = UserSettings.getInstance(context.applicationContext)
+                var enableButton = false
+                if (pagerState.currentPage != 1 || canContinue) {
+                    enableButton = true
+                }
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    ButtonUi(
+                        text = buttonState.value[1],
+                        backgroundColor = if (enableButton) MaterialTheme.colorScheme.primary else Color.Gray,
+                        textColor = if (enableButton) MaterialTheme.colorScheme.onPrimary else Color.LightGray
+                    ) {
+                        if (enableButton) { // nur klicken wenn valid
+                            scope.launch {
+                                if (pagerState.currentPage < pages.size - 1) {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                } else {
+                                    userSettings.updateOnboarding(false)
+                                    context.startActivity(Intent(context, MainActivity::class.java))
+                                    (context as? Activity)?.finish()
+                                }
+                            }
                         }
                     }
                 }
             }
-            }
-            Box(modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center) {
-                IndicatorUI(pageSize = pages.size, currentPage = pagerState.currentPage)
-            }
-
-            val context = LocalContext.current
-            val userSettings = UserSettings.getInstance(context.applicationContext)
-            Box(modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.CenterEnd) {
-                ButtonUi (text = buttonState.value[1],
-                    backgroundColor = MaterialTheme.colorScheme.primary,
-                    textColor = MaterialTheme.colorScheme.onPrimary) {
-
-                    scope.launch {
-                        if (pagerState.currentPage < pages.size - 1) {
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                        } else {
-                            userSettings.updateOnboarding(false)
-                            context.startActivity(Intent(context, MainActivity::class.java))
-                            (context as? Activity)?.finish()
-                        }
-                    }
+        },
+        content = {
+            Column(Modifier.padding(it)) {
+                HorizontalPager(state = pagerState) { index ->
+                    Page(onboardingModel = pages[index])
                 }
             }
-
         }
-    }, content = {
-        Column(Modifier.padding(it)) {
-            HorizontalPager(state = pagerState) { index ->
-                Page(onboardingModel = pages[index])
-            }
-        }
-    })
+    )
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
