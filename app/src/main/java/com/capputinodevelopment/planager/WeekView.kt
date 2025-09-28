@@ -219,11 +219,20 @@ fun WeekView(modifier: Modifier = Modifier) {
                     current.dayOfWeek,
                     context = context
                 )
+
+            var today = LocalDate.now()
+            today = fixDay(null, today)
+            if (today.dayOfWeek > current.dayOfWeek) {
+                weekDates.add( today.with(TemporalAdjusters.previousOrSame(current.dayOfWeek)))
+            }else{
+                weekDates.add(today.with(TemporalAdjusters.nextOrSame(current.dayOfWeek)))
+            }
+
+
             if (lesson != null) {
                 week.add(lesson)
                 current = current.plusDays(1)
             }
-            weekDates.add(current)
 
 
         }
