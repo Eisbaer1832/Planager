@@ -78,6 +78,7 @@ import com.capputinodevelopment.planager.data.DataSharer.bottomShape
 import com.capputinodevelopment.planager.data.DataSharer.neutralShape
 import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
@@ -136,6 +137,13 @@ fun SecondPageInput() {
         },
         { value, settings ->
             settings.updateUsername(value) // async save
+            if(fetchTimetable(
+                    userSettings = userSettings,
+                    url = "/mobil/mobdaten/Klassen.xml",
+                    lContext = context
+                ) == "") {
+                println("update failed")
+            }
         }
     )
 
