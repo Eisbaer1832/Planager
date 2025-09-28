@@ -59,10 +59,12 @@ import com.capputinodevelopment.planager.data.DataSharer.neutralShape
 import com.capputinodevelopment.planager.data.DataSharer.roundShape
 import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
+import java.time.LocalTime
 
 class Settings : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -101,7 +103,8 @@ fun Settings(modifier: Modifier = Modifier) {
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
     var allClasses: Array<String> by remember { mutableStateOf(arrayOf(String())) }
-    val current = LocalDate.now()
+    var current = LocalDate.now()
+    current = fixDay(LocalTime.now(), current)
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
