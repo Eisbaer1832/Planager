@@ -189,7 +189,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
                 }
             },
         )
-        SettingsCardDropdown("Jahrgang / Klasse",bottomShape,allClasses, default= ownClass, onclick =  {
+        SettingsCardDropdown("Jahrgang / Klasse",neutralShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
                 FilterClass = selected
                 userSettings.updateOwnClass(selected)
@@ -198,7 +198,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         )
         SettingsCardEdit(
             "Fächer von Freunden",
-            roundShape,
+            neutralShape,
             buttonText = "",
             onclick = { FriendsListToggle.value = true },
         )
@@ -207,7 +207,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         var checked by remember { mutableStateOf(true) }
 
         Card(
-            shape = roundShape,
+            shape = bottomShape,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
@@ -285,14 +285,14 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
 
         val uriHandler = LocalUriHandler.current
         SettingsCardEdit(
-            "Spenden", roundShape, buttonIcon = Icons.Default.Favorite, buttonText = "", leadingIcon = R.drawable.kofi_symbol,
+            "Spenden", topShape, buttonIcon = Icons.Default.Favorite, buttonText = "", leadingIcon = R.drawable.kofi_symbol,
             onclick = {
                 uriHandler.openUri("https://ko-fi.com/capputinodevelopment")
             },
         )
         SettingsCardEdit(
             "Einrichtung neustarten",
-            roundShape,
+            bottomShape,
             buttonIcon = Icons.Default.Replay,
             buttonText = "",
             onclick = {
