@@ -1,5 +1,6 @@
 package com.capputinodevelopment.planager.components
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,13 +12,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -25,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -35,11 +40,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.glance.LocalContext
 import com.capputinodevelopment.planager.R
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsCardEdit(
@@ -210,5 +218,45 @@ fun SettingsCardInput(
                     }
             }
         }
+    }
+}
+
+@Composable
+fun CheckCredentials(snackbarHostState: SnackbarHostState, onValidationChanged: (state: Boolean) -> Unit, context: Context) {
+    val couroutineScope = rememberCoroutineScope()
+    val userSettings = UserSettings.getInstance(context.applicationContext)
+
+
+    Button(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {
+            couroutineScope.launch {
+                val result = fetchTimetable(
+                    userSettings = userSettings,
+                    url = "/mobil/mobdaten/Klassen.xml",
+                    lContext = context
+                )
+
+                if (result.isEmpty()) {
+                    println("update failed")
+                    couroutineScope.launch {
+                        snackbarHostState.showSnackbar("Nutzerdaten inkorrekt!")
+                    }
+                    onValidationChanged(false)
+                } else {
+                    couroutineScope.launch {
+                        snackbarHostState.showSnackbar("Nutzerdaten korrekt!!")
+                    }
+                    onValidationChanged(true)
+                }
+            }
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+        ), shape = RoundedCornerShape(10.dp)
+    ) {
+        Text(
+            text = "Verbindung testen"
+        )
     }
 }

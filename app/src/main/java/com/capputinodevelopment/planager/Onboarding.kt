@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import com.capputinodevelopment.planager.components.CheckCredentials
 import com.capputinodevelopment.planager.components.SettingsCardDropdown
 import com.capputinodevelopment.planager.components.SettingsCardEdit
 import com.capputinodevelopment.planager.components.SettingsCardInput
@@ -151,38 +152,7 @@ fun SecondPageInput(
         { value, settings -> settings.updatePassword(value) },
         true
     )
-    Button(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = {
-            couroutineScope.launch {
-                val result = fetchTimetable(
-                    userSettings = userSettings,
-                    url = "/mobil/mobdaten/Klassen.xml",
-                    lContext = context
-                )
-
-                if (result.isEmpty()) {
-                    println("update failed")
-                    couroutineScope.launch {
-                        snackbarHostState.showSnackbar("Nutzerdaten inkorrekt!")
-                    }
-                    onValidationChanged(false)
-                } else {
-                    couroutineScope.launch {
-                        snackbarHostState.showSnackbar("Nutzerdaten korrekt!!")
-                    }
-                    onValidationChanged(true)
-                }
-            }
-        },
-        colors = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.primary,
-        ), shape = RoundedCornerShape(10.dp)
-    ) {
-        Text(
-            text = "Verbindung testen"
-        )
-    }
+    CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = onValidationChanged, context)
 }
 
 

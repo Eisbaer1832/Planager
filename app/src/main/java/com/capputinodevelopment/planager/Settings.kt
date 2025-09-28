@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
+import com.capputinodevelopment.planager.components.CheckCredentials
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.components.FriendsList
 import com.capputinodevelopment.planager.components.SettingsCardDropdown
@@ -72,8 +73,12 @@ class Settings : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val snackbarHostState = remember { SnackbarHostState() }
             IndiwareNativeTheme {
                 Scaffold(
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState)
+                    },
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopBar("Einstellungen", false)
@@ -81,7 +86,8 @@ class Settings : ComponentActivity() {
                 ) { innerPadding ->
 
                     Settings(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        snackbarHostState
                     )
                 }
             }
@@ -97,7 +103,7 @@ class Settings : ComponentActivity() {
 @SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Settings(modifier: Modifier = Modifier) {
+fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
@@ -138,7 +144,7 @@ fun Settings(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = 16.dp, end=16.dp, bottom = 0.dp)
+            .padding(start = 16.dp, end = 16.dp, bottom = 0.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -272,6 +278,8 @@ fun Settings(modifier: Modifier = Modifier) {
             },
             true
         )
+        CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = {  }, context)
+
         Spacer(Modifier.height(20.dp))
         Text("Sonstiges", style = MaterialTheme.typography.headlineMediumEmphasized)
 
@@ -293,13 +301,4 @@ fun Settings(modifier: Modifier = Modifier) {
         )
     }
 
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview3() {
-    IndiwareNativeTheme {
-        Settings()
-    }
 }

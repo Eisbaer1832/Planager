@@ -39,6 +39,8 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -96,7 +98,11 @@ class MainActivity : ComponentActivity() {
 
             IndiwareNativeTheme {
                 var currentScreen by remember { mutableStateOf(0) }
+                val snackbarHostState = remember { SnackbarHostState() }
                 Scaffold(
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState)
+                    },
                     topBar = {
                         when (currentScreen) {
                             0 -> TopBar("Tagesplan", true)
@@ -117,7 +123,7 @@ class MainActivity : ComponentActivity() {
                         when (screen) {
                             0 -> Greeting(name = "Android", modifier = Modifier.padding(innerPadding))
                             1 -> WeekView(modifier = Modifier.padding(innerPadding))
-                            2 -> Settings(modifier = Modifier.padding(innerPadding))
+                            2 -> Settings(modifier = Modifier.padding(innerPadding), snackbarHostState)
                         }
                     }
 
