@@ -509,7 +509,7 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp, 10.dp),
+                .padding(start = 10.dp,bottom= 50.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
