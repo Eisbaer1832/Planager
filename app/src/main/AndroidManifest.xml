@@ -7,7 +7,6 @@
 
     <application
         android:allowBackup="true"
-        android:windowOptOutEdgeToEdgeEnforcement="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -15,7 +14,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IndiwareNative"
+        android:windowOptOutEdgeToEdgeEnforcement="true"
         tools:targetApi="35">
+        <activity
+            android:name=".Research"
+            android:exported="false"
+            android:label="@string/title_activity_research"
+            android:theme="@style/Theme.IndiwareNative" />
         <activity
             android:name=".Onboarding"
             android:exported="false"
@@ -53,7 +58,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/room_widget_info" />
         </receiver>
-
         <receiver
             android:name=".DayWidgetReceiver"
             android:exported="true">

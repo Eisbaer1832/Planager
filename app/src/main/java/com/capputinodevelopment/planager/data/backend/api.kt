@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalResources
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl20250814.xml -- Format yyyymmdd - 20250814
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun fixDay(timeNow: LocalTime?, current: LocalDate): LocalDate {
     val endOfDay = LocalTime.parse("19:00:00")
     var returnCurrent = current

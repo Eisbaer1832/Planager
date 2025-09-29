@@ -107,9 +107,8 @@ class MainActivity : ComponentActivity() {
                         when (currentScreen) {
                             0 -> TopBar("Tagesplan", true)
                             1 -> TopBar("Wochenplan", true)
-                            2 -> TopBar("Einstellungen", false)
-
-
+                            2 -> TopBar("Recherche", false)
+                            3 -> TopBar("Einstellungen", false)
                         }
                     }, bottomBar = {
                         NavBar(currentScreen) { currentScreen = it } }
@@ -123,7 +122,8 @@ class MainActivity : ComponentActivity() {
                         when (screen) {
                             0 -> Greeting(name = "Android", modifier = Modifier.padding(innerPadding))
                             1 -> WeekView(modifier = Modifier.padding(innerPadding))
-                            2 -> Settings(modifier = Modifier.padding(innerPadding), snackbarHostState)
+                            2 -> ResearchView(name="Recherche", modifier = Modifier.padding(innerPadding))
+                            3 -> Settings(modifier = Modifier.padding(innerPadding), snackbarHostState)
                         }
                     }
 
