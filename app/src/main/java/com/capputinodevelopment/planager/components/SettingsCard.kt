@@ -42,8 +42,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.LocalContext
 import com.capputinodevelopment.planager.R
+import com.capputinodevelopment.planager.data.DataSharer.AGs
+import com.capputinodevelopment.planager.data.DataSharer.Kurse
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fetchTimetable
+import com.capputinodevelopment.planager.data.backend.getAllClasses
+import com.capputinodevelopment.planager.data.backend.getKurse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
@@ -247,6 +251,7 @@ fun CheckCredentials(snackbarHostState: SnackbarHostState, onValidationChanged: 
                     couroutineScope.launch {
                         snackbarHostState.showSnackbar("Nutzerdaten korrekt!!")
                     }
+                    getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
                     onValidationChanged(true)
                 }
             }

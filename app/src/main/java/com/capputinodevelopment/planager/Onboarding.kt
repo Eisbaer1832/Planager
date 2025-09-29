@@ -154,64 +154,81 @@ fun SecondPageInput(
     )
     CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = onValidationChanged, context)
 }
-
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ThirdPageInput() {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
-    val schoolID by userSettings.schoolID.collectAsState(initial = "")
+
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
-    var allClasses: Array<String> by remember { mutableStateOf(arrayOf(String())) }
-    var loading: Boolean by remember { mutableStateOf(false) }
+    val schoolID by userSettings.schoolID.collectAsState(initial = "")
+    val username by userSettings.username.collectAsState(initial = "")
+    val password by userSettings.password.collectAsState(initial = "")
+
+    var allClasses by remember { mutableStateOf(emptyArray<String>()) }
+    var loading by remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
-    val couroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     var localFilterClass by remember { mutableStateOf("") }
     val current = LocalDate.now()
-    LaunchedEffect(Unit, localFilterClass) {
+
+
+    LaunchedEffect(schoolID, username, password, localFilterClass) {
+        if (schoolID.isBlank() || username.isBlank() || password.isBlank()) return@LaunchedEffect
         loading = true
-
-        Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass, context)?: ArrayList()
-        AGs = getKurse(userSettings, current.dayOfWeek, "AG", context)?: ArrayList()
-        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
-        loading = false
+        try {
+            Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass, context) ?: ArrayList()
+            AGs = getKurse(userSettings, current.dayOfWeek, "AG", context) ?: ArrayList()
+            allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context) ?: arrayOf()
+            println("all classes: ${allClasses.joinToString()}  password length=${password.length}")
+        } finally {
+            loading = false
+        }
     }
-    if (OwnSubjectDialogToggle.value) {
-        SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse, AGs, userSettings, true)
-    }
-    if (loading) {
-        Column (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){ LoadingIndicator() }
-
-    }else {
-        SettingsCardDropdown(
-            "Jahrgang / Klasse",
-            topShape,
-            allClasses,
-            default = ownClass,
-            onclick = { selected ->
-                couroutineScope.launch {
-                    localFilterClass = selected
-                    userSettings.updateOwnClass(selected)
-                    userSettings.updateOwnSubjects(HashMap())
-                }
+    when {
+        schoolID.isBlank() || username.isBlank() || password.isBlank()  -> {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LoadingIndicator()
             }
-        )
-        SettingsCardEdit(
-            "Eigene Fächer", bottomShape, buttonText = "",
-            onclick = {
-                localFilterClass = ownClass
-                OwnSubjectDialogToggle.value = true
-            },
-        )
+        }
+        loading -> {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) { LoadingIndicator() }
+        }
+        else -> {
+            if (OwnSubjectDialogToggle.value) {
+                SubjectDialog(OwnSubjectDialogToggle, Kurse, AGs, userSettings, true)
+            }
+            SettingsCardDropdown(
+                "Jahrgang / Klasse",
+                topShape,
+                allClasses,
+                default = ownClass,
+                onclick = { selected ->
+                    coroutineScope.launch {
+                        localFilterClass = selected
+                        userSettings.updateOwnClass(selected)
+                        userSettings.updateOwnSubjects(HashMap())
+                    }
+                }
+            )
+            SettingsCardEdit(
+                "Eigene Fächer", bottomShape,
+                buttonText = "",
+                onclick = {
+                    localFilterClass = ownClass
+                    OwnSubjectDialogToggle.value = true
+                }
+            )
+        }
     }
-
 }
+
 
 @Composable
 fun FourthPageInput() {
