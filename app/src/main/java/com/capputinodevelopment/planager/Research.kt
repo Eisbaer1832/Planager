@@ -5,17 +5,22 @@ import android.util.MutableBoolean
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,14 +28,20 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -44,13 +55,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.LocalContext
 import androidx.glance.appwidget.lazy.LazyColumn
 import com.capputinodevelopment.planager.components.ResearchSearchBar
+import com.capputinodevelopment.planager.components.getSubjectIcon
 import com.capputinodevelopment.planager.data.DataSharer.lessons
 import com.capputinodevelopment.planager.data.DataSharer.roundShape
 import com.capputinodevelopment.planager.data.GlobalPlan.days
@@ -63,8 +79,10 @@ import com.capputinodevelopment.planager.data.research.Teacher
 import com.capputinodevelopment.planager.data.research.getResearchData
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
+import kotlinx.serialization.modules.serializersModuleOf
 import java.time.DayOfWeek
 import java.time.LocalDate
+import kotlin.math.round
 
 class Research : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +96,105 @@ class Research : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ResearchLessonCard(
+    l: lesson,
+    showTeacher: Boolean?,
+    shape: RoundedCornerShape,
+    surfaceShape: RoundedCornerShape
+) {
+
+
+    ElevatedCard(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        ),
+        shape = shape
+    ){
+        Column{
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = roundShape
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxSize(),
+                        text = l.pos.toString(),
+
+                        textAlign = TextAlign.Center,
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                Surface(
+                    modifier = Modifier.weight(3f),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = surfaceShape
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(MaterialShapes.Cookie7Sided.toShape())
+                                .background(MaterialTheme.colorScheme.primary),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Icon(
+                                modifier = Modifier.size(40.dp),
+                                imageVector = getSubjectIcon(l.subject),
+                                contentDescription = "Localized description",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+                        Text(
+                            modifier = Modifier.fillMaxSize(),
+                            fontSize = 30.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            text = l.subject
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier.weight(2f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val roomColor =  if (l.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                    Text(
+                        modifier = Modifier.fillMaxSize(),
+                        fontSize = 30.sp,
+                        textAlign = TextAlign.Center,
+                        text = l.room,
+                        color = roomColor
+                    )
+                }
+            }
+            if (showTeacher == true) {
+                Text(
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center,
+                    text = "Lehrer: " + l.teacher
+                )
             }
         }
     }
@@ -129,19 +246,11 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
                 if (dataToSearch.teachers.contains(filteredItems[i])) {
                     println("ititem ${filteredItems[i]}")
                     val lessons = dataToSearch.teachers[filteredItems[i]]?.days?.value[current.dayOfWeek] ?: arrayListOf()
-                    for (j in 0..<lessons.size) @androidx.compose.runtime.Composable {
-                        LessonCard(lessons[j], true, roundShape, roundShape)
+                    for (j in 0..<lessons.size) @Composable {
+                        ResearchLessonCard(lessons[j], true, roundShape, roundShape)
                     }
                 }
             }
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(filteredItems.size) { Text(filteredItems[it]) }
         }
     }
 }
