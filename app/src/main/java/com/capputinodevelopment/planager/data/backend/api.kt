@@ -159,14 +159,22 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
             }
         }
     }
+    var startT = LocalTime.now()
+    if (start?.isEmpty() == false) {
+        startT = LocalTime.parse(start, formatter)
+    }
+    var endT = LocalTime.now()
+    if (end?.isEmpty() == false) {
+        endT = LocalTime.parse(end, formatter)
+    }
     return lesson(
         pos,
         teacher,
         subject,
         room,
         roomChanged,
-        LocalTime.parse(start, formatter),
-        LocalTime.parse(end, formatter),
+        startT,
+        endT,
         canceled,
         isAg
     )

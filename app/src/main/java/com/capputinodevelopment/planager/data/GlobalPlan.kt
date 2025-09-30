@@ -10,6 +10,7 @@ import com.capputinodevelopment.planager.data.GlobalPlan.days
 import com.capputinodevelopment.planager.data.GlobalPlan.kurse
 import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.fixDay
+import com.capputinodevelopment.planager.data.research.ResearchWeek
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -29,6 +30,7 @@ object GlobalPlan {
         )
     )
     var kurse by mutableStateOf("")
+    var researchData by mutableStateOf(ResearchWeek())
 }
 
 

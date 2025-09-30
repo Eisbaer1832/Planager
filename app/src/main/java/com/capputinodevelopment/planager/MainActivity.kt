@@ -107,7 +107,6 @@ class MainActivity : ComponentActivity() {
                         when (currentScreen) {
                             0 -> TopBar("Tagesplan", true)
                             1 -> TopBar("Wochenplan", true)
-                            2 -> TopBar("Recherche", false)
                             3 -> TopBar("Einstellungen", false)
                         }
                     }, bottomBar = {
@@ -291,7 +290,7 @@ fun LessonCard(
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val userSettings = UserSettings.getInstance(context.applicationContext)
+    val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     var ags by remember { mutableStateOf<ArrayList<lesson>?>(null) }
