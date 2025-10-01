@@ -40,12 +40,19 @@ suspend fun getResearchData(
         for (j in 0..<stds.length) {
             val lesson = parseLesson(stds.item(j).childNodes, false)
             if (!lesson.canceled) { // thaaats subject to change ig
-                val teacher = researchData.teachers.getOrPut(lesson.teacher) { Teacher() }
-                val teacherDay = teacher.days.value[day]?:arrayListOf(lesson)
-                var insertIndex = teacherDay.indexOfFirst { it.pos >= lesson.pos }
-                insertIndex = if (insertIndex == -1) teacherDay.size else insertIndex
-                teacher.days.value[day]?.add(insertIndex, lesson)
+                val teacher = researchData.teachers.getOrPut(lesson.teacher) { Data() }
+                val room = researchData.rooms.getOrPut(lesson.room) { Data() }
 
+                val teacherDay = teacher.days.value[day]?:arrayListOf(lesson)
+                val roomDay = room.days.value[day]?:arrayListOf(lesson)
+
+                var insertIndexTeacher = teacherDay.indexOfFirst { it.pos >= lesson.pos }
+                insertIndexTeacher = if (insertIndexTeacher == -1) teacherDay.size else insertIndexTeacher
+                teacher.days.value[day]?.add(insertIndexTeacher, lesson)
+
+                var insertIndexRoom= roomDay.indexOfFirst { it.pos >= lesson.pos }
+                insertIndexRoom = if (insertIndexRoom == -1) roomDay.size else insertIndexRoom
+                room.days.value[day]?.add(insertIndexRoom, lesson)
             }
 
         }

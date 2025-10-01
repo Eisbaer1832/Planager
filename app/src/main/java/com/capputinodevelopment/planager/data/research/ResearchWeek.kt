@@ -1,8 +1,9 @@
 package com.capputinodevelopment.planager.data.research
 
 import androidx.compose.runtime.mutableStateOf
-import com.capputinodevelopment.planager.data.research.Teacher
+import com.capputinodevelopment.planager.data.research.Data
 
 data class ResearchWeek  constructor(
-    var teachers: MutableMap<String, Teacher> = mutableMapOf<String, Teacher>()
+    var teachers: MutableMap<String, Data> = mutableMapOf<String, Data>(),
+    var rooms: MutableMap<String, Data> = mutableMapOf<String, Data>()
 )
