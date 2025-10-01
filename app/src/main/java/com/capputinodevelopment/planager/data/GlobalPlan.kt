@@ -30,7 +30,6 @@ object GlobalPlan {
         )
     )
     var kurse by mutableStateOf("")
-    var researchData by mutableStateOf(ResearchWeek())
 }
 
 

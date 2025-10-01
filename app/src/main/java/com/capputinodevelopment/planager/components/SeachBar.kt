@@ -11,9 +11,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.SearchBar
@@ -22,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,6 +35,7 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
+import kotlin.math.exp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,14 +47,22 @@ fun ResearchSearchBar(
     searchResults: List<String>,
     onResultClick: (String) -> Unit,
     placeholder: @Composable () -> Unit = { Text("Search") },
-    leadingIcon: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
+    leadingIconPassed: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
     trailingIcon: @Composable (() -> Unit)? = null,
     leadingContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     // Track expanded state of search bar
     var expanded by rememberSaveable { mutableStateOf(false) }
-
+    val leadingIcon: @Composable (() -> Unit)? = if (expanded) {{
+        IconButton(
+            onClick = { expanded = false}
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+        }}
+    } else {
+        leadingIconPassed
+    }
     Box(
         modifier
             .fillMaxWidth()
@@ -60,7 +73,6 @@ fun ResearchSearchBar(
                 .align(Alignment.TopCenter)
                 .semantics { traversalIndex = 0f },
             inputField = {
-                // Customizable input field implementation
                 SearchBarDefaults.InputField(
                     query = query,
                     onQueryChange = onQueryChange,
@@ -69,7 +81,9 @@ fun ResearchSearchBar(
                         expanded = false
                     },
                     expanded = expanded,
-                    onExpandedChange = { expanded = it },
+                    onExpandedChange = {
+                        expanded = it
+                    },
                     placeholder = placeholder,
                     leadingIcon = leadingIcon,
                     trailingIcon = trailingIcon

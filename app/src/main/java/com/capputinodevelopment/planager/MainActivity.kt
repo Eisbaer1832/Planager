@@ -172,6 +172,7 @@ fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
         shape = shape,
         modifier = Modifier
             .height(80.dp)
+            .padding(end = 10.dp)
             .fillMaxWidth()
     ) {
         Row(
@@ -218,9 +219,8 @@ fun LessonCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
-        ),
+
+        modifier = Modifier.padding(end = 10.dp),
         shape = shape
     ){
         Column{

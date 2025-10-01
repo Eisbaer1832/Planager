@@ -24,10 +24,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -67,10 +69,11 @@ import androidx.glance.LocalContext
 import androidx.glance.appwidget.lazy.LazyColumn
 import com.capputinodevelopment.planager.components.ResearchSearchBar
 import com.capputinodevelopment.planager.components.getSubjectIcon
+import com.capputinodevelopment.planager.data.DataSharer.bottomShape
 import com.capputinodevelopment.planager.data.DataSharer.lessons
 import com.capputinodevelopment.planager.data.DataSharer.roundShape
+import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.GlobalPlan.days
-import com.capputinodevelopment.planager.data.GlobalPlan.researchData
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.lesson
@@ -110,91 +113,78 @@ fun ResearchLessonCard(
     shape: RoundedCornerShape,
     surfaceShape: RoundedCornerShape
 ) {
-
-
-    ElevatedCard(
+    ElevatedCard (
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.background,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
+        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
         shape = shape
     ){
-        Column{
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier.fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                modifier = Modifier.fillMaxSize().weight(1f),
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                text = (l.pos).toString()
+            )
+
+            Surface(
+                modifier = Modifier.weight(2f),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = surfaceShape
             ) {
-                Surface(
-
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = roundShape
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+
+                    Box(
                         modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxSize(),
-                        text = l.pos.toString(),
-
-                        textAlign = TextAlign.Center,
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Surface(
-                    modifier = Modifier.weight(3f),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = surfaceShape
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(MaterialShapes.Cookie7Sided.toShape())
-                                .background(MaterialTheme.colorScheme.primary),
-                            contentAlignment = Alignment.Center
-                        ){
-                            Icon(
-                                modifier = Modifier.size(40.dp),
-                                imageVector = getSubjectIcon(l.subject),
-                                contentDescription = "Localized description",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-
-                        Text(
-                            modifier = Modifier.fillMaxSize(),
-                            fontSize = 30.sp,
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold,
-                            text = l.subject
+                            .size(80.dp)
+                            .clip(MaterialShapes.Cookie7Sided.toShape())
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Icon(
+                            modifier = Modifier.size(40.dp),
+                            imageVector = getSubjectIcon(l.subject),
+                            contentDescription = "Localized description",
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-                }
-                Box(
-                    modifier = Modifier.weight(2f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val roomColor =  if (l.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+
                     Text(
                         modifier = Modifier.fillMaxSize(),
                         fontSize = 30.sp,
                         textAlign = TextAlign.Center,
-                        text = l.room,
-                        color = roomColor
+                        fontWeight = FontWeight.Bold,
+                        text = l.teacher
                     )
                 }
             }
-            if (showTeacher == true) {
-                Text(
-                    modifier = Modifier.padding(16.dp),
-                    textAlign = TextAlign.Center,
-                    text = "Lehrer: " + l.teacher
-                )
+            Column (modifier = Modifier.weight(2f).fillMaxHeight()) {
+                    Text(
+                        modifier = Modifier.fillMaxSize(),
+                        fontSize = 30.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        text = l.subject
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxSize(),
+                        fontSize = 30.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        text = l.room
+                    )
+
             }
         }
     }
@@ -205,19 +195,22 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
     val context = androidx.compose.ui.platform.LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val current = LocalDate.now()
-    val dataToSearch by remember { derivedStateOf { researchData } }
+    var dataToSearch by remember { mutableStateOf(ResearchWeek()) }
 
 
     LaunchedEffect(Unit) {
-        getResearchData(userSettings,context, current.dayOfWeek)
+        dataToSearch = getResearchData(userSettings,context, current.dayOfWeek)
     }
     var query by rememberSaveable { mutableStateOf("") }
-    var items = listOf<String>()
-    dataToSearch.teachers.forEach { teacher ->
-        val name  = teacher.value.days.value[current.dayOfWeek]?.get(0)?.teacher?:"Fred"
-        items = items + name
+
+    val items = remember(dataToSearch, current) {
+        dataToSearch.teachers.values.mapNotNull { teacher ->
+            teacher.days.value[current.dayOfWeek]?.getOrNull(0)?.teacher
+        }
     }
-    val filteredItems by remember {
+
+
+    val filteredItems by remember (items, query){
         derivedStateOf {
             if (query.isEmpty()) {
                 items
@@ -236,7 +229,8 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
             searchResults = filteredItems,
             onResultClick = { query = it },
             placeholder = { Text("Lehrer durchsuchen") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            leadingIconPassed = { Icon(Icons.Default.Menu, contentDescription = "Search") },
+            trailingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
             leadingContent = { Icon(Icons.Filled.School, "") },
             modifier = Modifier.wrapContentHeight()
         )

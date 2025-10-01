@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.GlobalPlan.researchData
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.parseLesson
 import com.capputinodevelopment.planager.data.getDayXML
@@ -23,12 +23,12 @@ suspend fun getResearchData(
     userSettings: UserSettings,
     context: Context,
     day: DayOfWeek
-) {
-
+): ResearchWeek {
+    var researchData by mutableStateOf(ResearchWeek())
 
     val xmlTimeTable = getDayXML(day, userSettings, context)
     if (xmlTimeTable.isEmpty()) {
-        return;
+        return ResearchWeek();
     }
 
     val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
@@ -39,9 +39,17 @@ suspend fun getResearchData(
         val stds = pls.item(i).childNodes
         for (j in 0..<stds.length) {
             val lesson = parseLesson(stds.item(j).childNodes, false)
-            val teacher = researchData.teachers.getOrPut(lesson.teacher) { Teacher() }
-            teacher.days.value[day]?.add(lesson)
+            if (!lesson.canceled) { // thaaats subject to change ig
+                val teacher = researchData.teachers.getOrPut(lesson.teacher) { Teacher() }
+                val teacherDay = teacher.days.value[day]?:arrayListOf(lesson)
+                var insertIndex = teacherDay.indexOfFirst { it.pos >= lesson.pos }
+                insertIndex = if (insertIndex == -1) teacherDay.size else insertIndex
+                teacher.days.value[day]?.add(insertIndex, lesson)
+
+            }
+
         }
     }
     println("ergebnis: " + researchData.teachers["KVN"]?.days?.value?.get(day))
+    return researchData
 }
