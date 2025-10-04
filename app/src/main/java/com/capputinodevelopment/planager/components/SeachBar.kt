@@ -2,17 +2,11 @@ package com.capputinodevelopment.planager.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,7 +28,7 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
-import kotlin.math.exp
+import com.capputinodevelopment.planager.data.research.SearchObject
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,12 +37,11 @@ fun ResearchSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
-    searchResults: List<String>,
+    searchResults: List<SearchObject>,
     onResultClick: (String) -> Unit,
-    placeholder: @Composable () -> Unit = { Text("Search") },
+    placeholder: @Composable (() -> Unit) = { Text("Search") },
     leadingIconPassed: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
     trailingIcon: @Composable (() -> Unit)? = null,
-    leadingContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     // Track expanded state of search bar
@@ -94,10 +86,11 @@ fun ResearchSearchBar(
         ) {
             LazyColumn {
                 items(count = searchResults.size) { index ->
-                    val resultText = searchResults[index]
+                    val result = searchResults[index]
+                    val resultText = result.name
                     ListItem(
                         headlineContent = { Text(resultText) },
-                        leadingContent = leadingContent,
+                        leadingContent =  {Icon(result.icon,"")},
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                         modifier = Modifier
                             .clickable {
