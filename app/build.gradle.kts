@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinxSerialization).apply(true)
     id("maven-publish")
-
+    id("com.mikepenz.aboutlibraries.plugin.android") version "13.0.0-rc01"
 }
 
 android {
@@ -50,8 +50,8 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            excludes += "**/dump_syms/**"
+            excludes.add( "/META-INF/{AL2.0,LGPL2.1}")
+            excludes.add("**/dump_syms/**")
         }
     }
 }
@@ -91,4 +91,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.core)
+    implementation(libs.aboutlibraries.compose.m3)
 }

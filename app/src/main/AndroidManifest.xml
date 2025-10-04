@@ -47,6 +47,7 @@
             </intent-filter>
         </activity>
 
+
         <receiver
             android:name=".RoomWidgetReceiver"
             android:exported="true">
