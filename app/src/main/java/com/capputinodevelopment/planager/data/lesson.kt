@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import java.time.LocalTime
 
 @Serializable
-data class lesson  constructor(
+data class lesson(
     val pos: Int = 0,
     val teacher: String = "error",
     val subject: String = "error",

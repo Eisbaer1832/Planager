@@ -21,7 +21,7 @@ import kotlin.collections.HashMap
 
 @SuppressLint("MutableCollectionMutableState")
 object DataSharer {
-    var doFilter by mutableStateOf(true);
+    var doFilter by mutableStateOf(true)
     var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
     var FilterFriend by mutableStateOf("")

@@ -33,7 +33,7 @@ fun FriendCreateDialog(
             TextField(
                 value = name,
                 onValueChange = {
-                    name = it;
+                    name = it
 
                 },
                 label = { Text("Name") },

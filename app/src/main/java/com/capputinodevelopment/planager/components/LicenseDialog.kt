@@ -21,7 +21,7 @@ import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 @OptIn(ExperimentalMaterial3Api::class)
 fun LicenseDialog (showBottomSheet: MutableState<Boolean>, ) {
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
+    rememberCoroutineScope()
 
     if (showBottomSheet.value) {
         ModalBottomSheet(

@@ -190,7 +190,7 @@ fun WeekView(modifier: Modifier = Modifier) {
     val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
-    val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+    DateTimeFormatter.ofPattern("yyyyMMdd")
     val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
     var current = LocalDate.now()
     current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))

@@ -486,7 +486,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
                         Row{
                             if (pos > lastPos) {
-                                lastPos = pos;
+                                lastPos = pos
                                 TimestampCard(l, numberShape)
                             } else {
                               Spacer(Modifier.width(90.dp))

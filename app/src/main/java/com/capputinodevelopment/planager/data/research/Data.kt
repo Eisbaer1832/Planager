@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.capputinodevelopment.planager.data.lesson
 import java.time.DayOfWeek
 
-data class Data constructor(
+data class Data(
     var days: MutableState<MutableMap<DayOfWeek, ArrayList<lesson>>> = mutableStateOf(
         mutableMapOf(
             DayOfWeek.MONDAY to arrayListOf(),

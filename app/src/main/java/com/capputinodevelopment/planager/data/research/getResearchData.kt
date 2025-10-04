@@ -30,7 +30,7 @@ suspend fun getResearchData(
 
     val xmlTimeTable = getDayXML(day, userSettings, context)
     if (xmlTimeTable.isEmpty()) {
-        return ResearchWeek();
+        return ResearchWeek()
     }
 
     val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())

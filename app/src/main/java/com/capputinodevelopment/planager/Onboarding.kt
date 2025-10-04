@@ -116,7 +116,7 @@ fun SecondPageInput(
 ) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
-    val couroutineScope = rememberCoroutineScope()
+    rememberCoroutineScope()
     val schoolID by userSettings.schoolID.collectAsState(initial = "")
     SettingsCardInput(
         topShape,
@@ -276,8 +276,8 @@ fun FourthPageInput() {
 
 @Composable
 fun FithPageInput() {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+    LocalContext.current
+    rememberCoroutineScope()
     Column (
         modifier = Modifier
             .fillMaxWidth()

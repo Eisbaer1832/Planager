@@ -5,13 +5,11 @@ import android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.datastore.dataStore
 import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -30,7 +28,6 @@ import java.time.temporal.TemporalAdjusters
 import java.time.temporal.WeekFields
 import java.util.Locale
 import java.util.concurrent.TimeUnit
-
 
 
 @Composable
@@ -166,14 +163,9 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
     private fun sendNotification(title: String, message: String) {
         val notificationManager = NotificationManagerCompat.from(applicationContext)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "default_channel",
-                "Default Channel",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel("default_channel", "Default Channel", NotificationManager.IMPORTANCE_DEFAULT)
+        notificationManager.createNotificationChannel(channel)
+
 
         // Create notification
         val notification = NotificationCompat.Builder(applicationContext, "default_channel")

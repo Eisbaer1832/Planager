@@ -91,7 +91,7 @@ suspend fun getAllClasses(
 ): Array<String>? {
     val xmlTimeTable = getKurseXML(userSettings, context)
     if (xmlTimeTable.isEmpty()) {
-        return null;
+        return null
     }
     val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
     val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
@@ -112,7 +112,7 @@ suspend fun getSelectedClass(
 
     val xmlTimeTable = getDayXML(day, userSettings, context)
     if (xmlTimeTable.isEmpty()) {
-        return null;
+        return null
     }
     //println("filter: " + localFilterClass)
     val filter = localFilterClass ?: FilterClass
