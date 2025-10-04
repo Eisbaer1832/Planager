@@ -12,6 +12,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60 
     permissions:
       contents: read
       packages: write
@@ -31,8 +32,7 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew build
-      with:
-        timeout-minutes: 60
+      timeout-minutes: 60
 
     # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
     # the publishing section of your build.gradle
