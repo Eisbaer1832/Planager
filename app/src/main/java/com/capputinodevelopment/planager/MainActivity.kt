@@ -79,7 +79,7 @@ import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getKurse
-import com.capputinodevelopment.planager.data.backend.registerWorker
+import com.capputinodevelopment.planager.data.RegisterWorker
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.launch
@@ -89,12 +89,11 @@ import java.time.LocalTime
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            registerWorker()
+            RegisterWorker()
 
             IndiwareNativeTheme {
                 var currentScreen by remember { mutableStateOf(0) }

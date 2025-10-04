@@ -1,5 +1,6 @@
 package com.capputinodevelopment.planager.data
 
+import com.capputinodevelopment.planager.data.backend.LocalDateSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 

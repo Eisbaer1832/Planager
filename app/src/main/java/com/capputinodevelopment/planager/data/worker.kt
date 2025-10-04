@@ -1,4 +1,4 @@
-package com.capputinodevelopment.planager.data.backend
+package com.capputinodevelopment.planager.data
 
 import android.Manifest
 import android.R
@@ -11,16 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.datastore.dataStore
+import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.capputinodevelopment.planager.RoomWidget
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.UserSettings
-import com.capputinodevelopment.planager.data.NotificationHistory
-import com.capputinodevelopment.planager.data.NotificationSubject
-import com.capputinodevelopment.planager.data.lesson
+import com.capputinodevelopment.planager.data.backend.fixDay
+import com.capputinodevelopment.planager.data.backend.getLessons
 import kotlinx.coroutines.flow.first
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -33,22 +34,70 @@ import java.util.concurrent.TimeUnit
 
 
 @Composable
-fun registerWorker() {
-    val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES)
+fun RegisterWorker() {
+    val notificationWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES)
         .build()
+
+    val widgetWorkRequest = PeriodicWorkRequestBuilder<WidgetWorker>(45, TimeUnit.MINUTES)
+        .build()
+
 
     WorkManager
         .getInstance(LocalContext.current).enqueueUniquePeriodicWork(
             "notification_work",
             ExistingPeriodicWorkPolicy.REPLACE,
-            workRequest
+            notificationWorkRequest
+        )
+    WorkManager
+        .getInstance(LocalContext.current).enqueueUniquePeriodicWork(
+            "widget_work",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            widgetWorkRequest
         )
 }
 
+class WidgetWorker(context: Context, workerParams: WorkerParameters):
+    CoroutineWorker(context, workerParams) {
+
+    override suspend fun doWork(): Result {
+        val userSettings = UserSettings.getInstance(applicationContext)
+        val dateNow = LocalDate.now()
+        val timeNow = LocalTime.now()
+        val current = fixDay(timeNow,dateNow)
+        val ownSubjects = userSettings.ownSubjects.first()
+        var lessons = getLessons(userSettings, current.dayOfWeek, context = applicationContext)?: arrayListOf(lesson())
+
+        var index = if (current == LocalDate.now()) {
+            when {
+                timeNow.isBefore(LocalTime.parse("09:15:00")) -> 0
+                timeNow.isBefore(LocalTime.parse("11:05:00")) -> 2
+                timeNow.isBefore(LocalTime.parse("13:00:00")) -> 4
+                timeNow.isBefore(LocalTime.parse("15:30:00")) -> 7
+                else -> 9
+            }
+        } else {
+            0
+        }
+
+        lessons = lessons.filter { lesson ->
+            val key = lesson.subject.substringBefore(" ")
+            ownSubjects[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
+        } as ArrayList<lesson>
+
+        if (index > lessons.size - 1) {
+            index = lessons.size - 1
+        }
+
+        userSettings.updateDayWidgetCash(lessons)
+        userSettings.updateRoomWidgetCash(lessons[index])
+        RoomWidget().updateAll(applicationContext)
+        return Result.success()
+
+    }
+}
 
 class NotificationWorker(context: Context, workerParams: WorkerParameters):
     CoroutineWorker(context, workerParams) {
-
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
@@ -60,7 +109,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
         val status: Map<String, Boolean> = userSettings.ownSubjects.first()
         val notificationHistory = userSettings.notificationHistory.first()
 
-        var week =  arrayListOf<ArrayList<lesson>>()
+        val week =  arrayListOf<ArrayList<lesson>>()
         val weekField = WeekFields.of(Locale.getDefault())
         var history = notificationHistory.allreadyNotified
         var startDate = notificationHistory.startDate
@@ -71,14 +120,13 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             history = arrayListOf()
         }
 
-        for (i in 0..4) {
+        (0..4).forEach { i ->
             println("current: " + current.dayOfWeek)
-            val lesson = getLessons(userSettings,current.dayOfWeek, context = applicationContext)
+            val lesson = getLessons(userSettings, current.dayOfWeek, context = applicationContext)
             if (lesson != null) {
                 week.add(lesson)
                 current = current.plusDays(1)
             }
-
         }
         for ((index, day) in week.withIndex()) {
             var lessons = day.filter { lesson ->

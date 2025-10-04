@@ -1,4 +1,4 @@
-package com.capputinodevelopment.planager.data
+package com.capputinodevelopment.planager.data.backend
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

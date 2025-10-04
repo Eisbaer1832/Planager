@@ -71,6 +71,28 @@ class UserSettings private constructor(private val appContext: Context) {
         }?: NotificationHistory(LocalDate.now(), emptyList())
     }
 
+    suspend fun updateRoomWidgetCash(newList: lesson) {
+        dataStore.edit { settings ->
+            settings[ROOM_WIDGET_CACHE] = Json.encodeToString(newList)
+        }
+    }
+    val dayWidgetCash: Flow<ArrayList<lesson>> = dataStore.data.map { preferences ->
+        preferences[DAY_WIDGET_CACHE]?.let { json ->
+            Json.decodeFromString<ArrayList<lesson>>(json)
+        }?: arrayListOf(lesson())
+    }
+
+    suspend fun updateDayWidgetCash(newList: ArrayList<lesson>) {
+        dataStore.edit { settings ->
+            settings[DAY_WIDGET_CACHE] = Json.encodeToString(newList)
+        }
+    }
+    val roomWidgetCash: Flow<lesson> = dataStore.data.map { preferences ->
+        preferences[ROOM_WIDGET_CACHE]?.let { json ->
+            Json.decodeFromString<lesson>(json)
+        }?: lesson()
+    }
+
     suspend fun updateNotificationHistory(newList: NotificationHistory) {
         dataStore.edit { settings ->
             settings[NOTIFICATION_HISTORY] = Json.encodeToString(newList)
@@ -130,6 +152,7 @@ class UserSettings private constructor(private val appContext: Context) {
         preferences[PASSWORD] ?: ""
     }
 
+
     suspend fun updatePassword(value: String) {
         dataStore.edit { settings ->
             settings[PASSWORD] = value
@@ -161,7 +184,8 @@ class UserSettings private constructor(private val appContext: Context) {
         private val PASSWORD = stringPreferencesKey("password")
         private val ONBOARDING = booleanPreferencesKey("onboarding")
         private val NOTIFICATION_HISTORY = stringPreferencesKey("notification_history")
-
+        private val ROOM_WIDGET_CACHE = stringPreferencesKey("room_widget_cache")
+        private val DAY_WIDGET_CACHE = stringPreferencesKey("day_widget_cache")
 
         fun getInstance(context: Context): UserSettings {
             return INSTANCE ?: synchronized(this) {

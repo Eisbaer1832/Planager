@@ -2,8 +2,6 @@ package com.capputinodevelopment.planager
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -32,66 +30,17 @@ import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.DataSharer.lessons
 import com.capputinodevelopment.planager.data.UserSettings
-import com.capputinodevelopment.planager.data.backend.fixDay
-import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.lesson
 import kotlinx.coroutines.flow.first
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 class RoomWidget : GlanceAppWidget() {
     @SuppressLint("RestrictedApi")
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val userSettings = UserSettings.getInstance(context)
-        var current = LocalDate.now()
-        val timeNow = LocalTime.now()
-        current = fixDay(timeNow, current)
-        println("current"+ current)
+        val lesson = userSettings.roomWidgetCash.first()
 
-        lessons = getLessons(userSettings, current.dayOfWeek, context = context) ?: arrayListOf()
-
-
-
-        var index: Int
-        index = if (current == LocalDate.now()) {
-            if (timeNow.isBefore(LocalTime.parse("09:15:00"))) {
-                0
-            }  else if (timeNow.isBefore(LocalTime.parse("11:05:00"))) {
-                2
-            } else if (timeNow.isBefore(LocalTime.parse("13:00:00"))) {
-                4
-            } else if (timeNow.isBefore(LocalTime.parse("15:30:00"))) {
-                7
-            } else {
-                9
-            }
-        }else {
-            0
-        }
-
-        val status= userSettings.ownSubjects.first()
-        var room = ""
-        var subject = ""
-        if (lessons.isNotEmpty()) {
-            println("showing widget data")
-            lessons = lessons.filter { lesson ->
-                val key = lesson.subject.substringBefore(" ")
-                status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
-            } as ArrayList<lesson>
-            if (index > lessons.size - 1) {
-                println("after last lesson")
-                index = lessons.size - 1
-            }
-
-            println("Subject: ${lessons[index].subject}")
-            subject = lessons[index].subject ?: "Kein Unterricht heute"
-            room = lessons[index].room ?: ""
-        }
         provideContent {
             GlanceTheme{
                 Scaffold(
@@ -109,7 +58,7 @@ class RoomWidget : GlanceAppWidget() {
                             modifier = GlanceModifier.clickable {} //ensures updates on click,
                             ) {
                             Text(
-                                text = subject,
+                                text = lesson.subject,
                                 style = TextStyle(
                                     color = GlanceTheme.colors.primary,
                                     fontWeight = FontWeight.Bold,
@@ -118,7 +67,7 @@ class RoomWidget : GlanceAppWidget() {
                                 ),
                             )
                             Text(
-                                text = room,
+                                text = lesson.room,
                                 style = TextStyle(
                                     color = GlanceTheme.colors.primary,
                                     fontWeight = FontWeight.Bold,
@@ -134,40 +83,15 @@ class RoomWidget : GlanceAppWidget() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-suspend fun getWidgetData(userSettings: UserSettings, currentAsString: String, context: Context): ArrayList<lesson> {
-    println("Getting widget Data")
-    val status: Map<String, Boolean> = userSettings.ownSubjects.first()
-    var lessons: ArrayList<lesson> = getLessons(userSettings, LocalDate.now().dayOfWeek, context = context) ?: arrayListOf()
-    lessons = lessons.filter { lesson ->
-        val key = lesson.subject.substringBefore(" ")
-        status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
-    } as ArrayList<lesson>
-
-    if (lessons.isEmpty()) {
-        lessons.add(lesson())
-    }
-    return lessons
-}
-
 //TODO implement data updates
 class DayWidget : GlanceAppWidget() {
-    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("RestrictedApi")
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-
         val userSettings = UserSettings.getInstance(context)
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-        var current = LocalDate.now()
-        val timeNow = LocalTime.now()
-        current = fixDay(timeNow, current)
+        val lessons = userSettings.dayWidgetCash.first()
 
-
-        var currentAsString = current.format(formatter)
-        var lessons = getWidgetData(userSettings, currentAsString, context)
         provideContent {
-            //println("Setting widget content")
             GlanceTheme{
                 Scaffold(
                     backgroundColor = GlanceTheme.colors.background,
