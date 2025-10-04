@@ -8,7 +8,7 @@ data class lesson  constructor(
     val pos: Int = 0,
     val teacher: String = "error",
     val subject: String = "error",
-    val room: String = "error",
+    var room: String = "error",
     val roomChanged: Boolean = false,
     @Serializable(with = LocalTimeSerializer::class)
     val start: LocalTime? = null,

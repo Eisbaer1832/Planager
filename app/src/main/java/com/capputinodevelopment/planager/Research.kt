@@ -41,6 +41,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -81,7 +82,9 @@ import com.capputinodevelopment.planager.data.DataSharer.lessons
 import com.capputinodevelopment.planager.data.DataSharer.roundShape
 import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.GlobalPlan.days
+import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.data.research.ResearchWeek
@@ -91,6 +94,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.modules.serializersModuleOf
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
+import java.util.ArrayList
 import kotlin.math.round
 
 class Research : ComponentActivity() {
@@ -109,7 +114,23 @@ class Research : ComponentActivity() {
         }
     }
 }
+@Composable
+fun ResearchHeading(text: String) {
 
+    Row(
+        modifier = Modifier
+            .padding(vertical = 30.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            fontSize = 40.sp,
+            fontFamily = RobotoFlexVariable,
+            text = text
+        )
+    }
+
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -197,32 +218,49 @@ fun ResearchLessonCard(
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchView(name: String, modifier: Modifier = Modifier) {
     val context = androidx.compose.ui.platform.LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
-    val current = LocalDate.now()
+    val current = fixDay( LocalTime.now(), LocalDate.now())
     var dataToSearch by remember { mutableStateOf(ResearchWeek()) }
 
     var isLehrerSelected by remember { mutableStateOf(true) }
     var isRaeumeSelected by remember { mutableStateOf(true) }
     var isKlassenSelected by remember { mutableStateOf(true) }
+    val items = remember(dataToSearch, current, isLehrerSelected, isKlassenSelected, isRaeumeSelected) { ArrayList<String>() }
+    var query by rememberSaveable { mutableStateOf("") }
+
+    var loading by remember { mutableStateOf<Boolean>(true) }
 
     LaunchedEffect(Unit) {
         dataToSearch = getResearchData(userSettings,context, current.dayOfWeek)
-    }
-    var query by rememberSaveable { mutableStateOf("") }
+        loading = false
 
-    val items = remember(dataToSearch, current, isLehrerSelected) {arrayListOf(String())}
+    }
+
     if (isLehrerSelected) {
         dataToSearch.teachers.values.map { teacher ->
-            teacher.days.value[current.dayOfWeek]?.getOrNull(0)?.teacher?.let { items.add(it) }
+            teacher.days.value[current.dayOfWeek]?.getOrNull(0)?.teacher?.let {
+                if (!items.contains(it))items.add(it)
+            }
         }
     }
 
     if (isRaeumeSelected) {
         dataToSearch.rooms.values.map { room ->
-            room.days.value[current.dayOfWeek]?.getOrNull(0)?.room?.let { items.add(it) }
+            room.days.value[current.dayOfWeek]?.getOrNull(0)?.room?.let {
+                if (!items.contains(it))items.add(it) }
+
+        }
+    }
+
+
+    if (isKlassenSelected) {
+        val keys = dataToSearch.classes.keys
+        for (key in keys) {
+            if (!items.contains(key)) items.add(key)
         }
     }
 
@@ -248,34 +286,74 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
             trailingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
             leadingContent = { Icon(Icons.Filled.School, "") },
         )
+        if (loading) {
+            Row(
+                Modifier
+                    .fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+            )
+            {
+                LoadingIndicator(modifier = Modifier.size(60.dp))
+            }
+        } else {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                SearchFilterChip(
+                    "Lehrer",
+                    Icons.Default.School,
+                    isLehrerSelected,
+                    { isLehrerSelected = it })
+                Spacer(modifier = Modifier.width(10.dp))
+                SearchFilterChip(
+                    "Räume",
+                    Icons.Default.Room,
+                    isRaeumeSelected,
+                    { isRaeumeSelected = it })
+                Spacer(modifier = Modifier.width(10.dp))
+                SearchFilterChip(
+                    "Klassen",
+                    Icons.Default.Groups,
+                    isKlassenSelected,
+                    { isKlassenSelected = it })
 
-        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            SearchFilterChip("Lehrer", Icons.Default.School, isLehrerSelected, {isLehrerSelected = it})
-            Spacer(modifier = Modifier.width(10.dp))
-            SearchFilterChip("Räume", Icons.Default.Room, isRaeumeSelected, {isRaeumeSelected = it})
-            Spacer(modifier = Modifier.width(10.dp))
-            SearchFilterChip("Klassen", Icons.Default.Groups, isKlassenSelected, {isKlassenSelected = it})
+            }
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
 
-        }
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-
-            items(filteredItems) {item ->
-                if (isLehrerSelected) {
-                    if (dataToSearch.teachers.contains(item)) {
-                        val lessons = dataToSearch.teachers[item]?.days?.value[current.dayOfWeek]
-                            ?: arrayListOf()
-                        for (j in 0..<lessons.size) @Composable {
-                            ResearchLessonCard(lessons[j], true, roundShape, roundShape)
+                items(filteredItems) { item ->
+                    if (isLehrerSelected) {
+                        if (dataToSearch.teachers.contains(item)) {
+                            ResearchHeading(item)
+                            val lessons =
+                                dataToSearch.teachers[item]?.days?.value[current.dayOfWeek]
+                                    ?: arrayListOf()
+                            for (j in 0..<lessons.size) @Composable {
+                                ResearchLessonCard(lessons[j], true, roundShape, roundShape)
+                            }
                         }
                     }
-                }
 
-                if (isRaeumeSelected) {
-                    if (dataToSearch.rooms.contains(item)) {
-                        val lessons = dataToSearch.rooms[item]?.days?.value[current.dayOfWeek]
-                            ?: arrayListOf()
-                        for (j in 0..<lessons.size) @Composable {
-                            ResearchLessonCard(lessons[j], true, roundShape, roundShape)
+                    if (isRaeumeSelected) {
+                        if (dataToSearch.rooms.contains(item)) {
+                            ResearchHeading(item)
+                            val lessons = dataToSearch.rooms[item]?.days?.value[current.dayOfWeek]
+                                ?: arrayListOf()
+                            for (j in 0..<lessons.size) @Composable {
+                                ResearchLessonCard(lessons[j], true, roundShape, roundShape)
+                            }
+                        }
+                    }
+
+                    println("showing" + dataToSearch.classes)
+                    if (isKlassenSelected) {
+                        if (dataToSearch.classes.contains(item)) {
+                            if (!item.isEmpty()) {
+                                ResearchHeading(item)
+                            }
+                            println("showing search: $item")
+                            val lessons = dataToSearch.classes[item]?.days?.value[current.dayOfWeek]
+                                ?: arrayListOf()
+                            for (j in 0..<lessons.size) @Composable {
+                                ResearchLessonCard(lessons[j], true, roundShape, roundShape)
+                            }
                         }
                     }
                 }
