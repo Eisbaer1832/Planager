@@ -41,6 +41,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-material3-android = { module = "androidx.compose.material3:material3-android", version.ref = "material3Android" }
 core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "core" }
 core-jvm = { module = "io.github.pdvrieze.xmlutil:core-jvm", version.ref = "coreJvm" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

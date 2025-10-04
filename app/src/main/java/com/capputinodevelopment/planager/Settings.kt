@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Replay
@@ -47,6 +48,7 @@ import androidx.core.content.ContextCompat
 import com.capputinodevelopment.planager.components.CheckCredentials
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.components.FriendsList
+import com.capputinodevelopment.planager.components.LicenseDialog
 import com.capputinodevelopment.planager.components.SettingsCardDropdown
 import com.capputinodevelopment.planager.components.SettingsCardEdit
 import com.capputinodevelopment.planager.components.SettingsCardInput
@@ -113,6 +115,8 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
     current = fixDay(LocalTime.now(), current)
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
+    val licenseDialogToggle = remember { mutableStateOf(false) }
+
     val couroutineScope = rememberCoroutineScope()
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
 
@@ -134,6 +138,9 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
     }
     if (OwnSubjectDialogToggle.value) {
         SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse, AGs, userSettings, true)
+    }
+    if (licenseDialogToggle.value) {
+        LicenseDialog(licenseDialogToggle)
     }
     if (FriendsListToggle.value) {
         FriendsList(FriendsListToggle, Kurse,AGs,userSettings, allClasses)
@@ -292,12 +299,20 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         )
         SettingsCardEdit(
             "Einrichtung neustarten",
-            bottomShape,
+            neutralShape,
             buttonIcon = Icons.Default.Replay,
             buttonText = "",
             onclick = {
                 couroutineScope.launch {userSettings.updateOnboarding(true)}
             },
+        )
+
+        SettingsCardEdit(
+            "Lizenzen", bottomShape, buttonText = "",
+            onclick = {
+                licenseDialogToggle.value = true
+            },
+            buttonIcon = Icons.Default.Info
         )
     }
 
