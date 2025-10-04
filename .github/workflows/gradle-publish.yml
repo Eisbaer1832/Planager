@@ -31,8 +31,7 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew build
-      with:
-        timeout-minutes: 60
+      timeout-minutes: 60
 
     # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
     # the publishing section of your build.gradle
