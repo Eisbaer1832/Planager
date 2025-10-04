@@ -69,6 +69,7 @@ import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
 import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.components.NavBar
+import com.capputinodevelopment.planager.components.SliderToolBar
 import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.components.getSubjectIcon
 import com.capputinodevelopment.planager.data.DataSharer
@@ -98,10 +99,14 @@ class MainActivity : ComponentActivity() {
             IndiwareNativeTheme {
                 var currentScreen by remember { mutableStateOf(0) }
                 val snackbarHostState = remember { SnackbarHostState() }
+
                 Scaffold(
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarHostState)
                     },
+                    floatingActionButton = {when(currentScreen){
+                            2 -> SliderToolBar()
+                    }},
                     topBar = {
                         when (currentScreen) {
                             0 -> TopBar("Tagesplan", true)

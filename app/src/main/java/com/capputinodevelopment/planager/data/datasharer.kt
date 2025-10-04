@@ -3,6 +3,7 @@ package com.capputinodevelopment.planager.data
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.SliderState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -12,10 +13,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.capputinodevelopment.planager.data.backend.fixDay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 import kotlin.collections.HashMap
 
 
@@ -24,6 +28,7 @@ object DataSharer {
     var doFilter by mutableStateOf(true)
     var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
+    var SliderState = mutableStateOf(fixDay(LocalTime.now(), LocalDate.now()).dayOfWeek)
     var FilterFriend by mutableStateOf("")
     var Kurse by mutableStateOf(ArrayList<Kurs>())
     var AGs by mutableStateOf(ArrayList<Kurs>())
@@ -31,9 +36,7 @@ object DataSharer {
     val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
     val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
     val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
-
     var lessons by mutableStateOf( ArrayList<lesson>())
-
 }
 
 

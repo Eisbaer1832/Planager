@@ -54,7 +54,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.components.ResearchSearchBar
 import com.capputinodevelopment.planager.components.SearchFilterChip
+import com.capputinodevelopment.planager.components.SliderToolBar
 import com.capputinodevelopment.planager.components.getSubjectIcon
+import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.DataSharer.roundShape
 import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
@@ -274,20 +276,23 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
     val context = androidx.compose.ui.platform.LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val current = fixDay( LocalTime.now(), LocalDate.now())
+
     var dataToSearch by remember { mutableStateOf(ResearchWeek()) }
+    val dayToSearch = DataSharer.SliderState.value
 
     var isLehrerSelected by remember { mutableStateOf(true) }
     var isRaeumeSelected by remember { mutableStateOf(true) }
     var isKlassenSelected by remember { mutableStateOf(true) }
-    val items = remember(dataToSearch, current, isLehrerSelected, isKlassenSelected, isRaeumeSelected) { ArrayList< SearchObject>() }
+    val items = remember(dataToSearch, dayToSearch, current, isLehrerSelected, isKlassenSelected, isRaeumeSelected) { ArrayList< SearchObject>() }
     var query by rememberSaveable { mutableStateOf("") }
 
     var loading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, dayToSearch) {
+        println("daytoSearch $dayToSearch")
         loading = true
         val research = withContext(kotlinx.coroutines.Dispatchers.IO) {
-            getResearchData(userSettings, context, current.dayOfWeek)
+            getResearchData(userSettings, context, dayToSearch)
         }
         dataToSearch = research
         loading = false
@@ -295,7 +300,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
 
     if (isLehrerSelected) {
         dataToSearch.teachers.values.map { teacher ->
-            teacher.days.value[current.dayOfWeek]?.getOrNull(0)?.teacher?.let {
+            teacher.days.value[dayToSearch]?.getOrNull(0)?.teacher?.let {
                 val searchObject = SearchObject(it, Icons.Default.School)
                 if (!items.contains(searchObject))items.add(searchObject)
             }
@@ -304,7 +309,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
 
     if (isRaeumeSelected) {
         dataToSearch.rooms.values.map { room ->
-            room.days.value[current.dayOfWeek]?.getOrNull(0)?.room?.let {
+            room.days.value[dayToSearch]?.getOrNull(0)?.room?.let {
                 val searchObject = SearchObject(it, Icons.Default.Room)
                 if (!items.contains(searchObject))items.add(searchObject) }
 
@@ -371,14 +376,16 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
                 ) { isKlassenSelected = it }
 
             }
+            if (items.isEmpty()) {
+                ResearchHeading("Keine Daten vorhanden")
+            }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-
                 items(filteredItems) { item ->
                     if (isLehrerSelected) {
                         if (dataToSearch.teachers.contains(item.name)) {
                             ResearchHeading(item.name)
                             val lessons =
-                                dataToSearch.teachers[item.name]?.days?.value[current.dayOfWeek]
+                                dataToSearch.teachers[item.name]?.days?.value[dayToSearch]
                                     ?: arrayListOf()
                             for (j in 0..<lessons.size) @Composable {
                                 ResearchTeacherCard(lessons[j], roundShape, roundShape)
@@ -389,7 +396,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
                     if (isRaeumeSelected) {
                         if (dataToSearch.rooms.contains(item.name)) {
                             ResearchHeading(item.name)
-                            val lessons = dataToSearch.rooms[item.name]?.days?.value[current.dayOfWeek]
+                            val lessons = dataToSearch.rooms[item.name]?.days?.value[dayToSearch]
                                 ?: arrayListOf()
                             for (j in 0..<lessons.size) @Composable {
                                 ResearchLessonCard(lessons[j], true, roundShape, roundShape, true)
@@ -404,7 +411,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
                                 ResearchHeading(item.name)
                             }
                             println("showing search: $item")
-                            val lessons = dataToSearch.classes[item.name]?.days?.value[current.dayOfWeek]
+                            val lessons = dataToSearch.classes[item.name]?.days?.value[dayToSearch]
                                 ?: arrayListOf()
                             for (j in 0..<lessons.size) @Composable {
                                 ResearchLessonCard(lessons[j], true, roundShape, roundShape)
