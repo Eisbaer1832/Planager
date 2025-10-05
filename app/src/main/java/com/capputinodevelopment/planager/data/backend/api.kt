@@ -179,10 +179,14 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         isAg
     )
 }
-suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context): ArrayList<lesson>? {
+suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context, fetchAgs:Boolean = true): ArrayList<lesson>? {
     val receivedClass = getSelectedClass(userSettings, day, localFilterClass, context)
-    val agClasses = getSelectedClass(userSettings, day, "AG", context)?.childNodes?.item(5)?.childNodes
 
+    var agClasses: NodeList? = null
+
+    if (fetchAgs) {
+        agClasses = getSelectedClass(userSettings, day, "AG", context)?.childNodes?.item(5)?.childNodes
+    }
     val lessons = ArrayList<lesson>()
 
     if (receivedClass == null) {
@@ -199,15 +203,17 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterCl
         val lesson = parseLesson(l, false)
         lessons.add(lesson)
 
-        if (lastPos !=lesson.pos ) {
-            lastPos = lesson.pos
-            for (j in 0..<agClasses!!.length) {
-                val agL = agClasses.item(j).childNodes
-                val ag = parseLesson(agL, true)
-                if (ag.pos == lastPos || i >= lessonNodes.length -1) {
-                    lessons.add(ag)
+        if (fetchAgs && agClasses != null) {
+            if (lastPos != lesson.pos) {
+                lastPos = lesson.pos
+                for (j in 0..<agClasses.length) {
+                    val agL = agClasses.item(j).childNodes
+                    val ag = parseLesson(agL, true)
+                    if (ag.pos == lastPos || i >= lessonNodes.length - 1) {
+                        lessons.add(ag)
+                    }
+                    println("AG Namen ${ag.subject}")
                 }
-                println("AG Namen ${ag.subject}")
             }
         }
 

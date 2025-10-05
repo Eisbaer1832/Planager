@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.research.SearchObject
+import kotlin.math.exp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +80,19 @@ fun ResearchSearchBar(
                     },
                     placeholder = placeholder,
                     leadingIcon = leadingIcon,
-                    trailingIcon = trailingIcon
+                    trailingIcon = {
+                        if(expanded) {
+                            IconButton(
+                                onClick =  {
+                                    onQueryChange("")
+                                }
+                            ) {
+                                Icon(Icons.Default.Clear, "Clear")
+                            }
+                        }else {
+                            Icon(Icons.Default.Search, "Search")
+                        }
+                    }
                 )
             },
             expanded = expanded,

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -89,15 +90,14 @@ class Research : ComponentActivity() {
 }
 @Composable
 fun ResearchHeading(text: String) {
-
     Row(
         modifier = Modifier
-            .padding(vertical = 30.dp)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
             fontSize = 40.sp,
+            textAlign = TextAlign.Center,
             fontFamily = RobotoFlexVariable,
             text = text
         )
@@ -376,8 +376,10 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
                 ) { isKlassenSelected = it }
 
             }
+
             if (items.isEmpty()) {
                 ResearchHeading("Keine Daten vorhanden")
+
             }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(filteredItems) { item ->
@@ -418,6 +420,9 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
                             }
                         }
                     }
+                }
+                item{
+                    Spacer(Modifier.height(150.dp))
                 }
             }
         }

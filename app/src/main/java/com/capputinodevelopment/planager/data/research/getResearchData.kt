@@ -70,8 +70,8 @@ suspend fun getResearchData(
     println("day $day")
     for (i in 0..<allClasses.size) {
         val classes= researchData.classes.getOrPut(allClasses[i]) { Data() }
-        if (allClasses[i].contains(Regex("\\d"))) {
-            val lessons = getLessons(userSettings, day, allClasses[i], context)
+        if (allClasses[i].contains(Regex("\\d")) && !allClasses[i].contains("AG")) {
+            val lessons = getLessons(userSettings, day, allClasses[i], context, false)
             if (!lessons.isNullOrEmpty()) {
                 for (i in 0..<(lessons.size)) {
                     classes.days.value[day]?.add(lessons[i])
