@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    id("com.mikepenz.aboutlibraries.plugin.android") version "13.0.0-rc01"
 }
 
 kotlin {
@@ -81,6 +82,11 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation("com.fleeksoft.ksoup:ksoup:0.2.5")
             implementation("com.fleeksoft.ksoup:ksoup-kotlinx:0.2.5")
+            implementation(compose.components.resources)
+            implementation(libs.aboutlibraries.core)
+            implementation(libs.aboutlibraries.compose.core)
+            implementation(libs.aboutlibraries.compose.m3)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

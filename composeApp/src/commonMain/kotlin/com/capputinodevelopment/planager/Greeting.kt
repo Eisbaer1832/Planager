@@ -164,7 +164,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSett
                     ) {
                         Text(
                             fontSize = 40.sp,
-                            fontFamily = RobotoFlexVariable,
+                            fontFamily = RobotoFlexVariable(),
                             text = current.dayOfWeek.name,
                         )
                     }

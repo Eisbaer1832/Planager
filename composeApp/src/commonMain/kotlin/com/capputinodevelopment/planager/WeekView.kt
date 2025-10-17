@@ -11,6 +11,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,13 +28,24 @@ import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.getToday
 import com.capputinodevelopment.planager.data.lesson
+import com.capputinodevelopment.planager.data.nextOrSame
+import com.capputinodevelopment.planager.data.previousOrSame
+import com.capputinodevelopment.planager.data.previousOrSameMonday
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import io.ktor.client.request.invoke
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.plus
 
 
 @Composable
 fun SmallLessonCard (lesson: lesson) {
+    val configuration = LocalWindowInfo.current.containerSize
+    val screenWidth = configuration.width.dp
+
     Card(
         modifier = Modifier
             .width(screenWidth / 6)
@@ -75,8 +87,8 @@ fun SmallLessonCard (lesson: lesson) {
 
 @Composable
 fun SmallLessonCardCanceled (lesson: lesson) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
+    val configuration = LocalWindowInfo.current.containerSize
+    val screenWidth = configuration.width.dp
 
     var text = lesson.subject
     text = text
@@ -120,22 +132,21 @@ fun SmallLessonCardCanceled (lesson: lesson) {
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
     val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
-    DateTimeFormatter.ofPattern("yyyyMMdd")
-    val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
-    var current = getToday()
-    current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    current = fixDay(null, current)
+
+    var current = fixDay(getToday())
+    current = previousOrSameMonday(current)
+
     var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
     val filter by remember { DataSharer::FilterClass }
     var refreshTrigger by remember { mutableIntStateOf(0) }
-    val ownClass by userSettings.ownClass.collectAsState(initial = String())
+    val ownClass by userSettings.ownClass.collectAsState(initial = "")
     var weekDates = ArrayList<LocalDate>()
     if (filter.isEmpty()) {
         FilterClass = ownClass
@@ -154,20 +165,19 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
                 getLessons(
                     userSettings,
                     current.dayOfWeek,
-                    context = context
                 )
 
             var today = fixDay(getToday())
             if (today.dayOfWeek > current.dayOfWeek) {
-                weekDates.add( today.with(TemporalAdjusters.previousOrSame(current.dayOfWeek)))
+                weekDates.add(previousOrSame(today, current.dayOfWeek))
             }else{
-                weekDates.add(today.with(TemporalAdjusters.nextOrSame(current.dayOfWeek)))
+                weekDates.add(nextOrSame(today, current.dayOfWeek))
             }
 
 
             if (lesson != null) {
                 week.add(lesson)
-                current = current.plusDays(1)
+                current = current.plus(1, DateTimeUnit.DAY)
             }
 
 
@@ -192,8 +202,8 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
         refreshTrigger++ // this is a bit dumm, since it takes up memory space - should probaply reimplemented in the future #TODO
     }
 
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
+    val configuration = LocalWindowInfo.current.containerSize
+    val screenWidth = configuration.width.dp
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -241,7 +251,7 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(top=5.dp, start = 5.dp, end = 10.dp)
                                 )
-                                val dayofWeek = if (!weekDates.isEmpty()) weekDates[i].format(formatterDisplay) else ""
+                                val dayofWeek = if (!weekDates.isEmpty()) weekDates[i].dayOfWeek.name else ""
                                 Text(
                                     modifier = Modifier.padding(bottom=5.dp, start = 5.dp, end = 0.dp),
 
@@ -290,7 +300,7 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
 
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
-                                    Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                    Spacer(modifier = Modifier.width(screenWidth / 6))
                                 } else {
                                     Column {
                                         for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
@@ -326,7 +336,7 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
                                                     )
                                                 }
                                             } else {
-                                                Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                                Spacer(modifier = Modifier.width(screenWidth / 6))
                                             }
                                         }
                                     }
@@ -371,12 +381,3 @@ fun orderWeek(
 }
 
 
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview2() {
-    IndiwareNativeTheme {
-        WeekView()
-    }
-}

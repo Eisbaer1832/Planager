@@ -45,11 +45,9 @@ class UserSettings private constructor(private val settings: Settings) {
         @Volatile
         private var INSTANCE: UserSettings? = null
 
-        // Use a simple lock object instead of 'this'
         @OptIn(InternalCoroutinesApi::class)
         private val INSTANCE_LOCK: SynchronizedObject = Any() as SynchronizedObject
 
-        // KMP-safe getInstance function
         @OptIn(InternalCoroutinesApi::class)
         fun getInstance(settings: Settings): UserSettings {
             return INSTANCE ?: kotlin.run {
@@ -65,102 +63,93 @@ class UserSettings private constructor(private val settings: Settings) {
             ignoreUnknownKeys = true
             prettyPrint = false
         }
+
+        // KMP-safe helper to decode JSON with default fallback
+        inline fun <reified T> decodeOrDefault(json: String, defaultJson: String): T {
+            return try {
+                JsonFormat.decodeFromString(json.ifEmpty { defaultJson })
+            } catch (_: Exception) {
+                JsonFormat.decodeFromString(defaultJson)
+            }
+        }
     }
 
     // --- Friends Subjects ---
     val friendsSubjects: Flow<HashMap<String, HashMap<String, Boolean>>> = flow {
-        emit(
-            settings.getString("friends_subjects", "").let { json ->
-                Json.decodeFromString(json)
-            } ?: HashMap()
-        )
+        val json = settings.getString("friends_subjects", "{}")
+        emit(decodeOrDefault(json, "{}"))
     }
 
     fun updateFriendsSubjects(newMap: HashMap<String, HashMap<String, Boolean>>) {
-        settings["friends_subjects"] = Json.encodeToString(newMap)
+        settings["friends_subjects"] = JsonFormat.encodeToString(newMap)
     }
 
     // --- Friends Class ---
     val friendsClass: Flow<HashMap<String, String>> = flow {
-        emit(
-            settings.getString("friends_class", "").let { json ->
-                Json.decodeFromString(json)
-            } ?: HashMap()
-        )
+        val json = settings.getString("friends_class", "{}")
+        emit(decodeOrDefault(json, "{}"))
     }
 
     fun updateFriendsClass(newMap: HashMap<String, String>) {
-        settings["friends_class"] = Json.encodeToString(newMap)
+        settings["friends_class"] = JsonFormat.encodeToString(newMap)
     }
 
     // --- Notification History ---
     val notificationHistory: Flow<NotificationHistory> = flow {
-        emit(
-            settings.getString("notification_history", "").let { json ->
-                Json.decodeFromString(json)
-            } ?: NotificationHistory(getToday().date, emptyList())
-        )
+        val json = settings.getString("notification_history", "{}")
+        emit(decodeOrDefault(json, JsonFormat.encodeToString(NotificationHistory(getToday().date, emptyList()))))
     }
 
     fun updateNotificationHistory(newList: NotificationHistory) {
-        settings["notification_history"] = Json.encodeToString(newList)
+        settings["notification_history"] = JsonFormat.encodeToString(newList)
     }
 
     // --- Day Widget Cache ---
     val dayWidgetCache: Flow<ArrayList<lesson>> = flow {
-        emit(
-            settings.getString("day_widget_cache", "")?.let { json ->
-                Json.decodeFromString(json)
-            } ?: arrayListOf(lesson())
-        )
+        val json = settings.getString("day_widget_cache", "[]")
+        emit(decodeOrDefault(json, "[]"))
     }
 
     fun updateDayWidgetCache(newList: ArrayList<lesson>) {
-        settings["day_widget_cache"] = Json.encodeToString(newList)
+        settings["day_widget_cache"] = JsonFormat.encodeToString(newList)
     }
 
     // --- Room Widget Cache ---
     val roomWidgetCache: Flow<lesson> = flow {
-        emit(
-            settings.getString("room_widget_cache", "")?.let { json ->
-                Json.decodeFromString(json)
-            } ?: lesson()
-        )
+        val json = settings.getString("room_widget_cache", "{}")
+        emit(decodeOrDefault(json, JsonFormat.encodeToString(lesson())))
     }
 
     fun updateRoomWidgetCache(newValue: lesson) {
-        settings["room_widget_cache"] = Json.encodeToString(newValue)
+        settings["room_widget_cache"] = JsonFormat.encodeToString(newValue)
     }
 
     // --- Own Subjects ---
     val ownSubjects: Flow<HashMap<String, Boolean>> = flow {
-        emit(
-            settings.getString("own_subjects", "")?.let { json ->
-                Json.decodeFromString(json)
-            } ?: HashMap()
-        )
+        val json = settings.getString("own_subjects", "{}")
+        emit(decodeOrDefault(json, "{}"))
     }
 
     fun updateOwnSubjects(newMap: HashMap<String, Boolean>) {
-        settings["own_subjects"] = Json.encodeToString(newMap)
+        settings["own_subjects"] = JsonFormat.encodeToString(newMap)
     }
 
     // --- Simple Booleans and Strings ---
     val showTeacher: Flow<Boolean> = flow { emit(settings.getBoolean("show_teachers", false)) }
-     fun updateShowTeachers(value: Boolean) { settings["show_teachers"] = value }
+    fun updateShowTeachers(value: Boolean) { settings["show_teachers"] = value }
 
     val ownClass: Flow<String> = flow { emit(settings.getString("own_class", "")) }
-     fun updateOwnClass(value: String) { settings["own_class"] = value }
+    fun updateOwnClass(value: String) { settings["own_class"] = value }
 
     val schoolID: Flow<String> = flow { emit(settings.getString("school_id", "")) }
-     fun updateSchoolID(value: String) { settings["school_id"] = value }
+    fun updateSchoolID(value: String) { settings["school_id"] = value }
 
     val username: Flow<String> = flow { emit(settings.getString("username", "")) }
-     fun updateUsername(value: String) { settings["username"] = value }
+    fun updateUsername(value: String) { settings["username"] = value }
 
     val password: Flow<String> = flow { emit(settings.getString("password", "")) }
-     fun updatePassword(value: String) { settings["password"] = value }
+    fun updatePassword(value: String) { settings["password"] = value }
 
     val onboarding: Flow<Boolean> = flow { emit(settings.getBoolean("onboarding", true)) }
-     fun updateOnboarding(value: Boolean) { settings["onboarding"] = value }
+    fun updateOnboarding(value: Boolean) { settings["onboarding"] = value }
 }

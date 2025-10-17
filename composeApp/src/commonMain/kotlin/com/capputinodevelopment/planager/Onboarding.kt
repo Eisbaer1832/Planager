@@ -1,5 +1,4 @@
 package com.capputinodevelopment.planager
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,8 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Room
-import androidx.compose.material.icons.filled.ViewDay
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material.icons.twotone.Password
 import androidx.compose.material.icons.twotone.School
@@ -30,7 +27,9 @@ import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material.icons.twotone.Widgets
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -54,7 +53,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.components.CheckCredentials
@@ -68,14 +66,15 @@ import com.capputinodevelopment.planager.data.DataSharer.bottomShape
 import com.capputinodevelopment.planager.data.DataSharer.neutralShape
 import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.UserSettings
-import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.data.getToday
-import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import planager.composeapp.generated.resources.Res
+import planager.composeapp.generated.resources.sparkle_mug
 
 // This file is based off of https://github.com/ahmmedrejowan/OnboardingScreen-JetpackCompose
 
@@ -83,8 +82,10 @@ import kotlinx.coroutines.launch
 fun SecondPageInput(
     onValidationChanged: (Boolean) -> Unit,
     snackbarHostState: SnackbarHostState,
-    userSettings: UserSettings
 ) {
+    val settings = provideSettings()
+    val userSettings = UserSettings.getInstance(settings)
+
     rememberCoroutineScope()
     val schoolID by userSettings.schoolID.collectAsState(initial = "")
     SettingsCardInput(
@@ -121,10 +122,13 @@ fun SecondPageInput(
         { value, settings -> settings.updatePassword(value) },
         true
     )
-    CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = onValidationChanged, context)
+    CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = onValidationChanged, userSettings)
 }
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ThirdPageInput(userSettings: UserSettings) {
+fun ThirdPageInput() {
+    val settings = provideSettings()
+    val userSettings = UserSettings.getInstance(settings)
 
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
     val schoolID by userSettings.schoolID.collectAsState(initial = "")
@@ -206,34 +210,7 @@ fun FourthPageInput() {
             .height(100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
-                        receiver = RoomWidgetReceiver::class.java,
-                        preview = RoomWidget(),
-                        previewState = DpSize(245.dp, 115.dp)
-                    )
-                }
-            }
-        ) {
-            Icon(Icons.Default.Room, "")
-            Text("Nächster Raum")
-        }
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
-                        receiver = DayWidgetReceiver::class.java,
-                        preview = DayWidget(),
-                        previewState = DpSize(245.dp, 115.dp)
-                    )
-                }
-            }
-        ) {
-            Icon(Icons.Default.ViewDay, "")
-            Text("Unterricht des Tages")
-        }
+
     }
 
 }
@@ -268,13 +245,12 @@ fun FithPageInput() {
     }
 
 }
-
 sealed class OnboardingModel(
     val image: ImageVector,
     val title: String,
     val description: String,
-    val input: @Composable () -> Unit = {},
-    val gif: Int? = null,
+    val input: @Composable (() -> Unit) = {},
+    val gif: DrawableResource? = null,
 ) {
     data object FirstPage : OnboardingModel(
         image = Icons.TwoTone.School,
@@ -305,7 +281,7 @@ sealed class OnboardingModel(
 
     data object FithPage : OnboardingModel(
         image = Icons.TwoTone.Widgets,
-        gif = R.drawable.sparkle_mug,
+        gif = Res.drawable.sparkle_mug,
         title = "Unterstütze die Entwicklung von Planager",
         description = "Planager ist ein für dich komplett kostenloses Hobbyprojekt! Wenn du mich unterstützen möchtest, spende doch gerne einen Kaffee!",
         input = { FithPageInput() }
@@ -326,12 +302,7 @@ fun Page(onboardingModel: OnboardingModel) {
                     .clip(CircleShape)
                     .fillMaxWidth()
                     .padding(40.dp, 0.dp),   //crops the image to circle shape
-                painter = rememberDrawablePainter(
-                    drawable = getDrawable(
-                        LocalContext.current,
-                        onboardingModel.gif
-                    )
-                ),
+                painter = painterResource(Res.drawable.sparkle_mug),
                 contentDescription = "Loading animation",
                 contentScale = ContentScale.FillWidth,
             )
@@ -447,10 +418,8 @@ fun ButtonUi(
 
 
 
-@Preview
 @Composable
 fun BackButton() {
-
     ButtonUi(text = "Back",
         backgroundColor = Color.Transparent,
         textColor = Color.Gray,
@@ -461,7 +430,7 @@ fun BackButton() {
 
 }
 @Composable
-fun Onboarding(name: String, modifier: Modifier = Modifier) {
+fun Onboarding(name: String, modifier: Modifier = Modifier, userSettings: UserSettings) {
     var canContinue by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -526,8 +495,6 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
                     IndicatorUI(pageSize = pages.size, currentPage = pagerState.currentPage)
                 }
 
-                val context = LocalContext.current
-                val userSettings = UserSettings.getInstance(context.applicationContext)
                 var enableButton = false
                 if (pagerState.currentPage != 1 || canContinue) {
                     enableButton = true
@@ -547,8 +514,10 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
                                     pagerState.animateScrollToPage(pagerState.currentPage + 1)
                                 } else {
                                     userSettings.updateOnboarding(false)
-                                    context.startActivity(Intent(context, MainActivity::class.java))
-                                    (context as? Activity)?.finish()
+
+                                    //TODO Reimplement Onboarding closing
+                                    //context.startActivity(Intent(context, MainActivity::class.java))
+                                    //(context as? Activity)?.finish()
                                 }
                             }
                         }
@@ -567,11 +536,3 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun OnboardingPreview() {
-    IndiwareNativeTheme {
-        Onboarding("Android")
-    }
-}

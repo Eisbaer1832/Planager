@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -45,7 +46,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun SettingsCardEdit(
@@ -55,7 +55,7 @@ fun SettingsCardEdit(
     buttonText: String = "Ändern",
     size: Dp = 16.dp,
     onclick: () -> Unit,
-    leadingIcon: Int? = null,
+    leadingIcon: Painter? = null,
 
     ) {
     Card(
@@ -69,12 +69,11 @@ fun SettingsCardEdit(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (leadingIcon != null) {
-                //TODO Reimplement drawable for KOFI
-                //Image(
-                //     modifier = Modifier.size(40.dp).padding(end = 10.dp),
-                //    painter = painterResource(id = leadingIcon),
-                //    contentDescription = "KoFi Logo"
-                //)
+                Image(
+                    modifier = Modifier.size(40.dp).padding(end = 10.dp),
+                    painter = leadingIcon,
+                    contentDescription = "KoFi Logo"
+                )
             }
             Text(title)
             Spacer(modifier = Modifier.weight(1f))

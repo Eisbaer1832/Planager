@@ -28,11 +28,15 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -76,13 +80,14 @@ fun ResearchHeading(text: String) {
         Text(
             fontSize = 40.sp,
             textAlign = TextAlign.Center,
-            fontFamily = RobotoFlexVariable,
+            fontFamily = RobotoFlexVariable(),
             text = text
         )
     }
 
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchTeacherCard(
     l: lesson,
@@ -158,6 +163,7 @@ fun ResearchTeacherCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchLessonCard(
     l: lesson,
@@ -246,6 +252,7 @@ fun ResearchLessonCard(
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchView(name: String, modifier: Modifier = Modifier, userSettings: UserSettings) {
     val current = fixDay( getToday())
@@ -273,20 +280,20 @@ fun ResearchView(name: String, modifier: Modifier = Modifier, userSettings: User
 
     if (isLehrerSelected) {
         dataToSearch.teachers.values.map { teacher ->
-            teacher.days.value[dayToSearch]?.getOrNull(0)?.teacher?.let {
-                val searchObject = SearchObject(it, Icons.Default.School)
-                if (!items.contains(searchObject))items.add(searchObject)
-            }
-        }
+            teacher.days.value[dayToSearch]?.getOrNull(0)?.room?.let {
+                val searchObject = SearchObject(it, Icons.Default.Room)
+                if (!items.contains(searchObject)) items.add(searchObject)
+            } }
     }
 
     if (isRaeumeSelected) {
-        dataToSearch.rooms.values.map { room ->
+        dataToSearch.rooms.values.forEach { room ->
             room.days.value[dayToSearch]?.getOrNull(0)?.room?.let {
                 val searchObject = SearchObject(it, Icons.Default.Room)
-                if (!items.contains(searchObject))items.add(searchObject) }
-
+                if (!items.contains(searchObject)) items.add(searchObject)
+            }
         }
+
     }
 
 
@@ -402,11 +409,3 @@ fun ResearchView(name: String, modifier: Modifier = Modifier, userSettings: User
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview3() {
-    IndiwareNativeTheme {
-        ResearchView("Android")
-    }
-}

@@ -2,22 +2,19 @@ package com.capputinodevelopment.planager
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.*
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -34,21 +31,25 @@ import com.capputinodevelopment.planager.components.SettingsCardDropdown
 import com.capputinodevelopment.planager.components.SettingsCardEdit
 import com.capputinodevelopment.planager.components.SettingsCardInput
 import com.capputinodevelopment.planager.components.SubjectDialog
-import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.DataSharer.AGs
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.DataSharer.Kurse
 import com.capputinodevelopment.planager.data.DataSharer.bottomShape
 import com.capputinodevelopment.planager.data.DataSharer.neutralShape
-import com.capputinodevelopment.planager.data.DataSharer.roundShape
 import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.getToday
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.first
+import org.jetbrains.compose.resources.painterResource
+import planager.composeapp.generated.resources.Res
+import planager.composeapp.generated.resources.compose_multiplatform
 
+@Composable
+expect fun NotificationPermissionCheck()
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState, userSettings: UserSettings) {
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
@@ -75,7 +76,8 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
     LaunchedEffect(onboarding) {
         if (onboarding == true) {
             println("doing onboarding")
-            context.startActivity(Intent(context, Onboarding::class.java))
+            //TODO Reimplement Onboarding
+            //context.startActivity(Intent(context, Onboarding::class.java))
         }
     }
     if (OwnSubjectDialogToggle.value) {
@@ -99,31 +101,8 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
     ) {
         Text("App Einstellungen", style = MaterialTheme.typography.headlineMediumEmphasized)
 
-        var hasPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
 
-        // notification permission stuff
-        val permissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                Toast.makeText(context, "Benachrichtigungen aktiviert", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Benachrichtigungen deaktiviert", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        if (!hasPermission) SettingsCardEdit(
-            "Benachrichtigungen",
-            roundShape,
-            Icons.Default.Check,
-            "Erlauben",
-            onclick = {permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)},
-        )
-
-
+        NotificationPermissionCheck()
 
 
         SettingsCardEdit(
@@ -134,7 +113,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
 
 
                 couroutineScope.launch {
-                    Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
+                    Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
                 }
             },
         )
@@ -227,14 +206,14 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
             },
             true
         )
-        CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = {  })
+        CheckCredentials(snackbarHostState = snackbarHostState, {  }, userSettings)
 
         Spacer(Modifier.height(20.dp))
         Text("Sonstiges", style = MaterialTheme.typography.headlineMedium)
 
         val uriHandler = LocalUriHandler.current
         SettingsCardEdit(
-            "Spenden", topShape, buttonIcon = Icons.Default.Favorite, buttonText = "", leadingIcon = R.drawable.kofi_symbol,
+            "Spenden", topShape, buttonIcon = Icons.Default.Favorite, buttonText = "", leadingIcon = painterResource(Res.drawable.compose_multiplatform),
             onclick = {
                 uriHandler.openUri("https://ko-fi.com/capputinodevelopment")
             },
