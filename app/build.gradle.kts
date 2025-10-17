@@ -94,4 +94,6 @@ dependencies {
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.core)
     implementation(libs.aboutlibraries.compose.m3)
+    implementation("androidx.compose.material:material-icons-core")
+    implementation ("androidx.compose.material:material-icons-extended")
 }
