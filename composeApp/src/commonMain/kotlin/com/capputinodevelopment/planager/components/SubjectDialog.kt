@@ -20,6 +20,7 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
@@ -209,12 +210,12 @@ fun SubjectDialog(
                 var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
                 Scaffold(
                     floatingActionButton = {
-                        MediumFloatingActionButton(onClick = {
+                        FloatingActionButton(onClick = {
                             shouldShowDialog.value = false
                             coroutineScope.launch {
                                 println("updating widgets")
-                                RoomWidget().updateAll(context.applicationContext)
-                                DayWidget().updateAll(context.applicationContext)
+                                //RoomWidget().updateAll(context.applicationContext)
+                                //DayWidget().updateAll(context.applicationContext)
                             }
                         }) {
                             Icon(Icons.Filled.Save, "Save")

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LabelImportant
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -28,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.data.lesson
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
     ElevatedCard(
@@ -51,7 +52,7 @@ fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(MaterialShapes.Cookie7Sided.toShape())
+                    .clip(RoundedCornerShape(4.dp))
                     .background(MaterialTheme.colorScheme.error),
                 contentAlignment = Alignment.Center
             ) {
@@ -74,7 +75,6 @@ fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LessonCard(
     l: lesson,
@@ -108,7 +108,7 @@ fun LessonCard(
                         Box(
                             modifier = Modifier
                                 .size(80.dp)
-                                .clip(MaterialShapes.Cookie7Sided.toShape())
+                                .clip(RoundedCornerShape(4.dp))
                                 .background(MaterialTheme.colorScheme.primary),
                             contentAlignment = Alignment.Center
                         ){

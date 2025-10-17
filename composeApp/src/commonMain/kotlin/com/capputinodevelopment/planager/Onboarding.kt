@@ -82,9 +82,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun SecondPageInput(
     onValidationChanged: (Boolean) -> Unit,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    userSettings: UserSettings
 ) {
-    val userSettings = UserSettings.getInstance(context.applicationContext)
     rememberCoroutineScope()
     val schoolID by userSettings.schoolID.collectAsState(initial = "")
     SettingsCardInput(
@@ -124,9 +124,7 @@ fun SecondPageInput(
     CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = onValidationChanged, context)
 }
 @Composable
-fun ThirdPageInput() {
-    val context = LocalContext.current
-    val userSettings = UserSettings.getInstance(context.applicationContext)
+fun ThirdPageInput(userSettings: UserSettings) {
 
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
     val schoolID by userSettings.schoolID.collectAsState(initial = "")
@@ -145,9 +143,9 @@ fun ThirdPageInput() {
         if (schoolID.isBlank() || username.isBlank() || password.isBlank()) return@LaunchedEffect
         loading = true
         try {
-            Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass, context) ?: ArrayList()
-            AGs = getKurse(userSettings, current.dayOfWeek, "AG", context) ?: ArrayList()
-            allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context) ?: arrayOf()
+            Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass) ?: ArrayList()
+            AGs = getKurse(userSettings, current.dayOfWeek, "AG") ?: ArrayList()
+            allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml") ?: arrayOf()
             println("all classes: ${allClasses.joinToString()}  password length=${password.length}")
         } finally {
             loading = false
@@ -200,7 +198,6 @@ fun ThirdPageInput() {
 
 @Composable
 fun FourthPageInput() {
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     Column (
         modifier = Modifier
@@ -244,7 +241,6 @@ fun FourthPageInput() {
 
 @Composable
 fun FithPageInput() {
-    LocalContext.current
     rememberCoroutineScope()
     Column (
         modifier = Modifier

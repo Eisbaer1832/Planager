@@ -83,7 +83,7 @@ class UserSettings private constructor(private val settings: Settings) {
     // --- Friends Class ---
     val friendsClass: Flow<HashMap<String, String>> = flow {
         emit(
-            settings.getString("friends_class", "")?.let { json ->
+            settings.getString("friends_class", "").let { json ->
                 Json.decodeFromString(json)
             } ?: HashMap()
         )
@@ -96,9 +96,9 @@ class UserSettings private constructor(private val settings: Settings) {
     // --- Notification History ---
     val notificationHistory: Flow<NotificationHistory> = flow {
         emit(
-            settings.getString("notification_history", "")?.let { json ->
+            settings.getString("notification_history", "").let { json ->
                 Json.decodeFromString(json)
-            } ?: NotificationHistory(getToday(), emptyList())
+            } ?: NotificationHistory(getToday().date, emptyList())
         )
     }
 

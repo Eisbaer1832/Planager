@@ -34,7 +34,13 @@ kotlin {
         }
     }
 
-    jvm()
+    jvm {
+        this@kotlin.sourceSets {
+            named("jvmMain") {
+                resources.srcDir("src/commonMain/resources")
+            }
+        }
+    }
 
     js {
         browser()
@@ -53,6 +59,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.androidx.work.runtime.ktx)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -60,7 +67,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material3)
+            implementation("org.jetbrains.compose.material3:material3:1.10.0-alpha02")
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -109,6 +116,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    sourceSets {
+        named("main") {
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+            res.srcDirs("src/commonMain/resources")
+        }
     }
 }
 

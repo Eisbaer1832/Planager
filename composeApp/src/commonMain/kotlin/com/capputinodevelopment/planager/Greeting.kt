@@ -14,6 +14,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -53,7 +55,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSettings) {
 
@@ -79,7 +81,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSett
     val status = if (FilterFriend == "") {
         userSettings.ownSubjects.collectAsState(initial = HashMap())
     } else {
-        mutableStateOf(userSettings.friendsSubjects.collectAsState(initial = HashMap()).value.get(FilterFriend)?: HashMap())
+        mutableStateOf(userSettings.friendsSubjects.collectAsState(initial = HashMap()).value[FilterFriend] ?: HashMap())
     }
 
     println("current" + current.dayOfWeek)
@@ -87,7 +89,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSett
     LaunchedEffect(onboarding) {
         if (onboarding == true) {
             println("doing onboarding")
-            context.startActivity(Intent(context, Onboarding::class.java))
+            //TODO Reimplement Onboarding
+            //context.startActivity(Intent(context, Onboarding::class.java))
         }
     }
     LaunchedEffect(Unit, filter) {
@@ -114,7 +117,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSett
             )
         )
         coroutineScope.launch {lessons =
-            getLessons(userSettings, current.dayOfWeek, context = context)
+            getLessons(userSettings, current.dayOfWeek)
         }
         isRefreshing = false
     }

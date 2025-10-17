@@ -1,35 +1,14 @@
 package com.capputinodevelopment.planager
 
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -38,20 +17,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
-import com.capputinodevelopment.planager.data.DataSharer.doFilter
-import com.capputinodevelopment.planager.data.backend.getLessons
-import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
+import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
+import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.GlobalPlan.days
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
+import com.capputinodevelopment.planager.data.backend.getLessons
+import com.capputinodevelopment.planager.data.getToday
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
-import kotlinx.serialization.json.Json.Default.configuration
-import kotlin.getValue
-
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 
 
 @Composable
@@ -142,6 +120,7 @@ fun SmallLessonCardCanceled (lesson: lesson) {
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
@@ -178,8 +157,7 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
                     context = context
                 )
 
-            var today = getToday()
-            today = fixDay(null, today)
+            var today = fixDay(getToday())
             if (today.dayOfWeek > current.dayOfWeek) {
                 weekDates.add( today.with(TemporalAdjusters.previousOrSame(current.dayOfWeek)))
             }else{
@@ -273,7 +251,7 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
                         }
                     }
                 }
-                for ( pos in 1..orderedWeek.size - 1 ) {
+                for ( pos in 1..<orderedWeek.size) {
 
                     Row {
                         Card(
@@ -317,11 +295,11 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
                                     Column {
                                         for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
                                             var show = true
-                                            val lesson = orderedWeek.get(pos)?.get(i)?.get(j)?: lesson()
+                                            val lesson = orderedWeek[pos]?.get(i)?.get(j)?: lesson()
                                             val currentSubject = lesson.subject
                                             if (doFilter){
                                                 if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(Regex("-P")) || currentSubject.contains(Regex("-W")) || lesson.ag) {
-                                                    println("filtering object" + currentSubject)
+                                                    println("filtering object$currentSubject")
                                                     if (FilterFriend == "") {
                                                         show = subjectsToShow[currentSubject.substringBefore(" ")] == true
                                                     }else {
