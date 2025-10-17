@@ -51,8 +51,6 @@ import com.capputinodevelopment.planager.data.getToday
 import com.capputinodevelopment.planager.data.lesson
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

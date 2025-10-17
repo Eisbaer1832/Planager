@@ -1,5 +1,9 @@
 package com.capputinodevelopment.planager.data.backend
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.capputinodevelopment.planager.Platform
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.Kurs
@@ -20,17 +24,19 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
+import io.ktor.http.headers
 import io.ktor.util.collections.getValue
 import io.ktor.utils.io.InternalAPI
+import io.ktor.utils.io.charsets.Charset
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
+import planager.composeapp.generated.resources.Res
 
 
-expect suspend fun fetchStoreDB(): String
 // API Endpoints
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/PlanKl20250814.xml -- Format yyyymmdd - 20250814
@@ -42,10 +48,10 @@ fun fixDay(current: LocalDateTime): LocalDate {
     val endOfDay = LocalTime.parse("19:00:00")
     var returnCurrent = day
 
-    if (day.dayOfWeek == DayOfWeek.SATURDAY) {
-        returnCurrent = day.plus(2,DateTimeUnit.DAY)
-    }else if (current.dayOfWeek == DayOfWeek.SUNDAY) {
-        returnCurrent = day.plus(1,DateTimeUnit.DAY)
+    returnCurrent = when (returnCurrent.dayOfWeek) {
+        DayOfWeek.SATURDAY -> returnCurrent.plus(2, DateTimeUnit.DAY)
+        DayOfWeek.SUNDAY -> returnCurrent.plus(1, DateTimeUnit.DAY)
+        else -> returnCurrent
     }
 
     if (time > endOfDay) returnCurrent = day.plus(2,DateTimeUnit.DAY)
@@ -60,18 +66,18 @@ suspend fun fetchTimetable(
 ): String {
     val client = HttpClient()
 
-    println("using: $url for outgoing network call")
     val username = userSettings.username.first()
     val password = userSettings.password.first()
     val schoolID = userSettings.schoolID.first()
 
 
     if (username == "google" && password == "google" && schoolID == "google") {
-        return fetchStoreDB()
+        return Res.readBytes("files/plan.xml").decodeToString()
     }
+    println("using: https://www.stundenplan24.de/$schoolID$url for outgoing network call")
 
     return try {
-        client.get(url) {
+        client.get("https://www.stundenplan24.de/$schoolID$url") {
             username.let { user ->
                 password.let { pwd ->
                     headers.append(HttpHeaders.Authorization, "$user:$pwd")
@@ -84,8 +90,6 @@ suspend fun fetchTimetable(
     } finally {
         client.close()
     }
-
-
 
 }
 suspend fun getAllClasses(
@@ -136,13 +140,13 @@ suspend fun getSelectedClass(
 fun getPart(array: List<Node>, name: String): String? {
     for (i in 0..array.size) {
         val child = array[i]
-        if (child.nodeName() == name) return child.nodeName()
+        if (child.nodeName() == name) return child.nodeValue()
     }
     return null
 }
 
 fun parseLesson(l: List<Node>, isAg: Boolean): lesson {
-    val pos = getPart(l, "St")!!.toInt()
+    val pos = getPart(l, "St")?.toInt()
     val start =  getPart(l, "Beginn")
     val end = getPart(l, "Ende")
     var subject = getPart(l, "Fa")?:""
@@ -154,7 +158,7 @@ fun parseLesson(l: List<Node>, isAg: Boolean): lesson {
     val teacher = getPart(l, "Le")?:""
     val room = getPart(l, "Ra")?:""
     var roomChanged = false
-    for (i in 0..l.size) {
+    for (i in 0..<l.size) {
         val child = l[i]
         if (child.nodeName() == "Ra") {
             if (child.attributes()["RaAe"] != "") roomChanged = true
@@ -169,7 +173,7 @@ fun parseLesson(l: List<Node>, isAg: Boolean): lesson {
         endT = LocalTime.parse(end)
     }
     return lesson(
-        pos,
+        pos?:0,
         teacher,
         subject,
         room,
@@ -186,7 +190,8 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterCl
     var agClasses: List<Node> = listOf()
 
     if (fetchAgs) {
-        agClasses = getSelectedClass(userSettings, day, "AG")?.childNodes()?.get(5)?.childNodes()!!
+        val selClasses = getSelectedClass(userSettings, day, "AG") ?: return ArrayList()
+        agClasses = selClasses.childNodes()[5].childNodes()
     }
     val lessons = ArrayList<lesson>()
 

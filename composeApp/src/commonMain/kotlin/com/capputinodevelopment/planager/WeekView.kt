@@ -160,7 +160,7 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
         week = arrayListOf<ArrayList<lesson>>()
         weekDates = ArrayList<LocalDate>()
         for (i in 0..4) {
-            println("cdom: "+ current.dayOfMonth)
+            println("cdom: "+ current.day)
             val lesson =
                 getLessons(
                     userSettings,
@@ -251,11 +251,10 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(top=5.dp, start = 5.dp, end = 10.dp)
                                 )
-                                val dayofWeek = if (!weekDates.isEmpty()) weekDates[i].dayOfWeek.name else ""
+                                val dayofWeek = if (!weekDates.isEmpty()) weekDates[i].day else ""
                                 Text(
                                     modifier = Modifier.padding(bottom=5.dp, start = 5.dp, end = 0.dp),
-
-                                    text = dayofWeek,
+                                    text = dayofWeek.toString(),
                                 )
                             }
                         }

@@ -1,6 +1,5 @@
 package com.capputinodevelopment.planager.components
 
-import android.icu.lang.UCharacter.toLowerCase
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.AirplanemodeActive
@@ -21,7 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 fun getSubjectIcon(name: String):ImageVector {
     var icon: ImageVector
-    val subShort: String? = toLowerCase(name.substring(0, name.length.coerceAtMost(2)))
+    val subShort: String = name.take(name.length.coerceAtMost(2)).lowercase()
     when (subShort) {
         "de" -> icon = Icons.Filled.Book
         "ku" -> icon = Icons.Filled.Brush

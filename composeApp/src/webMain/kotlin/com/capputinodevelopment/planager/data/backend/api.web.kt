@@ -1,4 +1,5 @@
 package com.capputinodevelopment.planager.data.backend
 
-actual suspend fun fetchStoreDB() {
+actual suspend fun fetchStoreDB(): String {
+    return ""
 }

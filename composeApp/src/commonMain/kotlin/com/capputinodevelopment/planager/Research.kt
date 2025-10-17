@@ -1,9 +1,6 @@
 package com.capputinodevelopment.planager
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,6 +64,8 @@ import com.capputinodevelopment.planager.data.research.ResearchWeek
 import com.capputinodevelopment.planager.data.research.SearchObject
 import com.capputinodevelopment.planager.data.research.getResearchData
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
@@ -251,7 +250,6 @@ fun ResearchLessonCard(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchView(name: String, modifier: Modifier = Modifier, userSettings: UserSettings) {
@@ -271,10 +269,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier, userSettings: User
     LaunchedEffect(Unit, dayToSearch) {
         println("daytoSearch $dayToSearch")
         loading = true
-        val research = withContext(kotlinx.coroutines.Dispatchers.IO) {
-            getResearchData(userSettings, dayToSearch)
-        }
-        dataToSearch = research
+        dataToSearch = getResearchData(userSettings, dayToSearch)
         loading = false
     }
 
