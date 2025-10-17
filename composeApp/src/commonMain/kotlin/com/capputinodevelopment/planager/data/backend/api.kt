@@ -11,10 +11,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import com.capputinodevelopment.planager.data.getToday
+import com.fleeksoft.ksoup.Ksoup
+import com.fleeksoft.ksoup.nodes.Document
+import com.fleeksoft.ksoup.nodes.Element
+import com.fleeksoft.ksoup.nodes.Node
+import com.fleeksoft.ksoup.parser.Parser
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
+import io.ktor.util.collections.getValue
+import io.ktor.utils.io.InternalAPI
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -90,13 +97,13 @@ suspend fun getAllClasses(
     if (xmlTimeTable.isEmpty()) {
         return null
     }
+    val doc: Document = Ksoup.parse(xmlTimeTable, parser = Parser.xmlParser())
 
-    val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
-    val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
+    val nodeList = doc.getElementsByTag("Kurz").asList()
 
-    var allClasses = arrayOf(String())
-    for (i in 0..<nodeList.length) {
-        allClasses = allClasses.plus(nodeList.item(i).textContent)
+    var allClasses = arrayOf<String>()
+    for (i in 0..<nodeList.size) {
+        allClasses = allClasses.plus(nodeList[i].text())
     }
     return allClasses
 }
@@ -107,34 +114,34 @@ suspend fun getSelectedClass(
     localFilterClass: String? = null,
 ): Node? {
 
-    val xmlTimeTable = getDayXML(day, userSettings, context)
+    val xmlTimeTable = getDayXML(day, userSettings)
     if (xmlTimeTable.isEmpty()) {
         return null
     }
     //println("filter: " + localFilterClass)
     val filter = localFilterClass ?: FilterClass
 
-    val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
-    val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
+    val doc: Document = Ksoup.parse(xmlTimeTable, parser = Parser.xmlParser())
+    val nodeList = doc.getElementsByTag("Kurz").asList()
 
 
-    for (i in 0..<nodeList.length) {
-        if (nodeList.item(i).textContent == filter) {
-            return nodeList.item(i).parentNode // kl node
+    for (i in 0..<nodeList.size) {
+        if (nodeList[i].text() == filter) {
+            return nodeList[i].parentNode() // kl node
         }
     }
     return null
 }
 
-fun getPart(array: NodeList, name: String): String? {
-    for (i in 0..array.length) {
-        val child = array.item(i)
-        if (child.nodeName == name) return child.textContent
+fun getPart(array: List<Node>, name: String): String? {
+    for (i in 0..array.size) {
+        val child = array[i]
+        if (child.nodeName() == name) return child.nodeName()
     }
     return null
 }
 
-fun parseLesson(l: NodeList, isAg: Boolean): lesson {
+fun parseLesson(l: List<Node>, isAg: Boolean): lesson {
     val pos = getPart(l, "St")!!.toInt()
     val start =  getPart(l, "Beginn")
     val end = getPart(l, "Ende")
@@ -146,23 +153,20 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
     }
     val teacher = getPart(l, "Le")?:""
     val room = getPart(l, "Ra")?:""
-    val formatter = DateTimeFormatter.ofPattern("H:mm")
     var roomChanged = false
-    for (i in 0..l.length) {
-        val child = l.item(i)
-        if (child != null) {
-            if (child.nodeName == "Ra") {
-                if (child.attributes.getNamedItem("RaAe") != null) roomChanged = true
-            }
+    for (i in 0..l.size) {
+        val child = l[i]
+        if (child.nodeName() == "Ra") {
+            if (child.attributes()["RaAe"] != "") roomChanged = true
         }
     }
-    var startT = getToday()
+    var startT: LocalTime = getToday().time
     if (start?.isEmpty() == false) {
-        startT = LocalTime.parse(start, formatter)
+        startT = LocalTime.parse(start)
     }
-    var endT = getToday()
+    var endT: LocalTime = getToday().time
     if (end?.isEmpty() == false) {
-        endT = LocalTime.parse(end, formatter)
+        endT = LocalTime.parse(end)
     }
     return lesson(
         pos,
@@ -176,13 +180,13 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         isAg
     )
 }
-suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context, fetchAgs:Boolean = true): ArrayList<lesson>? {
-    val receivedClass = getSelectedClass(userSettings, day, localFilterClass, context)
+suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, fetchAgs:Boolean = true): ArrayList<lesson>? {
+    val receivedClass = getSelectedClass(userSettings, day, localFilterClass)
 
-    var agClasses: NodeList? = null
+    var agClasses: List<Node> = listOf()
 
     if (fetchAgs) {
-        agClasses = getSelectedClass(userSettings, day, "AG", context)?.childNodes?.item(5)?.childNodes
+        agClasses = getSelectedClass(userSettings, day, "AG")?.childNodes()?.get(5)?.childNodes()!!
     }
     val lessons = ArrayList<lesson>()
 
@@ -190,23 +194,23 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterCl
         println("returning null")
         return null
     }
-    val selectedClass = receivedClass.childNodes
+    val selectedClass = receivedClass.childNodes()
 
-    val lessonNodes = selectedClass?.item(5)?.childNodes
+    val lessonNodes = selectedClass[5].childNodes()
 
     var lastPos = 0
-    for (i in 0..<lessonNodes!!.length) {
-        val l = lessonNodes.item(i).childNodes
+    for (i in 0..<lessonNodes.size) {
+        val l = lessonNodes[i].childNodes()
         val lesson = parseLesson(l, false)
         lessons.add(lesson)
 
-        if (fetchAgs && agClasses != null) {
+        if (fetchAgs) {
             if (lastPos != lesson.pos) {
                 lastPos = lesson.pos
-                for (j in 0..<agClasses.length) {
-                    val agL = agClasses.item(j).childNodes
+                for (j in 0..<agClasses.size) {
+                    val agL = agClasses[j].childNodes()
                     val ag = parseLesson(agL, true)
-                    if (ag.pos == lastPos || i >= lessonNodes.length - 1) {
+                    if (ag.pos == lastPos || i >= lessonNodes.size - 1) {
                         lessons.add(ag)
                     }
                     println("AG Namen ${ag.subject}")
@@ -220,36 +224,34 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterCl
     return lessons
 }
 
-suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context): ArrayList<Kurs>? {
-    val receivedClass = getSelectedClass(userSettings, day, localFilterClass, context) ?: return null
+@OptIn(InternalAPI::class)
+suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null,): ArrayList<Kurs>? {
+    val receivedClass = getSelectedClass(userSettings, day, localFilterClass) ?: return null
 
-    val selectedClass =receivedClass.childNodes
+    val selectedClass =receivedClass.childNodes()
 
 
 
-    val kursNodes = selectedClass?.item(3)?.childNodes
+    val kursNodes = selectedClass[3].childNodes()
     val kurse = ArrayList<Kurs>()
 
 
     // normal classes (P/W)
-    var normalClasses = selectedClass?.item(4)?.childNodes
-    for (i in 0..<normalClasses!!.length) {
-        val c = normalClasses.item(i).firstChild
-        val teacher = c.attributes.getNamedItem("UeLe").textContent
-        val name = c.attributes.getNamedItem("UeFa").textContent
+    var normalClasses = selectedClass[4].childNodes()
+    for (i in 0..<normalClasses.size) {
+        val c = normalClasses[i].firstChild()
+        val teacher = c?.attributes()["UeLe"]?:""
+        val name = c?.attributes()["UeFa"]?:""
         if (name.contains("-P") || name.contains("-W")) {
             kurse.add(Kurs(teacher, name))
 
         }
     }
     //Kurse
-    for ( i in 0..<kursNodes!!.length) {
-        var text = kursNodes.item(i).firstChild.textContent
+    for ( i in 0..<kursNodes.size) {
+        val text = kursNodes[i].firstChild()?.nodeName()?:""
         println("Kurs is named $text")
-        val teacher = kursNodes.item(i).firstChild.attributes.getNamedItem("KLe").textContent
-        if (text == "") {
-            text = kursNodes.item(i).firstChild.textContent
-        }
+        val teacher = kursNodes[i].firstChild()?.attributes()["KLe"]?:""
 
         kurse.add(Kurs(teacher, text))
     }

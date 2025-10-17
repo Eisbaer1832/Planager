@@ -62,7 +62,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSett
     var ags by remember { mutableStateOf<ArrayList<lesson>?>(null) }
 
     val coroutineScope = rememberCoroutineScope()
-    var current = getToday()
+    val current = fixDay(getToday())
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
     var loading by remember { mutableStateOf<Boolean>(true) }
@@ -82,7 +82,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSett
         mutableStateOf(userSettings.friendsSubjects.collectAsState(initial = HashMap()).value.get(FilterFriend)?: HashMap())
     }
 
-    current = fixDay(current)
     println("current" + current.dayOfWeek)
 
     LaunchedEffect(onboarding) {
@@ -94,11 +93,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier, userSettings: UserSett
     LaunchedEffect(Unit, filter) {
         loading = true
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
+            Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
         }
         println("getting DayData for " + current.dayOfWeek)
-        lessons = getLessons(userSettings, current.dayOfWeek, context= context)
-        ags = getLessons(userSettings, current.dayOfWeek, "AG", context)?:arrayListOf()
+        lessons = getLessons(userSettings, current.dayOfWeek)
+        ags = getLessons(userSettings, current.dayOfWeek, "AG")?:arrayListOf()
         loading = false
     }
     val state = rememberPullToRefreshState()
