@@ -84,7 +84,6 @@ fun SecondPageInput(
     onValidationChanged: (Boolean) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-    val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     rememberCoroutineScope()
     val schoolID by userSettings.schoolID.collectAsState(initial = "")

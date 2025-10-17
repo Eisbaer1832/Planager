@@ -28,15 +28,11 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -50,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.components.ResearchSearchBar
@@ -62,32 +57,15 @@ import com.capputinodevelopment.planager.data.DataSharer.roundShape
 import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
+import com.capputinodevelopment.planager.data.getToday
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.data.research.ResearchWeek
 import com.capputinodevelopment.planager.data.research.SearchObject
 import com.capputinodevelopment.planager.data.research.getResearchData
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import java.time.LocalTime
-import java.util.ArrayList
 
-class Research : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            IndiwareNativeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ResearchView(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
+
 @Composable
 fun ResearchHeading(text: String) {
     Row(
@@ -105,7 +83,6 @@ fun ResearchHeading(text: String) {
 
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchTeacherCard(
     l: lesson,
@@ -181,7 +158,6 @@ fun ResearchTeacherCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchLessonCard(
     l: lesson,
@@ -270,12 +246,9 @@ fun ResearchLessonCard(
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ResearchView(name: String, modifier: Modifier = Modifier) {
-    val context = androidx.compose.ui.platform.LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
-    val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
-    val current = fixDay( getToday(), getToday())
+fun ResearchView(name: String, modifier: Modifier = Modifier, userSettings: UserSettings) {
+    val current = fixDay( getToday())
 
     var dataToSearch by remember { mutableStateOf(ResearchWeek()) }
     val dayToSearch = DataSharer.SliderState.value
@@ -292,7 +265,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
         println("daytoSearch $dayToSearch")
         loading = true
         val research = withContext(kotlinx.coroutines.Dispatchers.IO) {
-            getResearchData(userSettings, context, dayToSearch)
+            getResearchData(userSettings, dayToSearch)
         }
         dataToSearch = research
         loading = false

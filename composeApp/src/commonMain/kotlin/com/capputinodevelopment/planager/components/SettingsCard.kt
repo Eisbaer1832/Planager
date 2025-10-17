@@ -1,6 +1,5 @@
 package com.capputinodevelopment.planager.components
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,23 +34,18 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.glance.LocalContext
-import com.capputinodevelopment.planager.R
-import com.capputinodevelopment.planager.data.DataSharer.AGs
-import com.capputinodevelopment.planager.data.DataSharer.Kurse
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.getAllClasses
-import com.capputinodevelopment.planager.data.backend.getKurse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun SettingsCardEdit(
@@ -75,11 +69,12 @@ fun SettingsCardEdit(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (leadingIcon != null) {
-                Image(
-                    modifier = Modifier.size(40.dp).padding(end = 10.dp),
-                    painter = painterResource(id = leadingIcon),
-                    contentDescription = "KoFi Logo"
-                )
+                //TODO Reimplement drawable for KOFI
+                //Image(
+                //     modifier = Modifier.size(40.dp).padding(end = 10.dp),
+                //    painter = painterResource(id = leadingIcon),
+                //    contentDescription = "KoFi Logo"
+                //)
             }
             Text(title)
             Spacer(modifier = Modifier.weight(1f))
@@ -226,32 +221,30 @@ fun SettingsCardInput(
 }
 
 @Composable
-fun CheckCredentials(snackbarHostState: SnackbarHostState, onValidationChanged: (state: Boolean) -> Unit, context: Context) {
-    val couroutineScope = rememberCoroutineScope()
-    val userSettings = UserSettings.getInstance(context.applicationContext)
+fun CheckCredentials(snackbarHostState: SnackbarHostState, onValidationChanged: (state: Boolean) -> Unit,userSettings: UserSettings) {
+    val coroutineScope = rememberCoroutineScope()
 
 
     Button(
         modifier = Modifier.fillMaxWidth(),
         onClick = {
-            couroutineScope.launch {
+            coroutineScope.launch {
                 val result = fetchTimetable(
                     userSettings = userSettings,
                     url = "/mobil/mobdaten/Klassen.xml",
-                    lContext = context
                 )
 
                 if (result.isEmpty()) {
                     println("update failed")
-                    couroutineScope.launch {
+                    coroutineScope.launch {
                         snackbarHostState.showSnackbar("Nutzerdaten inkorrekt!")
                     }
                     onValidationChanged(false)
                 } else {
-                    couroutineScope.launch {
+                    coroutineScope.launch {
                         snackbarHostState.showSnackbar("Nutzerdaten korrekt!!")
                     }
-                    getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
+                    getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf()
                     onValidationChanged(true)
                 }
             }

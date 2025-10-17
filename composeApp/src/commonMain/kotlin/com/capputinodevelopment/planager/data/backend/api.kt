@@ -230,8 +230,6 @@ suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClas
 
     val selectedClass =receivedClass.childNodes()
 
-
-
     val kursNodes = selectedClass[3].childNodes()
     val kurse = ArrayList<Kurs>()
 

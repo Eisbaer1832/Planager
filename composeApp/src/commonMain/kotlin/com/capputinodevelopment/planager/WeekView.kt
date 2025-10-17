@@ -1,11 +1,5 @@
 package com.capputinodevelopment.planager
 
-import android.annotation.SuppressLint
-import android.os.Build
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,8 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -40,13 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
@@ -60,39 +49,13 @@ import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
+import kotlinx.serialization.json.Json.Default.configuration
 import kotlin.getValue
 
-class WeekView : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        enableEdgeToEdge()
-        setContent {
-            IndiwareNativeTheme {
-                Scaffold(
-                    topBar = {
-                        TopBar("Wochenplan", true)
-                    }
-                ){ innerPadding ->
-                    WeekView(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
 
 
 @Composable
 fun SmallLessonCard (lesson: lesson) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
     Card(
         modifier = Modifier
             .width(screenWidth / 6)
@@ -179,13 +142,8 @@ fun SmallLessonCardCanceled (lesson: lesson) {
 
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@SuppressLint("MutableCollectionMutableState")
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeekView(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val userSettings = UserSettings.getInstance(context.applicationContext)
+fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
     val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }

@@ -9,13 +9,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.russhwolf.settings.Settings
-import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.flow.Flow
 import kotlin.collections.HashMap
 import kotlin.concurrent.Volatile
 import com.russhwolf.settings.set
-import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.internal.SynchronizedObject
+import kotlinx.coroutines.internal.synchronized
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -25,7 +26,7 @@ object DataSharer {
     var doFilter by mutableStateOf(true)
     var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
-    var SliderState = mutableStateOf(fixDay(getToday().time, getToday().date).dayOfWeek)
+    var SliderState = mutableStateOf(fixDay(getToday()).dayOfWeek)
     var FilterFriend by mutableStateOf("")
     var Kurse by mutableStateOf(ArrayList<Kurs>())
     var AGs by mutableStateOf(ArrayList<Kurs>())
@@ -45,9 +46,11 @@ class UserSettings private constructor(private val settings: Settings) {
         private var INSTANCE: UserSettings? = null
 
         // Use a simple lock object instead of 'this'
+        @OptIn(InternalCoroutinesApi::class)
         private val INSTANCE_LOCK: SynchronizedObject = Any() as SynchronizedObject
 
         // KMP-safe getInstance function
+        @OptIn(InternalCoroutinesApi::class)
         fun getInstance(settings: Settings): UserSettings {
             return INSTANCE ?: kotlin.run {
                 synchronized(INSTANCE_LOCK) {

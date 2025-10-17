@@ -10,6 +10,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
@@ -39,18 +45,16 @@ import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getAllClasses
+import com.capputinodevelopment.planager.data.getToday
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.first
 
 @Composable
-fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState) {
-    val context = LocalContext.current
-    val userSettings = UserSettings.getInstance(context.applicationContext)
+fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState, userSettings: UserSettings) {
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
-    var allClasses: Array<String> by remember { mutableStateOf(arrayOf(String())) }
-    var current = getToday()
-    current = fixDay(getToday(), current)
+    var allClasses: Array<String> by remember { mutableStateOf(arrayOf()) }
+    val current = fixDay(getToday())
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val licenseDialogToggle = remember { mutableStateOf(false) }
@@ -59,12 +63,12 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
 
     LaunchedEffect(Unit, FilterClass) {
-        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
+        allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf<String>()
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
+            Kurse = getKurse(userSettings, current.dayOfWeek, null)?: ArrayList()
         }
         if (AGs.isEmpty()) {
-            AGs = getKurse(userSettings, current.dayOfWeek, "AG", context)?: ArrayList()
+            AGs = getKurse(userSettings, current.dayOfWeek, "AG",)?: ArrayList()
         }
 
     }
@@ -176,7 +180,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         }
 
         Spacer(Modifier.height(20.dp))
-        Text("Server Daten", style = MaterialTheme.typography.headlineMediumEmphasized)
+        Text("Server Daten", style = MaterialTheme.typography.headlineMedium)
 
         val schoolID by userSettings.schoolID.collectAsState(initial = "")
         SettingsCardInput(
@@ -223,10 +227,10 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
             },
             true
         )
-        CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = {  }, context)
+        CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = {  })
 
         Spacer(Modifier.height(20.dp))
-        Text("Sonstiges", style = MaterialTheme.typography.headlineMediumEmphasized)
+        Text("Sonstiges", style = MaterialTheme.typography.headlineMedium)
 
         val uriHandler = LocalUriHandler.current
         SettingsCardEdit(

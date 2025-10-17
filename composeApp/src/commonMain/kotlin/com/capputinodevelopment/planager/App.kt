@@ -37,9 +37,9 @@ fun App() {
             }},
             topBar = {
                 when (currentScreen) {
-                    0 -> TopBar("Tagesplan", true)
-                    1 -> TopBar("Wochenplan", true)
-                    3 -> TopBar("Einstellungen", false)
+                    0 -> TopBar("Tagesplan", true, userSettings)
+                    1 -> TopBar("Wochenplan", true, userSettings)
+                    3 -> TopBar("Einstellungen", false, userSettings)
                 }
             }, bottomBar = {
                 NavBar(currentScreen) { currentScreen = it } }
@@ -52,9 +52,9 @@ fun App() {
             ) { screen ->
                 when (screen) {
                     0 -> Greeting(name = "Android", modifier = Modifier.padding(innerPadding), userSettings)
-                    1 -> WeekView(modifier = Modifier.padding(innerPadding))
-                    2 -> ResearchView(name="Recherche", modifier = Modifier.padding(innerPadding))
-                    3 -> Settings(modifier = Modifier.padding(innerPadding), snackbarHostState)
+                    1 -> WeekView(modifier = Modifier.padding(innerPadding), userSettings)
+                    2 -> ResearchView(name="Recherche", modifier = Modifier.padding(innerPadding), userSettings)
+                    3 -> Settings(modifier = Modifier.padding(innerPadding), snackbarHostState, userSettings)
                 }
             }
 

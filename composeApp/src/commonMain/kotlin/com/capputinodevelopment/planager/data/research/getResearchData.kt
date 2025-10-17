@@ -1,46 +1,37 @@
 package com.capputinodevelopment.planager.data.research
 
-import android.content.Context
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.DataSharer.Kurse
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.backend.parseLesson
 import com.capputinodevelopment.planager.data.getDayXML
-import com.capputinodevelopment.planager.data.lesson
-import com.capputinodevelopment.planager.orderWeek
-import java.time.DayOfWeek
-import java.time.LocalDate
-import javax.xml.parsers.DocumentBuilderFactory
-import kotlin.collections.arrayListOf
-import kotlin.collections.mapOf
-import kotlin.to
+import com.fleeksoft.ksoup.Ksoup
+import com.fleeksoft.ksoup.nodes.Document
+import com.fleeksoft.ksoup.parser.Parser
+import kotlinx.datetime.DayOfWeek
 
 suspend fun getResearchData(
     userSettings: UserSettings,
-    context: Context,
     day: DayOfWeek
 ): ResearchWeek {
     var researchData by mutableStateOf(ResearchWeek())
 
-    val xmlTimeTable = getDayXML(day, userSettings, context)
+    val xmlTimeTable = getDayXML(day, userSettings)
     if (xmlTimeTable.isEmpty()) {
         return ResearchWeek()
     }
 
-    val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
-    val pls = xmlRes.documentElement.getElementsByTagName("Pl")
+    val doc: Document = Ksoup.parse(xmlTimeTable, parser = Parser.xmlParser())
+    val pls = doc.getElementsByTag("Pl")
 
 
-    for (i in 0..<pls.length) {
-        val stds = pls.item(i).childNodes
-        for (j in 0..<stds.length) {
-            val lesson = parseLesson(stds.item(j).childNodes, false)
+    for (i in 0..<pls.size) {
+        val stds = pls[i].childNodes
+        for (j in 0..<stds.size) {
+            val lesson = parseLesson(stds[j].childNodes(), false)
             if (lesson.room.isEmpty()) {
                 lesson.room = lesson.subject
             }
@@ -66,12 +57,12 @@ suspend fun getResearchData(
 
         }
     }
-    val allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
+    val allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml")?: arrayOf()
     println("day $day")
     for (i in 0..<allClasses.size) {
         val classes= researchData.classes.getOrPut(allClasses[i]) { Data() }
         if (allClasses[i].contains(Regex("\\d")) && !allClasses[i].contains("AG")) {
-            val lessons = getLessons(userSettings, day, allClasses[i], context, false)
+            val lessons = getLessons(userSettings, day, allClasses[i],  false)
             if (!lessons.isNullOrEmpty()) {
                 for (i in 0..<(lessons.size)) {
                     classes.days.value[day]?.add(lessons[i])

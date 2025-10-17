@@ -11,7 +11,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,16 +23,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
 import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.UserSettings
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(title: String, showHamburger: Boolean) {
+fun TopBar(title: String, showHamburger: Boolean, userSettings: UserSettings) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -42,15 +40,13 @@ fun TopBar(title: String, showHamburger: Boolean) {
             )},
 
         actions = {
-            if (showHamburger) Hamburger()
+            if (showHamburger) Hamburger(userSettings)
         },
     )
 }
 
 @Composable
-fun Hamburger() {
-    val context = LocalContext.current
-    val userSettings = UserSettings.getInstance(context.applicationContext)
+fun Hamburger(userSettings: UserSettings) {
     val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     val friendsClasses by userSettings.friendsClass.collectAsState(initial = HashMap())
 
@@ -94,7 +90,7 @@ fun Hamburger() {
                     onClick ={
                         doFilter = true
                         FilterFriend =  friend.key
-                        FilterClass = friendsClasses.get(friend.key) ?: ownClass
+                        FilterClass = friendsClasses[friend.key] ?: ownClass
 
                     }
                 )
