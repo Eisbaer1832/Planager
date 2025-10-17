@@ -11,13 +11,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import com.capputinodevelopment.planager.data.getToday
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
-import kotlin.io.encoding.Base64
 
 
 expect suspend fun fetchStoreDB(): String
@@ -48,6 +51,7 @@ suspend fun fetchTimetable(
     url: String,
     localFilterClass: String? = null,
 ): String {
+    val client = HttpClient()
 
     println("using: $url for outgoing network call")
     val username = userSettings.username.first()
@@ -59,14 +63,20 @@ suspend fun fetchTimetable(
         return fetchStoreDB()
     }
 
-    val connection = URL("https://www.stundenplan24.de/$schoolID$url").openConnection() as HttpURLConnection
-    connection.requestMethod = "GET"
-    val auth = "$username:$password"
-    val encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charsets.UTF_8))
-    connection.setRequestProperty("Authorization", "Basic $encodedAuth")
-    connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
-
-
+    return try {
+        client.get(url) {
+            username.let { user ->
+                password.let { pwd ->
+                    headers.append(HttpHeaders.Authorization, "$user:$pwd")
+                }
+            }
+        }.bodyAsText()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    } finally {
+        client.close()
+    }
 
 
 
@@ -74,13 +84,13 @@ suspend fun fetchTimetable(
 suspend fun getAllClasses(
     userSettings: UserSettings,
     url: String,
-    context: Context
 
 ): Array<String>? {
-    val xmlTimeTable = getKurseXML(userSettings, context)
+    val xmlTimeTable = getKurseXML(userSettings)
     if (xmlTimeTable.isEmpty()) {
         return null
     }
+
     val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
     val nodeList = xmlRes.documentElement.getElementsByTagName("Kurz")
 
@@ -95,7 +105,6 @@ suspend fun getSelectedClass(
     userSettings: UserSettings,
     day: DayOfWeek,
     localFilterClass: String? = null,
-    context: Context
 ): Node? {
 
     val xmlTimeTable = getDayXML(day, userSettings, context)

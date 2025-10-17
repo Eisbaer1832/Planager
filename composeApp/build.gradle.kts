@@ -72,6 +72,8 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.coroutines.core)
+            implementation("io.github.pdvrieze.xmlutil:core:0.91.2")
+            implementation("io.github.pdvrieze.xmlutil:serialization:0.91.2")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
