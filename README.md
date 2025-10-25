@@ -11,3 +11,11 @@
    <img src='https://github.com/Eisbaer1832/Planager/blob/c95f2a66ee110f14fb791d0add4a147823baa49e/English.svg' width=100 />
   </a>
 </div>
+
+
+## ✨ Features
+* Full parity with the official timetable client
+* Add friends with different years and subjects
+* System notifications
+* Widgets showing next lesson and room, as well as todays lessons
+* Search rooms, teachers and classes
