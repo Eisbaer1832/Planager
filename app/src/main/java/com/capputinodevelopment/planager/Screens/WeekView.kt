@@ -7,6 +7,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +51,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +66,7 @@ import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -110,7 +117,8 @@ fun SmallLessonCard (lesson: lesson) {
                 modifier = Modifier.fillMaxWidth()
             ){
                 Text(
-                    fontSize = 16.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     text = lesson.subject
@@ -180,7 +188,6 @@ fun SmallLessonCardCanceled (lesson: lesson) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("MutableCollectionMutableState")
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeekView(modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -376,20 +383,32 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                 }
                                             }
 
-
-                                            if (show){
-                                                val subject = orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
-                                                if (subject.canceled) {
-                                                    SmallLessonCardCanceled(
-                                                        subject
-                                                    )
-                                                }else {
-                                                    SmallLessonCard(
-                                                        subject
-                                                    )
+                                            var visible by remember { mutableStateOf(true) }
+                                            LaunchedEffect(Unit) {
+                                                delay(i * 50L)
+                                                visible = true
+                                            }
+                                            AnimatedVisibility(
+                                                visible = visible,
+                                                enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
+                                                exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
+                                            ) {
+                                                if (show) {
+                                                    val subject =
+                                                        orderedWeek.get(pos)?.get(i)?.get(j)
+                                                            ?: lesson()
+                                                    if (subject.canceled) {
+                                                        SmallLessonCardCanceled(
+                                                            subject
+                                                        )
+                                                    } else {
+                                                        SmallLessonCard(
+                                                            subject
+                                                        )
+                                                    }
+                                                } else {
+                                                    Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                                 }
-                                            } else {
-                                                Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                             }
                                         }
                                     }
@@ -434,12 +453,3 @@ fun orderWeek(
 }
 
 
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview2() {
-    IndiwareNativeTheme {
-        WeekView()
-    }
-}

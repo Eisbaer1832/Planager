@@ -1,7 +1,13 @@
 package com.capputinodevelopment.planager.Screens
 
+import android.R.attr.visible
 import android.annotation.SuppressLint
 import android.content.Intent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +58,10 @@ import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.lesson
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.Multimaps.index
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -74,9 +83,6 @@ fun DayView(modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
-    var loading by remember { mutableStateOf<Boolean>(true) }
-
-    println("starting main activity")
 
     val filter by remember { DataSharer::FilterClass }
 
@@ -93,7 +99,6 @@ fun DayView(modifier: Modifier = Modifier) {
 
     val timeNow = LocalTime.now()
     current = fixDay(timeNow, current)
-    println("current" + current.dayOfWeek)
 
     LaunchedEffect(onboarding) {
         if (onboarding == true) {
@@ -102,17 +107,15 @@ fun DayView(modifier: Modifier = Modifier) {
         }
     }
     LaunchedEffect(Unit, filter) {
-        loading = true
         if (Kurse.isEmpty()) {
             Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
         }
-        println("getting DayData for " + current.dayOfWeek)
         lessons = getLessons(userSettings, current.dayOfWeek, context= context)
         ags = getLessons(userSettings, current.dayOfWeek, "AG", context)?:arrayListOf()
-        loading = false
     }
     val state = rememberPullToRefreshState()
-    var isRefreshing = false
+
+    var isRefreshing by remember { mutableStateOf(false) }
     val onRefresh: () -> Unit = {
         isRefreshing = true
         days = mutableStateOf(
@@ -126,8 +129,8 @@ fun DayView(modifier: Modifier = Modifier) {
         )
         coroutineScope.launch {lessons =
             getLessons(userSettings, current.dayOfWeek, context = context)
+            isRefreshing = false
         }
-        isRefreshing = false
     }
 
     PullToRefreshBox(
@@ -147,7 +150,7 @@ fun DayView(modifier: Modifier = Modifier) {
     ) {
 
         Box {
-            if (loading || isRefreshing) {
+            if (isRefreshing) {
                 Row(
                     Modifier
                         .fillMaxSize(),
@@ -262,18 +265,32 @@ fun DayView(modifier: Modifier = Modifier) {
                             surfaceShape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 0.dp)
                         }
 
-                        Row{
-                            if (pos > lastPos) {
-                                lastPos = pos
-                                TimestampCard(l, numberShape)
-                            } else {
-                                Spacer(Modifier.width(90.dp))
+                        Row(modifier = Modifier.padding(horizontal = 10.dp)){
+                            var visible by remember { mutableStateOf(false) }
+
+                            LaunchedEffect(Unit) {
+                                // Optional: staggered animation
+                                delay(i * 50L) // 50ms per item delay
+                                visible = true
                             }
 
-                            if (!l.canceled) {
-                                LessonCard(l, showTeacher, shape, surfaceShape)
-                            } else {
-                                LessonCardCanceled(l, shape)
+                            AnimatedVisibility(
+                                visible = visible,
+                                enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
+                                exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
+                            ) {
+                                if (pos > lastPos) {
+                                    lastPos = pos
+                                    TimestampCard(l, numberShape)
+                                } else {
+                                    Spacer(Modifier.width(90.dp))
+                                }
+
+                                if (!l.canceled) {
+                                    LessonCard(l, showTeacher, shape, surfaceShape)
+                                } else {
+                                    LessonCardCanceled(l, shape)
+                                }
                             }
                         }
                     }

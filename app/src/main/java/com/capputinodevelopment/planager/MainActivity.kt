@@ -61,7 +61,10 @@ class MainActivity : ComponentActivity() {
                     AnimatedContent(
                         targetState = currentScreen,
                         transitionSpec = {
-                            slideInHorizontally { width -> width }.togetherWith(slideOutHorizontally { width -> -width })
+                            val direction = if (targetState > initialState) 1 else -1
+                            slideInHorizontally { width -> width * direction }.togetherWith(
+                                slideOutHorizontally { width -> -width * direction }
+                            )
                         }
                     ) { screen ->
                         when (screen) {
