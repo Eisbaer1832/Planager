@@ -30,7 +30,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.research.SearchObject
-import kotlin.math.exp
 
 
 @OptIn(ExperimentalMaterial3Api::class)

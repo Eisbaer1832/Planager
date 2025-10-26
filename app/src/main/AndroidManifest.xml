@@ -17,7 +17,7 @@
         android:windowOptOutEdgeToEdgeEnforcement="true"
         tools:targetApi="35">
         <activity
-            android:name=".Research"
+            android:name=".Screens.Research"
             android:exported="false"
             android:label="@string/title_activity_research"
             android:theme="@style/Theme.IndiwareNative" />
@@ -27,12 +27,12 @@
             android:label="@string/title_activity_onboarding"
             android:theme="@style/Theme.IndiwareNative" />
         <activity
-            android:name=".WeekView"
+            android:name=".Screens.WeekView"
             android:exported="false"
             android:label="@string/title_activity_week_view"
             android:theme="@style/Theme.IndiwareNative" />
         <activity
-            android:name=".Settings"
+            android:name=".Screens.Settings"
             android:exported="false"
             android:label="@string/title_activity_settings"
             android:theme="@style/Theme.IndiwareNative" />

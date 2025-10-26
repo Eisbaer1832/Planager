@@ -1,25 +1,17 @@
 package com.capputinodevelopment.planager.data.research
 
 import android.content.Context
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.DataSharer.Kurse
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.backend.parseLesson
 import com.capputinodevelopment.planager.data.getDayXML
-import com.capputinodevelopment.planager.data.lesson
-import com.capputinodevelopment.planager.orderWeek
 import java.time.DayOfWeek
-import java.time.LocalDate
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.arrayListOf
-import kotlin.collections.mapOf
-import kotlin.to
 
 suspend fun getResearchData(
     userSettings: UserSettings,

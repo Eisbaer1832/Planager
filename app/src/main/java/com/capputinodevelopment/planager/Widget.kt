@@ -31,7 +31,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.capputinodevelopment.planager.data.UserSettings
-import com.capputinodevelopment.planager.data.lesson
 import kotlinx.coroutines.flow.first
 
 class RoomWidget : GlanceAppWidget() {

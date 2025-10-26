@@ -1,4 +1,4 @@
-package com.capputinodevelopment.planager
+package com.capputinodevelopment.planager.Screens
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -67,7 +67,6 @@ import java.time.temporal.TemporalAdjusters
 import kotlin.getValue
 
 class WeekView : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

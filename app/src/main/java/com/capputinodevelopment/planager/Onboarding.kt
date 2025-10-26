@@ -81,12 +81,10 @@ import com.capputinodevelopment.planager.data.DataSharer.bottomShape
 import com.capputinodevelopment.planager.data.DataSharer.neutralShape
 import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.UserSettings
-import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate

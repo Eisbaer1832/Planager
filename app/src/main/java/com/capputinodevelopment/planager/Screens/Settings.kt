@@ -1,4 +1,4 @@
-package com.capputinodevelopment.planager
+package com.capputinodevelopment.planager.Screens
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -14,13 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -43,8 +41,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
+import com.capputinodevelopment.planager.Onboarding
+import com.capputinodevelopment.planager.R
 import com.capputinodevelopment.planager.components.CheckCredentials
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.components.FriendsList

@@ -1,4 +1,4 @@
-package com.capputinodevelopment.planager
+package com.capputinodevelopment.planager.Screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -48,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.components.ResearchSearchBar
 import com.capputinodevelopment.planager.components.SearchFilterChip
-import com.capputinodevelopment.planager.components.SliderToolBar
 import com.capputinodevelopment.planager.components.getSubjectIcon
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.DataSharer.roundShape
@@ -67,6 +67,7 @@ import com.capputinodevelopment.planager.data.research.ResearchWeek
 import com.capputinodevelopment.planager.data.research.SearchObject
 import com.capputinodevelopment.planager.data.research.getResearchData
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
@@ -273,7 +274,7 @@ fun ResearchLessonCard(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ResearchView(name: String, modifier: Modifier = Modifier) {
-    val context = androidx.compose.ui.platform.LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
+    val context = LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val current = fixDay( LocalTime.now(), LocalDate.now())
 
@@ -291,7 +292,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
     LaunchedEffect(Unit, dayToSearch) {
         println("daytoSearch $dayToSearch")
         loading = true
-        val research = withContext(kotlinx.coroutines.Dispatchers.IO) {
+        val research = withContext(Dispatchers.IO) {
             getResearchData(userSettings, context, dayToSearch)
         }
         dataToSearch = research
