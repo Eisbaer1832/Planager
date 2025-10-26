@@ -11,7 +11,7 @@
    <img src='/.github/google.svg' width=100 />
   </a>
   <a href='https://github.com/Eisbaer1832/Planager/actions/workflows/android.yml'>
-   <img src='https://github.com/Eisbaer1832/Planager/actions/workflows/android.yml/badge.svg?branch=master' width=100 />
+   <img src='https://github.com/Eisbaer1832/Planager/actions/workflows/android.yml/badge.svg?branch=master' width=190 />
   </a>
 </div>
 
