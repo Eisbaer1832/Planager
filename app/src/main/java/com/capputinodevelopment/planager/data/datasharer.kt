@@ -28,7 +28,7 @@ object DataSharer {
     var doFilter by mutableStateOf(true)
     var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
-    var SliderState = mutableStateOf(fixDay(LocalTime.now(), LocalDate.now()).dayOfWeek)
+    var searchDay = mutableStateOf(fixDay(LocalTime.now(), LocalDate.now()).dayOfWeek)
     var FilterFriend by mutableStateOf("")
     var Kurse by mutableStateOf(ArrayList<Kurs>())
     var AGs by mutableStateOf(ArrayList<Kurs>())

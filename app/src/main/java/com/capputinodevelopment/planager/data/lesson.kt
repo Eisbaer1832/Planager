@@ -8,8 +8,8 @@ import java.time.LocalTime
 data class lesson(
     val pos: Int = 0,
     val teacher: String = "error",
-    val subject: String = "error",
-    var room: String = "error",
+    val subject: String = "Daten",
+    var room: String = "keine",
     val roomChanged: Boolean = false,
     @Serializable(with = LocalTimeSerializer::class)
     val start: LocalTime? = null,

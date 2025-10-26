@@ -278,7 +278,7 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
     val current = fixDay( LocalTime.now(), LocalDate.now())
 
     var dataToSearch by remember { mutableStateOf(ResearchWeek()) }
-    val dayToSearch = DataSharer.SliderState.value
+    val dayToSearch = DataSharer.searchDay.value
 
     var isLehrerSelected by remember { mutableStateOf(true) }
     var isRaeumeSelected by remember { mutableStateOf(true) }

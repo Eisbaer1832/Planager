@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Accessible
+import androidx.compose.material.icons.filled.Accessible
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
@@ -25,6 +27,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.FloatingToolbarExitDirection.Companion.Bottom
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.MaterialTheme
@@ -33,15 +39,32 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SliderDefaults.Track
 import androidx.compose.material3.SliderPositions
 import androidx.compose.material3.SliderState
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.material3.VerticalFloatingToolbar
 import androidx.compose.material3.VerticalSlider
+import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.RobotoFlexVariable
@@ -51,88 +74,62 @@ import kotlin.math.exp
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SliderToolBar() {
-    val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
     var expanded by remember { mutableStateOf(false) }
-    val iconExpanded = Icons.Filled.Check
-    val iconCollapsed= Icons.Filled.CalendarToday
-    val sliderState = rememberSliderState(
-            value = getSliderFloat(DataSharer.SliderState.value),
-            steps = 3,
-            valueRange = 0f..5f,
-    )
-    sliderState.onValueChangeFinished = {
-        DataSharer.SliderState.value = getSliderDayOfWeek(sliderState.value)
-    }
+    val focusRequester = remember {  FocusRequester() }
 
-    VerticalFloatingToolbar(
+
+    val items =
+        listOf(
+            Icons.Default.CalendarToday to "Freitag",
+            Icons.Default.CalendarToday to "Donnerstag",
+            Icons.Default.CalendarToday to "Mittwoch",
+            Icons.Default.CalendarToday to "Dienstag",
+            Icons.Default.CalendarToday to "Montag",
+        )
+
+
+    FloatingActionButtonMenu(
         expanded = expanded,
-        floatingActionButton = {
-            FloatingToolbarDefaults.VibrantFloatingActionButton(
-                onClick = {
-                    expanded = !expanded
-                }
+        button = {
+            ToggleFloatingActionButton(
+                modifier =
+                    Modifier.semantics {
+                        traversalIndex = -1f
+                        stateDescription = if (expanded) "Expanded" else "Collapsed"
+                        contentDescription = "Toggle menu"
+                    }
+                        .animateFloatingActionButton(
+                            visible = true,
+                            alignment = Alignment.BottomEnd,
+                        )
+                        .focusRequester(focusRequester),
+                checked = expanded,
+                onCheckedChange = { expanded = !expanded },
             ) {
-                Text(fontFamily = RobotoFlexVariable, text = getSliderText(sliderState.value), fontSize = 35.sp,)
+                val imageVector by remember {
+                    derivedStateOf {
+                        if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
+                    }
+                }
+                Icon(
+                    painter = rememberVectorPainter(imageVector),
+                    contentDescription = null,
+                    modifier = Modifier.animateIcon({ checkedProgress }),
+                )
             }
         },
-        colors = vibrantColors,
         content = {
-            Column(modifier = Modifier.width(50.dp)) {
-            DaySlider(sliderState)
+            items.forEachIndexed { i, item ->
+                FloatingActionButtonMenuItem(
+                    onClick = {
+                        expanded = false
+                        DataSharer.searchDay.value = DayOfWeek.of(5 - i )
+
+                    },
+                    icon = { Icon(item.first, contentDescription = null) },
+                    text = { Text(text = item.second) },
+                )
             }
         },
-    )
-}
-fun getSliderText(state: Float): String {
-    return when(state) {
-        0.0f -> "Mo"
-        1.25f -> "Di"
-        2.5f -> "Mi"
-        3.75f -> "Do"
-        else -> "Fr"
-    }
-}
-fun getSliderDayOfWeek(state: Float): DayOfWeek {
-    return when(state) {
-        0.0f -> DayOfWeek.MONDAY
-        1.25f -> DayOfWeek.TUESDAY
-        2.5f -> DayOfWeek.WEDNESDAY
-        3.75f -> DayOfWeek.THURSDAY
-        else -> DayOfWeek.FRIDAY
-    }
-}
-
-fun getSliderFloat(state: DayOfWeek): Float {
-    return when(state) {
-        DayOfWeek.MONDAY ->  0.0f
-        DayOfWeek.TUESDAY -> 1.25f
-        DayOfWeek.WEDNESDAY -> 2.5f
-        DayOfWeek.THURSDAY -> 3.75f
-        else -> 5.0f
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun DaySlider(sliderState: SliderState) {
-
-    VerticalSlider(
-
-        state = sliderState,
-        reverseDirection = true,
-        colors = SliderColors(
-            thumbColor = MaterialTheme.colorScheme.primary,
-            activeTrackColor = MaterialTheme.colorScheme.primary,
-            activeTickColor = MaterialTheme.colorScheme.surfaceContainer,
-            inactiveTrackColor = MaterialTheme.colorScheme.surfaceDim,
-            inactiveTickColor = MaterialTheme.colorScheme.primary,
-            disabledThumbColor = MaterialTheme.colorScheme.primary,
-            disabledActiveTrackColor = MaterialTheme.colorScheme.surfaceDim,
-            disabledActiveTickColor = MaterialTheme.colorScheme.surfaceDim,
-            disabledInactiveTrackColor = MaterialTheme.colorScheme.surfaceDim,
-            disabledInactiveTickColor = MaterialTheme.colorScheme.surfaceDim,
-        ),
-        modifier = Modifier.height(400.dp)
     )
 }

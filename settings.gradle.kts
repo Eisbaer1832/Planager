@@ -22,4 +22,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "planager"
 include(":app")
-include(":app:planagerWear")

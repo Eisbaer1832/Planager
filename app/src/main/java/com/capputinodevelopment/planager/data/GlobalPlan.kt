@@ -19,7 +19,6 @@ import kotlin.collections.set
 
 object GlobalPlan {
     @SuppressLint("MutableCollectionMutableState")
-    @RequiresApi(Build.VERSION_CODES.O)
     var days = mutableStateOf(
         mutableMapOf(
             DayOfWeek.MONDAY to "",
