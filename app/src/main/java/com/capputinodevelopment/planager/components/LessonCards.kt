@@ -160,9 +160,16 @@ fun LessonCard(
                         )
                     }
                 }
-                Box(
-                    contentAlignment = Alignment.Center
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    if(showTeacher?:false) {
+                        Text(
+                            textAlign = TextAlign.Center,
+                            text = "Lehrer: " + l.teacher
+                        )
+                    }
+
                     val roomColor =  if (l.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
                     Text(
                         modifier = Modifier.fillMaxSize(),
@@ -173,13 +180,7 @@ fun LessonCard(
                     )
                 }
             }
-            if (showTeacher == true) {
-                Text(
-                    modifier = Modifier.padding(16.dp),
-                    textAlign = TextAlign.Center,
-                    text = "Lehrer: " + l.teacher
-                )
-            }
+
         }
     }
 }

@@ -37,7 +37,6 @@ fun TopBar(title: String, showHamburger: Boolean) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-
                 text = title,
             )},
 

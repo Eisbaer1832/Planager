@@ -261,9 +261,6 @@ fun DayView(modifier: Modifier = Modifier) {
                             numberShape = rounded
                         }
 
-                        if (showTeacher) {
-                            surfaceShape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 0.dp)
-                        }
 
                         Row(modifier = Modifier.padding(horizontal = 10.dp)){
                             var visible by remember { mutableStateOf(false) }
