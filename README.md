@@ -10,6 +10,9 @@
   <a href='https://play.google.com/store/apps/details?id=com.capputinodevelopment.planager'>
    <img src='https://github.com/Eisbaer1832/Planager/blob/c95f2a66ee110f14fb791d0add4a147823baa49e/English.svg' width=100 />
   </a>
+  <a href='https://github.com/Eisbaer1832/Planager/actions/workflows/android.yml'>
+   <img src='https://github.com/Eisbaer1832/Planager/actions/workflows/android.yml/badge.svg?branch=master' width=100 />
+  </a>
 </div>
 
 
