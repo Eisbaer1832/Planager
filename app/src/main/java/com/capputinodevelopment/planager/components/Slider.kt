@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
@@ -108,7 +110,7 @@ fun SliderToolBar() {
             ) {
                 val imageVector by remember {
                     derivedStateOf {
-                        if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
+                        if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Today
                     }
                 }
                 Icon(
