@@ -19,3 +19,10 @@
 * System notifications
 * Widgets showing next lesson and room, as well as todays lessons
 * Search rooms, teachers and classes
+
+## 📷 Screenshots
+<div align='center'>
+  <img src='/.github/day.png'width=200/>
+  <img src='/.github/week.png'width=200/>
+  <img src='/.github/search.png'width=200/>
+</div>
