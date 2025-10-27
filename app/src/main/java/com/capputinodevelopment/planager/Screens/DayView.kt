@@ -262,27 +262,37 @@ fun DayView(modifier: Modifier = Modifier) {
                         }
 
 
-                        Row(modifier = Modifier.padding(horizontal = 10.dp)){
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 10.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             var visible by remember { mutableStateOf(false) }
 
                             LaunchedEffect(Unit) {
-                                // Optional: staggered animation
-                                delay(i * 50L) // 50ms per item delay
+                                delay(i * 50L) // staggered animation
                                 visible = true
                             }
 
+                            // Timestamp animation
+                            AnimatedVisibility(
+                                visible = visible && pos > lastPos,
+                                enter = slideInHorizontally(initialOffsetX = { -it / 2 }) + fadeIn(),
+                                exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
+                            ) {
+                                TimestampCard(l, numberShape)
+                            }
+
+                            Spacer(Modifier.width(4.dp))
+
+                            // Lesson card animation
                             AnimatedVisibility(
                                 visible = visible,
                                 enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                             ) {
-                                if (pos > lastPos) {
-                                    lastPos = pos
-                                    TimestampCard(l, numberShape)
-                                } else {
-                                    Spacer(Modifier.width(90.dp))
-                                }
-
                                 if (!l.canceled) {
                                     LessonCard(l, showTeacher, shape, surfaceShape)
                                 } else {
@@ -290,6 +300,7 @@ fun DayView(modifier: Modifier = Modifier) {
                                 }
                             }
                         }
+
                     }
                 }
             }

@@ -1,4 +1,6 @@
 package com.capputinodevelopment.planager.components
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
@@ -8,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
@@ -27,6 +30,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.DataSharer
 import java.time.DayOfWeek
 
@@ -51,6 +55,7 @@ fun SearchDaySwitch() {
         expanded = expanded,
         button = {
             ToggleFloatingActionButton(
+                containerSize= { 80.dp },
                 modifier =
                     Modifier.semantics {
                         traversalIndex = -1f
@@ -80,10 +85,10 @@ fun SearchDaySwitch() {
         content = {
             items.forEachIndexed { i, item ->
                 FloatingActionButtonMenuItem(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     onClick = {
                         expanded = false
                         DataSharer.searchDay.value = DayOfWeek.of(5 - i )
-
                     },
                     icon = { Icon(item.first, contentDescription = null) },
                     text = { Text(text = item.second) },
