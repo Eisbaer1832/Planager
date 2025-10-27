@@ -17,11 +17,6 @@
         android:windowOptOutEdgeToEdgeEnforcement="true"
         tools:targetApi="35">
         <activity
-            android:name=".Screens.Research"
-            android:exported="false"
-            android:label="@string/title_activity_research"
-            android:theme="@style/Theme.IndiwareNative" />
-        <activity
             android:name=".Onboarding"
             android:exported="false"
             android:label="@string/title_activity_onboarding"
