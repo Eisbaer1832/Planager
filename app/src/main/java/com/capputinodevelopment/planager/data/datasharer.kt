@@ -172,6 +172,16 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
 
+    val defaultScreen = dataStore.data.map { preferences ->
+        preferences[DEFAULT_SCREEN] ?: "Tagesplan"
+    }
+    suspend fun updateDefaultScreen(value: String) {
+        dataStore.edit { settings ->
+            settings[DEFAULT_SCREEN] = value
+        }
+    }
+
+
 
     companion object {
         @Volatile
@@ -189,6 +199,7 @@ class UserSettings private constructor(private val appContext: Context) {
         private val NOTIFICATION_HISTORY = stringPreferencesKey("notification_history")
         private val ROOM_WIDGET_CACHE = stringPreferencesKey("room_widget_cache")
         private val DAY_WIDGET_CACHE = stringPreferencesKey("day_widget_cache")
+        private val DEFAULT_SCREEN = stringPreferencesKey("default_screen")
 
         fun getInstance(context: Context): UserSettings {
             return INSTANCE ?: synchronized(this) {

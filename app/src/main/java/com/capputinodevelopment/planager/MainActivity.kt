@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
+import androidx.glance.LocalContext
 import com.capputinodevelopment.planager.Screens.DayView
 import com.capputinodevelopment.planager.Screens.ResearchView
 import com.capputinodevelopment.planager.Screens.Settings
@@ -33,7 +37,9 @@ import com.capputinodevelopment.planager.components.NavBar
 import com.capputinodevelopment.planager.components.SearchDaySwitch
 import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.RegisterWorker
+import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
@@ -41,9 +47,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
         setContent {
-            RegisterWorker()
             IndiwareNativeTheme {
+                RegisterWorker()
                 var currentScreen by remember { mutableIntStateOf(0) }
+                val userSettings = UserSettings.getInstance(applicationContext)
+                val defaultScreen = userSettings.defaultScreen.collectAsState("")
+                currentScreen = if (defaultScreen.value == "Tagesplan") {
+                    0
+                }else{
+                    1
+                }
                 val snackbarHostState = remember { SnackbarHostState() }
 
                 Scaffold(
@@ -76,7 +89,7 @@ class MainActivity : ComponentActivity() {
                         when (screen) {
                             0 -> DayView(modifier = Modifier.padding(innerPadding))
                             1 -> WeekView(modifier = Modifier.padding(innerPadding))
-                            2 -> ResearchView(name = "Recherche",modifier = Modifier.padding(innerPadding))
+                            2 -> ResearchView(modifier = Modifier.padding(innerPadding))
                             3 -> Settings(modifier = Modifier.padding(innerPadding),snackbarHostState)
                         }
                     }

@@ -1,12 +1,10 @@
 package com.capputinodevelopment.planager.Screens
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -52,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
@@ -196,35 +193,28 @@ fun WeekView(modifier: Modifier = Modifier) {
     val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
-    DateTimeFormatter.ofPattern("yyyyMMdd")
     val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
     var current = LocalDate.now()
     current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     current = fixDay(null, current)
-    var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
+    var orderedWeek by remember { mutableStateOf(HashMap<Int, ArrayList<ArrayList<lesson>>>())}
     val filter by remember { DataSharer::FilterClass }
     var refreshTrigger by remember { mutableIntStateOf(0) }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
-    var weekDates = ArrayList<LocalDate>()
+    var weekDates by remember { mutableStateOf(arrayListOf<LocalDate>())}
     if (filter.isEmpty()) {
         FilterClass = ownClass
     }
 
-
-
     LaunchedEffect(Unit, filter, refreshTrigger) {
+
         // loading a full school week
         isLoading = true
         week = arrayListOf<ArrayList<lesson>>()
         weekDates = ArrayList<LocalDate>()
         for (i in 0..4) {
             println("cdom: "+ current.dayOfMonth)
-            val lesson =
-                getLessons(
-                    userSettings,
-                    current.dayOfWeek,
-                    context = context
-                )
+            val lesson = getLessons(userSettings,current.dayOfWeek,context = context)
 
             var today = LocalDate.now()
             today = fixDay(null, today)
@@ -248,7 +238,7 @@ fun WeekView(modifier: Modifier = Modifier) {
 
 
     val state = rememberPullToRefreshState()
-    val isRefreshing = false
+    var isRefreshing by remember { mutableStateOf(false) }
     val onRefresh: () -> Unit = {
         days = mutableStateOf(
             mutableMapOf(

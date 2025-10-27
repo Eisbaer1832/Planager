@@ -126,9 +126,8 @@ fun SettingsCardDropdown(
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.width(170.dp)
                 ) {
-
                 OutlinedTextField(
                     modifier = Modifier.menuAnchor(),
                     readOnly = true,

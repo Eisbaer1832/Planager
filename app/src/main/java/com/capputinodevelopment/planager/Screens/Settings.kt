@@ -102,7 +102,6 @@ class Settings : ComponentActivity() {
     ExperimentalMaterial3Api::class
 )
 @SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState) {
     val context = LocalContext.current
@@ -195,6 +194,15 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
                 }
             },
         )
+
+
+        val defaltScreen = userSettings.defaultScreen.collectAsState("")
+        SettingsCardDropdown("Startseite",neutralShape,arrayOf("Tagesplan", "Wochenplan"), default= defaltScreen.value as String, onclick =  {
+                selected -> couroutineScope.launch{
+                    userSettings.updateDefaultScreen(selected)
+                }}
+        )
+
         SettingsCardDropdown("Jahrgang / Klasse",neutralShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
                 FilterClass = selected

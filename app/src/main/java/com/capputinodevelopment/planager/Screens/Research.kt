@@ -1,9 +1,5 @@
 package com.capputinodevelopment.planager.Screens
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +29,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
@@ -51,7 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.components.ResearchSearchBar
@@ -66,29 +60,12 @@ import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.data.research.ResearchWeek
 import com.capputinodevelopment.planager.data.research.SearchObject
 import com.capputinodevelopment.planager.data.research.getResearchData
-import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.ArrayList
 
-class Research : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            IndiwareNativeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ResearchView(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
 @Composable
 fun ResearchHeading(text: String) {
     Row(
@@ -273,7 +250,7 @@ fun ResearchLessonCard(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ResearchView(name: String, modifier: Modifier = Modifier) {
+fun ResearchView(modifier: Modifier = Modifier) {
     val context = LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val current = fixDay( LocalTime.now(), LocalDate.now())
@@ -430,11 +407,3 @@ fun ResearchView(name: String, modifier: Modifier = Modifier) {
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview3() {
-    IndiwareNativeTheme {
-        ResearchView("Android")
-    }
-}

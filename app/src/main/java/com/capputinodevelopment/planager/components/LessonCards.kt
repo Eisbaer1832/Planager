@@ -43,7 +43,7 @@ fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
         shape = shape,
         modifier = Modifier
             .width(90.dp)
-            .padding(start = 10.dp, end = 10.dp)
+            .padding(start = 5.dp, end = 10.dp)
             .height(80.dp)
     ){
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -121,7 +121,7 @@ fun LessonCard(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
 
-        modifier = Modifier.padding(end = 10.dp),
+        modifier = Modifier.padding(end = 5.dp),
         shape = shape
     ){
         Column{
@@ -167,7 +167,7 @@ fun LessonCard(
                     if(showTeacher?:false) {
                         Text(
                             textAlign = TextAlign.Center,
-                            text = "Lehrer: " + l.teacher
+                            text = l.teacher
                         )
                     }
 
