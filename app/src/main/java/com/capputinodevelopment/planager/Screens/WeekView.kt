@@ -210,14 +210,15 @@ fun WeekView(modifier: Modifier = Modifier) {
     var refreshTrigger by remember { mutableIntStateOf(0) }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     var weekDates by remember { mutableStateOf(arrayListOf<LocalDate>())}
-    var createSubjectPos = 0
+    var createSubjectPos by remember { mutableIntStateOf(0) }
+    var createSubjectWeekDay by remember { mutableStateOf(DayOfWeek.MONDAY) }
     var showCreateSubjectSheet = remember { mutableStateOf(false) }
 
     if (filter.isEmpty()) {
         FilterClass = ownClass
     }
     if (showCreateSubjectSheet.value) {
-        SubjectCreateSheet(showCreateSubjectSheet, userSettings, createSubjectPos, DayOfWeek.MONDAY)
+        SubjectCreateSheet(showCreateSubjectSheet, userSettings, createSubjectPos, createSubjectWeekDay)
     }
 
     LaunchedEffect(Unit, filter, refreshTrigger) {
@@ -361,6 +362,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 }
                             }
                         } else {
+                            // this loop represents days:
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
                                     Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
@@ -433,8 +435,11 @@ fun WeekView(modifier: Modifier = Modifier) {
                                         }
                                         if (editLocalSubjects && displayEditButton) {
                                             TextButton( // a bit ironic but is perfect for this use case
-                                                modifier = Modifier.height(80.dp),
+                                                modifier = Modifier
+                                                    .width(screenWidth / 6)
+                                                    .height(80.dp),
                                                 onClick = {
+                                                    createSubjectWeekDay = DayOfWeek.of(i)
                                                     createSubjectPos = pos
                                                     showCreateSubjectSheet.value = true
                                                 }

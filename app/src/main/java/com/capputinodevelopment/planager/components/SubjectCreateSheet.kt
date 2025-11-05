@@ -24,12 +24,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.lesson
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 
@@ -40,10 +43,12 @@ fun SubjectCreateSheet (
     showBottomSheet: MutableState<Boolean>,
     userSettings: UserSettings,
     pos: Int,
-    createSubjectDay: DayOfWeek
+    day: DayOfWeek
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+
+    var savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
 
     val subject = TextFieldState("")
     val teacher = TextFieldState("")
@@ -86,8 +91,19 @@ fun SubjectCreateSheet (
                         .fillMaxWidth(),
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                showBottomSheet.value = false
+                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString())
+                            val posMap = savedCustomSubjects.value[pos]
+                            println("day to create: " + day)
+                            posMap?.put(day, newSubject)
+                            val newCustomSubjects = savedCustomSubjects.value
+                            newCustomSubjects.put(pos, posMap?:mutableMapOf())?:mutableMapOf()
+
+                            scope.launch {
+                                userSettings.updateCustomSubjects(newCustomSubjects)
+                                println("subjects: " + newCustomSubjects)
+                                if (!sheetState.isVisible) {
+                                    showBottomSheet.value = false
+                                }
                             }
                         }
                     }) {
