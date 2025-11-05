@@ -181,6 +181,16 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
 
+    suspend fun updateCustomSubjects(newList: Map<Int, Map<DayOfWeek, lesson>>) {
+        dataStore.edit { settings ->
+            settings[CUSTOM_SUBJECTS] = Json.encodeToString(newList)
+        }
+    }
+    val customSubjects: Flow<Map<Int, Map<DayOfWeek, lesson>>> = dataStore.data.map { preferences ->
+        preferences[CUSTOM_SUBJECTS]?.let { json ->
+            Json.decodeFromString<Map<Int, Map<DayOfWeek, lesson>>>(json)
+        }?: mapOf()
+    }
 
 
     companion object {
@@ -200,6 +210,7 @@ class UserSettings private constructor(private val appContext: Context) {
         private val ROOM_WIDGET_CACHE = stringPreferencesKey("room_widget_cache")
         private val DAY_WIDGET_CACHE = stringPreferencesKey("day_widget_cache")
         private val DEFAULT_SCREEN = stringPreferencesKey("default_screen")
+        private val CUSTOM_SUBJECTS = stringPreferencesKey("custom_subjects")
 
         fun getInstance(context: Context): UserSettings {
             return INSTANCE ?: synchronized(this) {

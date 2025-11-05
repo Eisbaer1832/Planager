@@ -23,13 +23,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -52,6 +56,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.capputinodevelopment.planager.components.SubjectCreateSheet
+import com.capputinodevelopment.planager.components.SubjectDialog
 import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
 import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.backend.getLessons
@@ -192,6 +198,8 @@ fun WeekView(modifier: Modifier = Modifier) {
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
     val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
+    var editLocalSubjects by remember { mutableStateOf(true) }
+
     var isLoading by remember { mutableStateOf(true) }
     val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
     var current = LocalDate.now()
@@ -202,8 +210,14 @@ fun WeekView(modifier: Modifier = Modifier) {
     var refreshTrigger by remember { mutableIntStateOf(0) }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     var weekDates by remember { mutableStateOf(arrayListOf<LocalDate>())}
+    var createSubjectPos = 0
+    var showCreateSubjectSheet = remember { mutableStateOf(false) }
+
     if (filter.isEmpty()) {
         FilterClass = ownClass
+    }
+    if (showCreateSubjectSheet.value) {
+        SubjectCreateSheet(showCreateSubjectSheet, userSettings, createSubjectPos, DayOfWeek.MONDAY)
     }
 
     LaunchedEffect(Unit, filter, refreshTrigger) {
@@ -311,14 +325,14 @@ fun WeekView(modifier: Modifier = Modifier) {
                         }
                     }
                 }
-                for ( pos in 1..orderedWeek.size - 1 ) {
-
+                // this loop draws the week by position then day of week
+                for ( pos in 1..11 ) {
                     Row {
                         Card(
                             modifier = Modifier
                                 .width(screenWidth / 6)
                                 .height(80.dp)
-                                .padding( 10.dp, 3.dp),
+                                .padding(10.dp, 3.dp),
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -347,28 +361,37 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 }
                             }
                         } else {
-
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
                                     Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                 } else {
                                     Column {
+                                        var displayEditButton = true
                                         for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
                                             var show = true
-                                            val lesson = orderedWeek.get(pos)?.get(i)?.get(j)?: lesson()
+                                            val lesson =
+                                                orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
                                             val currentSubject = lesson.subject
-                                            if (doFilter){
-                                                if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(Regex("-P")) || currentSubject.contains(Regex("-W")) || lesson.ag) {
-                                                    println("filtering object" + currentSubject)
+                                            if (doFilter) {
+                                                if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(
+                                                        Regex("-P")
+                                                    ) || currentSubject.contains(Regex("-W")) || lesson.ag
+                                                ) {
                                                     if (FilterFriend == "") {
-                                                        show = subjectsToShow[currentSubject.substringBefore(" ")] == true
-                                                    }else {
-                                                        show = friendsSubjects.get(FilterFriend)?.get(currentSubject.substringBefore(" ")) == true
+                                                        show =
+                                                            subjectsToShow[currentSubject.substringBefore(
+                                                                " "
+                                                            )] == true
+                                                    } else {
+                                                        show = friendsSubjects.get(FilterFriend)
+                                                            ?.get(currentSubject.substringBefore(" ")) == true
                                                     }
                                                 }
 
-                                            }else {
-                                                if (orderedWeek.get(pos)?.get(i)?.get(j)?.ag?:false){
+                                            } else {
+                                                if (orderedWeek.get(pos)?.get(i)?.get(j)?.ag
+                                                        ?: false
+                                                ) {
                                                     show = false
                                                 }
                                             }
@@ -383,10 +406,11 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                 enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
                                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                                             ) {
+                                                val subject =
+                                                    orderedWeek[pos]?.get(i)?.get(j)
+                                                        ?: lesson()
                                                 if (show) {
-                                                    val subject =
-                                                        orderedWeek.get(pos)?.get(i)?.get(j)
-                                                            ?: lesson()
+                                                    displayEditButton = false
                                                     if (subject.canceled) {
                                                         SmallLessonCardCanceled(
                                                             subject
@@ -397,9 +421,24 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                         )
                                                     }
                                                 } else {
-                                                    Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                                    if (!editLocalSubjects) {
+                                                        Spacer(
+                                                            modifier = Modifier.width(
+                                                                configuration.screenWidthDp.dp / 6
+                                                            )
+                                                        )
+                                                    }
                                                 }
                                             }
+                                        }
+                                        if (editLocalSubjects && displayEditButton) {
+                                            TextButton( // a bit ironic but is perfect for this use case
+                                                modifier = Modifier.height(80.dp),
+                                                onClick = {
+                                                    createSubjectPos = pos
+                                                    showCreateSubjectSheet.value = true
+                                                }
+                                            ) { Icon(Icons.Default.Add, "Fach hinzufügen") }
                                         }
                                     }
                                 }
@@ -407,7 +446,6 @@ fun WeekView(modifier: Modifier = Modifier) {
                         }
                     }
                 }
-
             }
         }
 
