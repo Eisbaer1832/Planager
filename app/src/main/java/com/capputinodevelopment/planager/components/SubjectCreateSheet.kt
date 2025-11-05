@@ -48,7 +48,7 @@ fun SubjectCreateSheet (
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    var savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
+    val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
 
     val subject = TextFieldState("")
     val teacher = TextFieldState("")

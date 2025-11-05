@@ -212,7 +212,8 @@ fun WeekView(modifier: Modifier = Modifier) {
     var weekDates by remember { mutableStateOf(arrayListOf<LocalDate>())}
     var createSubjectPos by remember { mutableIntStateOf(0) }
     var createSubjectWeekDay by remember { mutableStateOf(DayOfWeek.MONDAY) }
-    var showCreateSubjectSheet = remember { mutableStateOf(false) }
+    val showCreateSubjectSheet = remember { mutableStateOf(false) }
+    val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
 
     if (filter.isEmpty()) {
         FilterClass = ownClass
@@ -364,15 +365,24 @@ fun WeekView(modifier: Modifier = Modifier) {
                         } else {
                             // this loop represents days:
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
+                                val customSubject = savedCustomSubjects.value[pos]?.get(DayOfWeek.of(i +1))
+
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
                                     Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                 } else {
                                     Column {
+
+                                        var totalSubjects = orderedWeek[pos]?.get(i)?:listOf()
+
+                                        // only append custom subject if it doesnt return the default error lesson
+                                        if (customSubject != lesson() && customSubject != null) {
+                                            totalSubjects = totalSubjects.plus(customSubject)
+                                        }
                                         var displayEditButton = true
-                                        for (j in 0..<(orderedWeek[pos]?.get(i)?.size ?: 0)) {
+
+                                        for (j in 0..< totalSubjects.size) {
                                             var show = true
-                                            val lesson =
-                                                orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
+                                            val lesson = totalSubjects[j] ?: lesson()
                                             val currentSubject = lesson.subject
                                             if (doFilter) {
                                                 if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(
@@ -408,9 +418,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                 enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
                                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                                             ) {
-                                                val subject =
-                                                    orderedWeek[pos]?.get(i)?.get(j)
-                                                        ?: lesson()
+                                                val subject = totalSubjects[j]?: lesson()
                                                 if (show) {
                                                     displayEditButton = false
                                                     if (subject.canceled) {
@@ -439,7 +447,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                     .width(screenWidth / 6)
                                                     .height(80.dp),
                                                 onClick = {
-                                                    createSubjectWeekDay = DayOfWeek.of(i)
+                                                    createSubjectWeekDay = DayOfWeek.of(i + 1)
                                                     createSubjectPos = pos
                                                     showCreateSubjectSheet.value = true
                                                 }
