@@ -1,15 +1,12 @@
 package com.capputinodevelopment.planager.Screens
 
 import android.annotation.SuppressLint
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,12 +22,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -57,18 +54,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.components.SubjectCreateSheet
-import com.capputinodevelopment.planager.components.SubjectDialog
 import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
 import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.backend.getLessons
-import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.GlobalPlan.days
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.lesson
-import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -76,47 +70,34 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import kotlin.getValue
 
-class WeekView : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        enableEdgeToEdge()
-        setContent {
-            IndiwareNativeTheme {
-                Scaffold(
-                    topBar = {
-                        TopBar("Wochenplan", true)
-                    }
-                ){ innerPadding ->
-                    WeekView(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
-
 
 @Composable
-fun SmallLessonCard (lesson: lesson) {
+fun SmallLessonCard (lesson: lesson, editing: Boolean, onClick: () -> Unit,) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     Card(
         modifier = Modifier
             .width(screenWidth / 6)
+            .height(80.dp)
             .padding(3.dp)
-
-
+            .clickable {
+                if (editing) {
+                    println("launching edit dialog")
+                    onClick()
+                }
+            }
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
+            var primaryColor = MaterialTheme.colorScheme.primaryContainer
+            if (lesson.custom) {
+                primaryColor = MaterialTheme.colorScheme.tertiaryContainer
+            }
             Surface  (
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = primaryColor,
                 modifier = Modifier.fillMaxWidth()
             ){
                 Text(
@@ -127,16 +108,25 @@ fun SmallLessonCard (lesson: lesson) {
                     text = lesson.subject
                 )
             }
-            Text(
-                text = lesson.teacher
-            )
-            val roomColor =  if (lesson.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+            if (editing && lesson.custom) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment= Alignment.Center
+                ) {
+                    Icon(Icons.Default.Edit, "Edit", tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(35.dp))
+                }
+            }else {
+                Text(
+                    text = lesson.teacher.replace("\n", "")
+                )
+                val roomColor =  if (lesson.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
 
-            Text(
-                text = lesson.room,
-                color = roomColor
+                Text(
+                    text = lesson.room,
+                    color = roomColor
 
-            )
+                )
+            }
         }
     }
 }
@@ -192,14 +182,12 @@ fun SmallLessonCardCanceled (lesson: lesson) {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun WeekView(modifier: Modifier = Modifier) {
+fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
     val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
-    var editLocalSubjects by remember { mutableStateOf(true) }
-
     var isLoading by remember { mutableStateOf(true) }
     val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
     var current = LocalDate.now()
@@ -210,8 +198,8 @@ fun WeekView(modifier: Modifier = Modifier) {
     var refreshTrigger by remember { mutableIntStateOf(0) }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     var weekDates by remember { mutableStateOf(arrayListOf<LocalDate>())}
-    var createSubjectPos by remember { mutableIntStateOf(0) }
     var createSubjectWeekDay by remember { mutableStateOf(DayOfWeek.MONDAY) }
+    var createSubjectLesson by remember { mutableStateOf(lesson()) }
     val showCreateSubjectSheet = remember { mutableStateOf(false) }
     val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
 
@@ -219,7 +207,7 @@ fun WeekView(modifier: Modifier = Modifier) {
         FilterClass = ownClass
     }
     if (showCreateSubjectSheet.value) {
-        SubjectCreateSheet(showCreateSubjectSheet, userSettings, createSubjectPos, createSubjectWeekDay)
+        SubjectCreateSheet(showCreateSubjectSheet, userSettings, createSubjectWeekDay,createSubjectLesson)
     }
 
     LaunchedEffect(Unit, filter, refreshTrigger) {
@@ -311,7 +299,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                 .width(screenWidth / 6)
                                 .padding(3.dp)
                         ) {
-                            Column {
+                            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = days[i],
                                     fontWeight = FontWeight.Bold,
@@ -401,9 +389,7 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                 }
 
                                             } else {
-                                                if (orderedWeek.get(pos)?.get(i)?.get(j)?.ag
-                                                        ?: false
-                                                ) {
+                                                if (totalSubjects[j].ag) {
                                                     show = false
                                                 }
                                             }
@@ -426,9 +412,12 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                             subject
                                                         )
                                                     } else {
-                                                        SmallLessonCard(
-                                                            subject
-                                                        )
+                                                        SmallLessonCard(subject, editLocalSubjects) {
+                                                            createSubjectLesson = subject
+                                                            createSubjectWeekDay =
+                                                                DayOfWeek.of(i + 1)
+                                                            showCreateSubjectSheet.value = true
+                                                        }
                                                     }
                                                 } else {
                                                     if (!editLocalSubjects) {
@@ -447,8 +436,8 @@ fun WeekView(modifier: Modifier = Modifier) {
                                                     .width(screenWidth / 6)
                                                     .height(80.dp),
                                                 onClick = {
+                                                    createSubjectLesson = lesson(pos, "", "", "")
                                                     createSubjectWeekDay = DayOfWeek.of(i + 1)
-                                                    createSubjectPos = pos
                                                     showCreateSubjectSheet.value = true
                                                 }
                                             ) { Icon(Icons.Default.Add, "Fach hinzufügen") }

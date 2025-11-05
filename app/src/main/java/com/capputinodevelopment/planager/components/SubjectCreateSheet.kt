@@ -3,7 +3,6 @@ package com.capputinodevelopment.planager.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.input.TextFieldState
@@ -18,13 +17,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.lesson
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 
@@ -42,17 +37,18 @@ import java.time.DayOfWeek
 fun SubjectCreateSheet (
     showBottomSheet: MutableState<Boolean>,
     userSettings: UserSettings,
-    pos: Int,
-    day: DayOfWeek
+    day: DayOfWeek,
+    lesson: lesson
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
     val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
 
-    val subject = TextFieldState("")
-    val teacher = TextFieldState("")
-    val room = TextFieldState("")
+    val subject = TextFieldState(lesson.subject)
+    val teacher = TextFieldState(lesson.teacher)
+    val room = TextFieldState(lesson.room)
+    val pos = lesson.pos
 
     if (showBottomSheet.value) {
         ModalBottomSheet(
@@ -91,7 +87,7 @@ fun SubjectCreateSheet (
                         .fillMaxWidth(),
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString())
+                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true)
                             val posMap = savedCustomSubjects.value[pos]
                             println("day to create: " + day)
                             posMap?.put(day, newSubject)

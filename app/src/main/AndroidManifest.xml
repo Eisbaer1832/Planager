@@ -22,16 +22,6 @@
             android:label="@string/title_activity_onboarding"
             android:theme="@style/Theme.IndiwareNative" />
         <activity
-            android:name=".Screens.WeekView"
-            android:exported="false"
-            android:label="@string/title_activity_week_view"
-            android:theme="@style/Theme.IndiwareNative" />
-        <activity
-            android:name=".Screens.Settings"
-            android:exported="false"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/Theme.IndiwareNative" />
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.IndiwareNative">

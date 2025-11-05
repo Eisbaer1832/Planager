@@ -16,5 +16,6 @@ data class lesson(
     @Serializable(with = LocalTimeSerializer::class)
     val end: LocalTime? = null,
     val canceled: Boolean = false,
-    val ag: Boolean = false
+    val ag: Boolean = false,
+    val custom: Boolean = false
 )

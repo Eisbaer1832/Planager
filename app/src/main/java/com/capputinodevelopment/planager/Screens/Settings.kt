@@ -68,35 +68,6 @@ import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalTime
 
-class Settings : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
-            IndiwareNativeTheme {
-                Scaffold(
-                    snackbarHost = {
-                        SnackbarHost(hostState = snackbarHostState)
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopBar("Einstellungen", false)
-                    }
-                ) { innerPadding ->
-
-                    Settings(
-                        modifier = Modifier.padding(innerPadding),
-                        snackbarHostState
-                    )
-                }
-            }
-        }
-    }
-}
-
-
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class,
     ExperimentalMaterial3Api::class
