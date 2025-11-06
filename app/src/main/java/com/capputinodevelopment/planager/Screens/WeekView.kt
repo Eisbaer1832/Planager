@@ -75,8 +75,17 @@ import kotlin.getValue
 fun SmallLessonCard (lesson: lesson, editing: Boolean, onClick: () -> Unit,) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    Card(
-        modifier = Modifier
+
+    // saving the modifier externally for switching the clickable action on and off
+    //standart
+    var activeMod = Modifier
+        .width(screenWidth / 6)
+        .height(80.dp)
+        .padding(3.dp)
+
+    //on edit
+    if (editing && lesson.custom) {
+        activeMod = Modifier
             .width(screenWidth / 6)
             .height(80.dp)
             .padding(3.dp)
@@ -86,6 +95,10 @@ fun SmallLessonCard (lesson: lesson, editing: Boolean, onClick: () -> Unit,) {
                     onClick()
                 }
             }
+
+    }
+    Card(
+        modifier = activeMod
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

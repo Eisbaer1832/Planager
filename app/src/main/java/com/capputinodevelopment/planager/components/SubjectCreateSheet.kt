@@ -1,31 +1,74 @@
 package com.capputinodevelopment.planager.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Coffee
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlusOne
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Room
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.ViewWeek
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.Coffee
+import androidx.compose.material.icons.outlined.PlusOne
+import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.School
+import androidx.compose.material.icons.outlined.Today
+import androidx.compose.material.icons.outlined.Work
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ButtonGroupScope
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.dp
+import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.lesson
 import kotlinx.coroutines.launch
@@ -33,7 +76,47 @@ import java.time.DayOfWeek
 
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+fun DeleteConfirmDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+) {
+    AlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                tint = MaterialTheme.colorScheme.error,
+                contentDescription = "Delete subject"
+            )
+        },
+        text = {
+            Text(text = "Bist du dir sicher, dass du das Fach löschen möchtest?")
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Ja")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Stornieren")
+            }
+        }
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun SubjectCreateSheet (
     showBottomSheet: MutableState<Boolean>,
     userSettings: UserSettings,
@@ -50,6 +133,29 @@ fun SubjectCreateSheet (
     val room = TextFieldState(lesson.room)
     val pos = lesson.pos
 
+    val openAlertDialog = remember { mutableStateOf(false) }
+
+    when {
+        openAlertDialog.value -> {
+            DeleteConfirmDialog(
+                onDismissRequest = { openAlertDialog.value = false },
+                onConfirmation = {
+                    openAlertDialog.value = false
+                    val newCustomSubjects = savedCustomSubjects.value
+                    val posSubjects = newCustomSubjects[pos]
+                    posSubjects?.remove(day)
+                    posSubjects?.let { newCustomSubjects.put(pos, it) }
+
+                    scope.launch {
+                        userSettings.updateCustomSubjects(newCustomSubjects)
+                        showBottomSheet.value = false
+                    }
+
+                },
+            )
+        }
+    }
+
     if (showBottomSheet.value) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -63,24 +169,106 @@ fun SubjectCreateSheet (
                     .padding(16.dp),
                 ) {
 
-                OutlinedTextField(
-                    leadingIcon = {Icon(Icons.Default.School, "Subject Icon") },
-                    label = {Text("Fach")},
-                    state = subject,
-                )
-
-                Row {
+                Row (
+                    modifier = Modifier
+                        .height(70.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     OutlinedTextField(
+                        modifier = Modifier.padding(end= 16.dp),
+                        leadingIcon = {Icon(Icons.Default.School, "Subject Icon") },
+                        label = {Text("Fach")},
+                        state = subject,
+                    )
+
+                    FilledIconButton(
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                        shape = DataSharer.roundShape,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top= 8.dp, bottom = 4.dp),
+                        onClick = {
+                            openAlertDialog.value = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            tint = MaterialTheme.colorScheme.error,
+                            contentDescription = "Delete subject"
+                        )
+                    }
+                }
+
+                Row (
+                    modifier = Modifier.height(70.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.padding(end= 16.dp).weight(1f),
                         leadingIcon = {Icon(Icons.Default.Person, "Person Icon") },
                         label = {Text("Lehrerkürzel")},
                         state = teacher,
                     )
                     OutlinedTextField(
+                        modifier = Modifier.weight(1f),
                         leadingIcon = {Icon(Icons.Default.Room, "Room Icon") },
                         label = {Text("Raum")},
                         state = room,
                     )
                 }
+
+                // double lesson shenanigans
+                val doupleLessonTexts = listOf("Einzelstunde", "Doppelstunde")
+                val doupleLessonIcons = listOf(Icons.Outlined.School, Icons.Outlined.PlusOne)
+                var doupleLessonselectedItemIndex by remember { mutableIntStateOf(1) }
+
+                ButtonGroup(
+                    modifier = Modifier
+                        .safeDrawingPadding()
+                        .height(70.dp)
+                        .padding(horizontal = 4.dp, vertical = 10.dp)
+                        .fillMaxWidth(),
+                    overflowIndicator = {}
+                ) {
+                    doupleLessonTexts.forEachIndexed { index, label ->
+                        toggleableItem(
+                            weight = 1f,
+                            checked = doupleLessonselectedItemIndex == index,
+                            onCheckedChange = { doupleLessonselectedItemIndex = index },
+                            label = label,
+                            icon = {
+                                Icon(imageVector = doupleLessonIcons[index], contentDescription = "")
+                            }
+                        )
+                    }
+                }
+
+                val abButtonTexts = listOf("A", "B", "AB")
+                val abButtonIcons = listOf(Icons.Outlined.Today, Icons.Outlined.CalendarToday, Icons.Default.ViewWeek)
+                var abSelectedItemIndex by remember { mutableIntStateOf(0) }
+
+                ButtonGroup(
+                    modifier = Modifier
+                        .safeDrawingPadding()
+                        .height(70.dp)
+                        .padding(horizontal = 4.dp, vertical = 10.dp)
+                        .fillMaxWidth(),
+                    overflowIndicator = {}
+                ) {
+                    abButtonTexts.forEachIndexed { index, label ->
+                        toggleableItem(
+                            weight = 1f,
+                            checked = abSelectedItemIndex == index,
+                            onCheckedChange = { abSelectedItemIndex = index },
+                            label = label,
+                            icon = {
+                                Icon(imageVector = abButtonIcons[index], contentDescription = "")
+                            }
+                        )
+                    }
+                }
+
+                //save button
                 Button(
                     modifier = Modifier
                         .padding(vertical = 10.dp)
