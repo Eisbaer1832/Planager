@@ -181,14 +181,14 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
 
-    suspend fun updateCustomSubjects(newList: MutableMap<Int, MutableMap<DayOfWeek, lesson>>) {
+    suspend fun updateCustomSubjects(newList: MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>) {
         dataStore.edit { settings ->
             settings[CUSTOM_SUBJECTS] = Json.encodeToString(newList)
         }
     }
-    val customSubjects: Flow<MutableMap<Int, MutableMap<DayOfWeek, lesson>>> = dataStore.data.map { preferences ->
+    val customSubjects: Flow<MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>> = dataStore.data.map { preferences ->
         preferences[CUSTOM_SUBJECTS]?.let { json ->
-            Json.decodeFromString<MutableMap<Int, MutableMap<DayOfWeek, lesson>>>(json)
+            Json.decodeFromString<MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>>(json)
         }?: mutableMapOf()
     }
 

@@ -17,5 +17,6 @@ data class lesson(
     val end: LocalTime? = null,
     val canceled: Boolean = false,
     val ag: Boolean = false,
-    val custom: Boolean = false
+    val custom: Boolean = false,
+    val week: weekType = weekType.AB
 )

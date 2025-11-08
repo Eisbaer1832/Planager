@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.lesson
+import com.capputinodevelopment.planager.data.weekType
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 
@@ -109,7 +110,7 @@ fun DeleteConfirmDialog(
                     onDismissRequest()
                 }
             ) {
-                Text("Stornieren")
+                Text("Abbrechen")
             }
         }
     )
@@ -142,9 +143,15 @@ fun SubjectCreateSheet (
                 onConfirmation = {
                     openAlertDialog.value = false
                     val newCustomSubjects = savedCustomSubjects.value
-                    val posSubjects = newCustomSubjects[pos]
-                    posSubjects?.remove(day)
-                    posSubjects?.let { newCustomSubjects.put(pos, it) }
+                    val dayList = newCustomSubjects[pos]?:mutableMapOf()
+
+                    val posSubjects = dayList[day]?.toMutableList() ?: mutableListOf()
+                    posSubjects.removeAll { it.week == lesson.week }
+
+                    newCustomSubjects[pos]?.put(day, posSubjects)
+
+                    dayList[day] = posSubjects
+                    newCustomSubjects[pos] = dayList
 
                     scope.launch {
                         userSettings.updateCustomSubjects(newCustomSubjects)
@@ -245,7 +252,7 @@ fun SubjectCreateSheet (
 
                 val abButtonTexts = listOf("A", "B", "AB")
                 val abButtonIcons = listOf(Icons.Outlined.Today, Icons.Outlined.CalendarToday, Icons.Default.ViewWeek)
-                var abSelectedItemIndex by remember { mutableIntStateOf(0) }
+                var abSelectedItemIndex by remember { mutableIntStateOf(lesson.week.ordinal) }
 
                 ButtonGroup(
                     modifier = Modifier
@@ -271,16 +278,32 @@ fun SubjectCreateSheet (
                 //save button
                 Button(
                     modifier = Modifier
+                        .height(70.dp)
                         .padding(vertical = 10.dp)
                         .fillMaxWidth(),
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true)
-                            val posMap = savedCustomSubjects.value[pos]
-                            println("day to create: " + day)
-                            posMap?.put(day, newSubject)
-                            val newCustomSubjects = savedCustomSubjects.value
-                            newCustomSubjects.put(pos, posMap?:mutableMapOf())?:mutableMapOf()
+                            val weekType = when (abSelectedItemIndex) {
+                                0 -> { weekType.A }
+                                1 -> { weekType.B }
+                                else -> { weekType.AB }
+                            }
+
+                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true, week = weekType)
+                            val posMap = savedCustomSubjects.value[pos]?.toMutableMap() ?: mutableMapOf()
+                            val savedSubjects = posMap[day]?.toMutableList() ?: mutableListOf()
+
+                            val index = savedSubjects.indexOfFirst { it.subject == newSubject.subject }
+                            if (index != -1) {
+                                savedSubjects[index] = newSubject
+                            } else {
+                                savedSubjects.add(newSubject)
+                            }
+
+                            posMap[day] = savedSubjects
+                            val newCustomSubjects = savedCustomSubjects.value.toMutableMap()
+                            newCustomSubjects[pos] = posMap
+
 
                             scope.launch {
                                 userSettings.updateCustomSubjects(newCustomSubjects)

@@ -30,7 +30,10 @@ import com.capputinodevelopment.planager.components.SearchDaySwitch
 import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.RegisterWorker
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.fetchWeekType
+import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import java.time.DayOfWeek
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
@@ -63,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         when (currentScreen) {
                             0 -> TopBar("Tagesplan", true, editSubjects) {}
-                            1 -> TopBar("Wochenplan", true, editSubjects, true) {
+                            1 -> TopBar("Wochenplan - " + fetchWeekType(), true, editSubjects, true) {
                                 editSubjects = !editSubjects
                                 println("EditSubjects toggled: $editSubjects")
                             }

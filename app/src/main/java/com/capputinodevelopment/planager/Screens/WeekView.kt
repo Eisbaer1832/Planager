@@ -62,12 +62,16 @@ import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.GlobalPlan.days
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
+import com.capputinodevelopment.planager.data.fetchWeekType
 import com.capputinodevelopment.planager.data.lesson
+import com.capputinodevelopment.planager.data.weekType
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
+import java.time.temporal.WeekFields
+import java.util.Locale
 import kotlin.getValue
 
 
@@ -366,18 +370,21 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean) {
                         } else {
                             // this loop represents days:
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
-                                val customSubject = savedCustomSubjects.value[pos]?.get(DayOfWeek.of(i +1))
-
+                                val customSubjects = savedCustomSubjects.value[pos]?.get(DayOfWeek.of(i +1))?:listOf()
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
                                     Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                 } else {
                                     Column {
 
                                         var totalSubjects = orderedWeek[pos]?.get(i)?:listOf()
-
-                                        // only append custom subject if it doesnt return the default error lesson
-                                        if (customSubject != lesson() && customSubject != null) {
-                                            totalSubjects = totalSubjects.plus(customSubject)
+                                        for (customSubject in customSubjects) {
+                                            // only append custom subject if it doesnt return the default error lesson
+                                            if (customSubject != lesson()) {
+                                                if (customSubject.week == weekType.AB || customSubject.week == fetchWeekType()) {
+                                                    totalSubjects =
+                                                        totalSubjects.plus(customSubject)
+                                                }
+                                            }
                                         }
                                         var displayEditButton = true
 
