@@ -120,7 +120,8 @@ fun LessonCard(
     l: lesson,
     showTeacher: Boolean?,
     shape: RoundedCornerShape,
-    surfaceShape: RoundedCornerShape
+    surfaceShape: RoundedCornerShape,
+    customColor: String
 ) {
 
 
@@ -132,13 +133,22 @@ fun LessonCard(
         modifier = Modifier.padding(end = 5.dp),
         shape = shape
     ){
+        var primaryColor = MaterialTheme.colorScheme.primary
+        var primaryColorContainer = MaterialTheme.colorScheme.primaryContainer
+        var onprimary = MaterialTheme.colorScheme.onPrimary
+        if (l.custom && customColor == "Tertiärfarbe") {
+            primaryColor = MaterialTheme.colorScheme.tertiary
+            primaryColorContainer = MaterialTheme.colorScheme.tertiaryContainer
+            onprimary = MaterialTheme.colorScheme.onTertiary
+        }
+
         Column{
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
                     modifier = Modifier.width(180.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = primaryColorContainer,
                     shape = surfaceShape
                 ) {
                     Row(
@@ -149,14 +159,14 @@ fun LessonCard(
                             modifier = Modifier
                                 .size(80.dp)
                                 .clip(MaterialShapes.Cookie7Sided.toShape())
-                                .background(MaterialTheme.colorScheme.primary),
+                                .background(primaryColor),
                             contentAlignment = Alignment.Center
                         ){
                             Icon(
                                 modifier = Modifier.size(40.dp),
                                 imageVector = getSubjectIcon(l.subject),
                                 contentDescription = "Localized description",
-                                tint = MaterialTheme.colorScheme.onPrimary
+                                tint = onprimary
                             )
                         }
 

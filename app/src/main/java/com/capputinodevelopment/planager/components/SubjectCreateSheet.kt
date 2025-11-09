@@ -278,7 +278,8 @@ fun SubjectCreateSheet (
                             val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true, week = weekType, doubleLesson = double, id = lesson.id)
                             var newCustomSubjects = saveSubject(newSubject, savedCustomSubjects.value, pos, day)
                             if (double) {
-                                newCustomSubjects = saveSubject(newSubject, newCustomSubjects, getCompanionLesson(pos), day)
+                                val doubleNewSubject = lesson(pos +1, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true, week = weekType, doubleLesson = double, id = lesson.id)
+                                newCustomSubjects = saveSubject(doubleNewSubject, newCustomSubjects, getCompanionLesson(pos), day)
                             }
                             scope.launch {
                                 userSettings.updateCustomSubjects(newCustomSubjects)

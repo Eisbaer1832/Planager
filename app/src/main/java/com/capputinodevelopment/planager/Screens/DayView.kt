@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.currentState
 import com.capputinodevelopment.planager.Onboarding
 import com.capputinodevelopment.planager.components.LessonCard
 import com.capputinodevelopment.planager.components.LessonCardCanceled
@@ -79,7 +80,8 @@ fun DayView(modifier: Modifier = Modifier) {
     val showTeacher by userSettings.showTeacher.collectAsState(initial = false)
     var lessons by remember { mutableStateOf<ArrayList<lesson>?>(null) }
     var ags by remember { mutableStateOf<ArrayList<lesson>?>(null) }
-
+    val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
+    val customColor = userSettings.customSubjectsColor.collectAsState("")
     val coroutineScope = rememberCoroutineScope()
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
@@ -187,6 +189,7 @@ fun DayView(modifier: Modifier = Modifier) {
                     var currentLessons = lessons
                     var lastPos = 0
 
+
                     if (doFilter && !FilterClass.isEmpty()) {
                         currentLessons = currentLessons
                             ?.filter { lesson ->
@@ -204,6 +207,23 @@ fun DayView(modifier: Modifier = Modifier) {
                     }else{
                         currentLessons = currentLessons?.filter { !it.ag } as ArrayList<lesson>?
                     }
+
+
+                    for (pos in 0..11) {
+                        val customSubjects = savedCustomSubjects.value[pos]?.get(current.dayOfWeek) ?: listOf()
+                        for (i in 0..<(currentLessons?.size ?: 0)) {
+                            currentLessons?.get(i)?.pos?.let {
+                                if (it >= pos){
+                                    for (lesson in customSubjects)
+                                    {
+                                        currentLessons.add(i, lesson)
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                    }
+
                     currentLessons?.forEachIndexed { i, l ->
                         val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
                         val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
@@ -216,7 +236,6 @@ fun DayView(modifier: Modifier = Modifier) {
                         var surfaceShape = neutralShape
 
                         val pos = l.pos
-
 
                         //TODO Clean this mess up
                         if (i + 1 <= currentLessons.size - 1) {
@@ -244,10 +263,8 @@ fun DayView(modifier: Modifier = Modifier) {
                                     }
                                 }else {
                                     numberShape = topShape
-                                    if (pos > lastPos) {
-                                        shape = topShape
-                                        surfaceShape = topSurfaceShape
-                                    }
+                                    shape = topShape
+                                    surfaceShape = topSurfaceShape
                                 }
 
                             }
@@ -296,7 +313,7 @@ fun DayView(modifier: Modifier = Modifier) {
                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                             ) {
                                 if (!l.canceled) {
-                                    LessonCard(l, showTeacher, shape, surfaceShape)
+                                    LessonCard(l, showTeacher, shape, surfaceShape, customColor.value)
                                 } else {
                                     LessonCardCanceled(l, shape)
                                 }
