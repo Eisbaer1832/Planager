@@ -16,6 +16,9 @@ import androidx.compose.ui.Modifier
 import com.capputinodevelopment.planager.data.WeekType
 import com.capputinodevelopment.planager.data.fetchWeekType
 import java.time.LocalDate
+import java.time.temporal.IsoFields
+import java.time.temporal.WeekFields
+import java.util.Locale
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -33,6 +36,7 @@ fun WeekViewWrapper(modifier: Modifier, editSubjects: Boolean, updateWeekType: (
                 LaunchedEffect(listState.firstVisibleItemIndex) {
                     val visibleIndex = listState.firstVisibleItemIndex
                     val date = if (visibleIndex == 0) LocalDate.now() else LocalDate.now().plusWeeks(1)
+                    println("week of ${date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)} ${fetchWeekType(date)}")
                     updateWeekType(fetchWeekType(date))
                 }
 
