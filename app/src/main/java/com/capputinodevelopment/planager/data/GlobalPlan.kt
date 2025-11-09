@@ -33,19 +33,19 @@ object GlobalPlan {
 
 
 
-suspend fun getDayXML(date: LocalDate, userSettings: UserSettings, context: Context): String {
-    val day = date.dayOfWeek
+suspend fun getDayXML(datePassed: LocalDate, userSettings: UserSettings, context: Context): String {
 
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-    var current = LocalDate.now()
-    current = fixDay(null, current)
-    if (current.dayOfWeek > day) {
-        current = current.with(TemporalAdjusters.previousOrSame(day))
+    var date = fixDay(null, datePassed)
+    val day = date.dayOfWeek
+
+    if (date.dayOfWeek > day) {
+        date = date.with(TemporalAdjusters.previousOrSame(day))
     }else{
-        current = current.with(TemporalAdjusters.nextOrSame(day))
+        date = date.with(TemporalAdjusters.nextOrSame(day))
     }
 
-    val currentAsString = current.format(formatter)
+    val currentAsString = date.format(formatter)
 
 
     var dayXML= days.value[day]?:""

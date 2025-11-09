@@ -27,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -194,7 +195,11 @@ fun LessonCard(
 }
 
 @Composable
-fun SmallLessonCard (lesson: lesson, editing: Boolean, onClick: () -> Unit,) {
+fun SmallLessonCard (
+    lesson: lesson,
+    editing: Boolean,
+    customColor: String,
+    onClick: () -> Unit,) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
@@ -228,7 +233,7 @@ fun SmallLessonCard (lesson: lesson, editing: Boolean, onClick: () -> Unit,) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var primaryColor = MaterialTheme.colorScheme.primaryContainer
-            if (lesson.custom) {
+            if (lesson.custom && customColor == "Tertiärfarbe") {
                 primaryColor = MaterialTheme.colorScheme.tertiaryContainer
             }
             Surface  (

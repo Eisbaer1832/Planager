@@ -102,7 +102,7 @@ fun SettingsCardDropdown(
     title: String,
     shape: RoundedCornerShape,
     dropDownList: Array<String>,
-    size: Dp = 16.dp,
+    size: Dp = 14.dp,
     onclick: (String) -> Unit,
     default: String
 ) {

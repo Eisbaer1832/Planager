@@ -59,7 +59,7 @@ import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.fetchWeekType
 import com.capputinodevelopment.planager.data.lesson
-import com.capputinodevelopment.planager.data.weekType
+import com.capputinodevelopment.planager.data.WeekType
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -252,7 +252,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                         for (customSubject in customSubjects) {
                                             // only append custom subject if it doesnt return the default error lesson
                                             if (customSubject != lesson()) {
-                                                if (customSubject.week == weekType.AB || customSubject.week == fetchWeekType()) {
+                                                if (customSubject.week == WeekType.AB || customSubject.week == fetchWeekType(date)) {
                                                     totalSubjects = totalSubjects.plus(customSubject)
                                                 }
                                             }
@@ -261,7 +261,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
 
                                         for (j in 0..< totalSubjects.size) {
                                             var show = true
-                                            val lesson = totalSubjects[j] ?: lesson()
+                                            val lesson = totalSubjects[j]
                                             val currentSubject = lesson.subject
                                             if (doFilter) {
                                                 if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(
@@ -303,7 +303,8 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                             subject
                                                         )
                                                     } else {
-                                                        SmallLessonCard(subject, editLocalSubjects) {
+                                                        val customColor = userSettings.customSubjectsColor.collectAsState("")
+                                                        SmallLessonCard(subject, editLocalSubjects, customColor.value) {
                                                             createSubjectLesson = subject
                                                             createSubjectWeekDay =
                                                                 DayOfWeek.of(i + 1)

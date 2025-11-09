@@ -64,6 +64,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 import java.util.ArrayList
 
 @Composable
@@ -270,7 +271,7 @@ fun ResearchView(modifier: Modifier = Modifier) {
         println("daytoSearch $dayToSearch")
         loading = true
         val research = withContext(Dispatchers.IO) {
-            getResearchData(userSettings, context, dayToSearch)
+            getResearchData(userSettings, context, current.with(TemporalAdjusters.nextOrSame(dayToSearch)))
         }
         dataToSearch = research
         loading = false

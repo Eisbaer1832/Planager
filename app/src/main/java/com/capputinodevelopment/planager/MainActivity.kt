@@ -30,7 +30,7 @@ import com.capputinodevelopment.planager.components.SearchDaySwitch
 import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.RegisterWorker
 import com.capputinodevelopment.planager.data.UserSettings
-import com.capputinodevelopment.planager.data.fetchWeekType
+import com.capputinodevelopment.planager.data.WeekType
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
 
 class MainActivity : ComponentActivity() {
@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
                 RegisterWorker()
                 var currentScreen by remember { mutableIntStateOf(0) }
                 var editSubjects by remember { mutableStateOf(false) }
+                var activeWeekType by remember { mutableStateOf(WeekType.A) }
 
                 val userSettings = UserSettings.getInstance(applicationContext)
                 val defaultScreen = userSettings.defaultScreen.collectAsState("")
@@ -64,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         when (currentScreen) {
                             0 -> TopBar("Tagesplan", true, editSubjects) {}
-                            1 -> TopBar("Wochenplan - " + fetchWeekType(), true, editSubjects, true) {
+                            1 -> TopBar("Wochenplan - $activeWeekType", true, editSubjects, true) {
                                 editSubjects = !editSubjects
                                 println("EditSubjects toggled: $editSubjects")
                             }
@@ -84,7 +85,9 @@ class MainActivity : ComponentActivity() {
                     ) { screen ->
                         when (screen) {
                             0 -> DayView(modifier = Modifier.padding(innerPadding))
-                            1 -> WeekViewWrapper(modifier = Modifier.padding(innerPadding), editSubjects)
+                            1 -> WeekViewWrapper(modifier = Modifier.padding(innerPadding), editSubjects) {
+                                activeWeekType = it
+                            }
                             2 -> ResearchView(modifier = Modifier.padding(innerPadding))
                             3 -> Settings(modifier = Modifier.padding(innerPadding),snackbarHostState)
                         }

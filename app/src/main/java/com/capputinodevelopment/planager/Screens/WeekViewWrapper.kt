@@ -11,23 +11,31 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import com.capputinodevelopment.planager.data.WeekType
+import com.capputinodevelopment.planager.data.fetchWeekType
 import java.time.LocalDate
-import java.time.temporal.TemporalAmount
-import java.time.temporal.TemporalUnit
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun WeekViewWrapper(modifier: Modifier, editSubjects: Boolean) {
+fun WeekViewWrapper(modifier: Modifier, editSubjects: Boolean, updateWeekType: (weekType: WeekType) -> Unit) {
     val listState = rememberLazyListState()
 
     Column(modifier = modifier) {
         LazyRow(
             state = listState,
-            flingBehavior = rememberSnapFlingBehavior(lazyListState = listState) // <-- snapping
+            flingBehavior = rememberSnapFlingBehavior(lazyListState = listState) // the fancy snap
         ) {
             items(2, key = { it }) { index ->
+                val date = if (index == 0) LocalDate.now() else LocalDate.now().plusWeeks(1)
+
+                LaunchedEffect(listState.firstVisibleItemIndex) {
+                    val visibleIndex = listState.firstVisibleItemIndex
+                    val date = if (visibleIndex == 0) LocalDate.now() else LocalDate.now().plusWeeks(1)
+                    updateWeekType(fetchWeekType(date))
+                }
+
                 Row(
                     Modifier
                         .animateItem(
@@ -38,13 +46,9 @@ fun WeekViewWrapper(modifier: Modifier, editSubjects: Boolean) {
                                 dampingRatio = Spring.DampingRatioMediumBouncy
                             )
                         )
-                        .fillParentMaxWidth() // optional: makes each item full width
+                        .fillParentMaxWidth()
                 ) {
-                    if (index == 0) {
-                        WeekView(Modifier, editSubjects, LocalDate.now())
-                    }else {
-                        WeekView(Modifier, editSubjects, LocalDate.now().plusWeeks(1))
-                    }
+                    WeekView(Modifier, editSubjects, date)
                 }
             }
         }

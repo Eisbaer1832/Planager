@@ -192,6 +192,14 @@ class UserSettings private constructor(private val appContext: Context) {
         }?: mutableMapOf()
     }
 
+    val customSubjectsColor = dataStore.data.map { preferences ->
+        preferences[CUSTOM_SUBJECTS_COLOR] ?: "Primär"
+    }
+    suspend fun updateCustomSubjectsColor(value: String) {
+        dataStore.edit { settings ->
+            settings[CUSTOM_SUBJECTS_COLOR] = value
+        }
+    }
 
     companion object {
         @Volatile
@@ -211,6 +219,7 @@ class UserSettings private constructor(private val appContext: Context) {
         private val DAY_WIDGET_CACHE = stringPreferencesKey("day_widget_cache")
         private val DEFAULT_SCREEN = stringPreferencesKey("default_screen")
         private val CUSTOM_SUBJECTS = stringPreferencesKey("custom_subjects")
+        private val CUSTOM_SUBJECTS_COLOR = stringPreferencesKey("custom_subjects_color")
 
         fun getInstance(context: Context): UserSettings {
             return INSTANCE ?: synchronized(this) {

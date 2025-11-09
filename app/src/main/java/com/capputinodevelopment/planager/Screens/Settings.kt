@@ -168,9 +168,15 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
 
 
         val defaltScreen = userSettings.defaultScreen.collectAsState("")
-        SettingsCardDropdown("Startseite",neutralShape,arrayOf("Tagesplan", "Wochenplan"), default= defaltScreen.value as String, onclick =  {
+        SettingsCardDropdown("Startseite",neutralShape,arrayOf("Tagesplan", "Wochenplan"), default= defaltScreen.value, onclick =  {
                 selected -> couroutineScope.launch{
                     userSettings.updateDefaultScreen(selected)
+                }}
+        )
+        val customColor = userSettings.customSubjectsColor.collectAsState("")
+        SettingsCardDropdown("Custom Fach Farbe",neutralShape,arrayOf("Primärfarbe", "Tertiärfarbe"), default= customColor.value, onclick =  {
+                selected -> couroutineScope.launch{
+                    userSettings.updateCustomSubjectsColor(selected)
                 }}
         )
 

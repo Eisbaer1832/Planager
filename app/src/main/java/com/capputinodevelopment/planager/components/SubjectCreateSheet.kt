@@ -1,42 +1,28 @@
 package com.capputinodevelopment.planager.components
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlusOne
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Room
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.ViewWeek
-import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.outlined.CalendarToday
-import androidx.compose.material.icons.outlined.Coffee
 import androidx.compose.material.icons.outlined.PlusOne
-import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Today
-import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material3.ButtonGroupScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
@@ -45,11 +31,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -62,16 +45,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.lesson
-import com.capputinodevelopment.planager.data.weekType
+import com.capputinodevelopment.planager.data.WeekType
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import kotlin.collections.mutableMapOf
@@ -287,16 +266,16 @@ fun SubjectCreateSheet (
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             val weekType = when (abSelectedItemIndex) {
-                                0 -> { weekType.A }
-                                1 -> { weekType.B }
-                                else -> { weekType.AB }
+                                0 -> { WeekType.A }
+                                1 -> { WeekType.B }
+                                else -> { WeekType.AB }
                             }
                             val double = if (doupleLessonselectedItemIndex == 0) {
                                 false
                             }else {
                                 true
                             }
-                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true, week = weekType, doubleLesson = double)
+                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true, week = weekType, doubleLesson = double, id = lesson.id)
                             var newCustomSubjects = saveSubject(newSubject, savedCustomSubjects.value, pos, day)
                             if (double) {
                                 newCustomSubjects = saveSubject(newSubject, newCustomSubjects, getCompanionLesson(pos), day)
