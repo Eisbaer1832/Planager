@@ -108,10 +108,10 @@ fun DayView(modifier: Modifier = Modifier) {
     }
     LaunchedEffect(Unit, filter) {
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
+            Kurse = getKurse(userSettings, current, null, context)?: ArrayList()
         }
-        lessons = getLessons(userSettings, current.dayOfWeek, context= context)
-        ags = getLessons(userSettings, current.dayOfWeek, "AG", context)?:arrayListOf()
+        lessons = getLessons(userSettings, current, context= context)
+        ags = getLessons(userSettings, current, "AG", context)?:arrayListOf()
     }
     val state = rememberPullToRefreshState()
 
@@ -128,7 +128,7 @@ fun DayView(modifier: Modifier = Modifier) {
             )
         )
         coroutineScope.launch {lessons =
-            getLessons(userSettings, current.dayOfWeek, context = context)
+            getLessons(userSettings, current, context = context)
             isRefreshing = false
         }
     }

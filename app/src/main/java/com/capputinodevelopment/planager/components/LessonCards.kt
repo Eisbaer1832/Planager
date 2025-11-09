@@ -1,6 +1,8 @@
 package com.capputinodevelopment.planager.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LabelImportant
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -27,8 +30,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.data.lesson
@@ -185,3 +192,123 @@ fun LessonCard(
         }
     }
 }
+
+@Composable
+fun SmallLessonCard (lesson: lesson, editing: Boolean, onClick: () -> Unit,) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    // saving the modifier externally for switching the clickable action on and off
+    //standart
+    var activeMod = Modifier
+        .width(screenWidth / 6)
+        .height(80.dp)
+        .padding(3.dp)
+
+    //on edit
+    if (editing && lesson.custom) {
+        activeMod = Modifier
+            .width(screenWidth / 6)
+            .height(80.dp)
+            .padding(3.dp)
+            .clickable {
+                if (editing) {
+                    println("launching edit dialog")
+                    onClick()
+                }
+            }
+
+    }
+    Card(
+        modifier = activeMod
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            var primaryColor = MaterialTheme.colorScheme.primaryContainer
+            if (lesson.custom) {
+                primaryColor = MaterialTheme.colorScheme.tertiaryContainer
+            }
+            Surface  (
+                color = primaryColor,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text(
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = lesson.subject
+                )
+            }
+            if (editing && lesson.custom) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment= Alignment.Center
+                ) {
+                    Icon(Icons.Default.Edit, "Edit", tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(35.dp))
+                }
+            }else {
+                Text(
+                    text = lesson.teacher.replace("\n", "")
+                )
+                val roomColor =  if (lesson.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+
+                Text(
+                    text = lesson.room,
+                    color = roomColor
+
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SmallLessonCardCanceled (lesson: lesson) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    var text = lesson.subject
+    text = text
+        .replace(Regex("fällt aus"), "")
+        .replace(Regex("Herr"), "")
+        .replace(Regex("Frau"), "")
+    val textArray = text.split("  ") //yes actually 2 spaces
+
+    Card(
+        modifier = Modifier
+            .width(screenWidth / 6)
+            .padding(3.dp)
+            .height(70.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.error,
+            ) {
+                Text(
+                    fontSize = 19.sp,
+                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = textArray[0]
+                )
+            }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                text = textArray[1]
+            )
+        }
+    }
+
+}
+

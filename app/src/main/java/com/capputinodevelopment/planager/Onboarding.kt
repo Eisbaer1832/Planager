@@ -175,8 +175,8 @@ fun ThirdPageInput() {
         if (schoolID.isBlank() || username.isBlank() || password.isBlank()) return@LaunchedEffect
         loading = true
         try {
-            Kurse = getKurse(userSettings, current.dayOfWeek, localFilterClass, context) ?: ArrayList()
-            AGs = getKurse(userSettings, current.dayOfWeek, "AG", context) ?: ArrayList()
+            Kurse = getKurse(userSettings, current, localFilterClass, context) ?: ArrayList()
+            AGs = getKurse(userSettings, current, "AG", context) ?: ArrayList()
             allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context) ?: arrayOf()
             println("all classes: ${allClasses.joinToString()}  password length=${password.length}")
         } finally {

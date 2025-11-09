@@ -3,6 +3,7 @@ package com.capputinodevelopment.planager.data
 import com.capputinodevelopment.planager.data.backend.LocalTimeSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalTime
+import java.util.UUID
 
 @Serializable
 data class lesson(
@@ -18,5 +19,7 @@ data class lesson(
     val canceled: Boolean = false,
     val ag: Boolean = false,
     val custom: Boolean = false,
-    val week: weekType = weekType.AB
+    val week: weekType = weekType.AB,
+    val doubleLesson:Boolean = false,
+    val id: String = UUID.randomUUID().toString()
 )

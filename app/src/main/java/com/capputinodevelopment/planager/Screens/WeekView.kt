@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,13 +21,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -46,13 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.capputinodevelopment.planager.components.SmallLessonCard
+import com.capputinodevelopment.planager.components.SmallLessonCardCanceled
 import com.capputinodevelopment.planager.components.SubjectCreateSheet
 import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
 import com.capputinodevelopment.planager.data.DataSharer.doFilter
@@ -70,136 +65,14 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
-import java.time.temporal.WeekFields
-import java.util.Locale
 import kotlin.getValue
-
-
-@Composable
-fun SmallLessonCard (lesson: lesson, editing: Boolean, onClick: () -> Unit,) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-
-    // saving the modifier externally for switching the clickable action on and off
-    //standart
-    var activeMod = Modifier
-        .width(screenWidth / 6)
-        .height(80.dp)
-        .padding(3.dp)
-
-    //on edit
-    if (editing && lesson.custom) {
-        activeMod = Modifier
-            .width(screenWidth / 6)
-            .height(80.dp)
-            .padding(3.dp)
-            .clickable {
-                if (editing) {
-                    println("launching edit dialog")
-                    onClick()
-                }
-            }
-
-    }
-    Card(
-        modifier = activeMod
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            var primaryColor = MaterialTheme.colorScheme.primaryContainer
-            if (lesson.custom) {
-                primaryColor = MaterialTheme.colorScheme.tertiaryContainer
-            }
-            Surface  (
-                color = primaryColor,
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Text(
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = lesson.subject
-                )
-            }
-            if (editing && lesson.custom) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment= Alignment.Center
-                ) {
-                    Icon(Icons.Default.Edit, "Edit", tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(35.dp))
-                }
-            }else {
-                Text(
-                    text = lesson.teacher.replace("\n", "")
-                )
-                val roomColor =  if (lesson.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
-
-                Text(
-                    text = lesson.room,
-                    color = roomColor
-
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun SmallLessonCardCanceled (lesson: lesson) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-
-    var text = lesson.subject
-    text = text
-        .replace(Regex("fällt aus"), "")
-        .replace(Regex("Herr"), "")
-        .replace(Regex("Frau"), "")
-    val textArray = text.split("  ") //yes actually 2 spaces
-
-    Card(
-        modifier = Modifier
-            .width(screenWidth / 6)
-            .padding(3.dp)
-            .height(70.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.error,
-            ) {
-                Text(
-                    fontSize = 19.sp,
-                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = textArray[0]
-                )
-            }
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                text = textArray[1]
-            )
-        }
-    }
-
-}
 
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean) {
+fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePassed: LocalDate) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
@@ -207,9 +80,8 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean) {
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
     val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
-    var current = LocalDate.now()
-    current = current.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    current = fixDay(null, current)
+    var date = datePassed.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    date = fixDay(null, date)
     var orderedWeek by remember { mutableStateOf(HashMap<Int, ArrayList<ArrayList<lesson>>>())}
     val filter by remember { DataSharer::FilterClass }
     var refreshTrigger by remember { mutableIntStateOf(0) }
@@ -234,21 +106,21 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean) {
         week = arrayListOf<ArrayList<lesson>>()
         weekDates = ArrayList<LocalDate>()
         for (i in 0..4) {
-            println("cdom: "+ current.dayOfMonth)
-            val lesson = getLessons(userSettings,current.dayOfWeek,context = context)
+            println("cdom: "+ date.dayOfMonth)
+            val lesson = getLessons(userSettings,date,context = context)
 
-            var today = LocalDate.now()
+            var today = date
             today = fixDay(null, today)
-            if (today.dayOfWeek > current.dayOfWeek) {
-                weekDates.add( today.with(TemporalAdjusters.previousOrSame(current.dayOfWeek)))
+            if (today.dayOfWeek > date.dayOfWeek) {
+                weekDates.add( today.with(TemporalAdjusters.previousOrSame(date.dayOfWeek)))
             }else{
-                weekDates.add(today.with(TemporalAdjusters.nextOrSame(current.dayOfWeek)))
+                weekDates.add(today.with(TemporalAdjusters.nextOrSame(date.dayOfWeek)))
             }
 
 
             if (lesson != null) {
                 week.add(lesson)
-                current = current.plusDays(1)
+                date = date.plusDays(1)
             }
 
 
@@ -381,8 +253,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean) {
                                             // only append custom subject if it doesnt return the default error lesson
                                             if (customSubject != lesson()) {
                                                 if (customSubject.week == weekType.AB || customSubject.week == fetchWeekType()) {
-                                                    totalSubjects =
-                                                        totalSubjects.plus(customSubject)
+                                                    totalSubjects = totalSubjects.plus(customSubject)
                                                 }
                                             }
                                         }

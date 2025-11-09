@@ -74,6 +74,10 @@ import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.data.weekType
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
+import kotlin.collections.toMutableList
+import kotlin.collections.toMutableMap
 
 
 @Composable
@@ -142,16 +146,11 @@ fun SubjectCreateSheet (
                 onDismissRequest = { openAlertDialog.value = false },
                 onConfirmation = {
                     openAlertDialog.value = false
-                    val newCustomSubjects = savedCustomSubjects.value
-                    val dayList = newCustomSubjects[pos]?:mutableMapOf()
 
-                    val posSubjects = dayList[day]?.toMutableList() ?: mutableListOf()
-                    posSubjects.removeAll { it.week == lesson.week }
-
-                    newCustomSubjects[pos]?.put(day, posSubjects)
-
-                    dayList[day] = posSubjects
-                    newCustomSubjects[pos] = dayList
+                    var newCustomSubjects = deleteSubject(lesson, savedCustomSubjects.value, pos, day)
+                    if (lesson.doubleLesson) {
+                        newCustomSubjects = deleteSubject(lesson, newCustomSubjects, getCompanionLesson(pos), day)
+                    }
 
                     scope.launch {
                         userSettings.updateCustomSubjects(newCustomSubjects)
@@ -227,7 +226,11 @@ fun SubjectCreateSheet (
                 // double lesson shenanigans
                 val doupleLessonTexts = listOf("Einzelstunde", "Doppelstunde")
                 val doupleLessonIcons = listOf(Icons.Outlined.School, Icons.Outlined.PlusOne)
-                var doupleLessonselectedItemIndex by remember { mutableIntStateOf(1) }
+                var doubleInt = 0
+                if (lesson.doubleLesson) {
+                    doubleInt = 1
+                }
+                var doupleLessonselectedItemIndex by remember { mutableIntStateOf(doubleInt) }
 
                 ButtonGroup(
                     modifier = Modifier
@@ -288,23 +291,16 @@ fun SubjectCreateSheet (
                                 1 -> { weekType.B }
                                 else -> { weekType.AB }
                             }
-
-                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true, week = weekType)
-                            val posMap = savedCustomSubjects.value[pos]?.toMutableMap() ?: mutableMapOf()
-                            val savedSubjects = posMap[day]?.toMutableList() ?: mutableListOf()
-
-                            val index = savedSubjects.indexOfFirst { it.subject == newSubject.subject }
-                            if (index != -1) {
-                                savedSubjects[index] = newSubject
-                            } else {
-                                savedSubjects.add(newSubject)
+                            val double = if (doupleLessonselectedItemIndex == 0) {
+                                false
+                            }else {
+                                true
                             }
-
-                            posMap[day] = savedSubjects
-                            val newCustomSubjects = savedCustomSubjects.value.toMutableMap()
-                            newCustomSubjects[pos] = posMap
-
-
+                            val newSubject = lesson(pos, teacher.text.toString(), subject.text.toString(), room.text.toString(), custom = true, week = weekType, doubleLesson = double)
+                            var newCustomSubjects = saveSubject(newSubject, savedCustomSubjects.value, pos, day)
+                            if (double) {
+                                newCustomSubjects = saveSubject(newSubject, newCustomSubjects, getCompanionLesson(pos), day)
+                            }
                             scope.launch {
                                 userSettings.updateCustomSubjects(newCustomSubjects)
                                 println("subjects: " + newCustomSubjects)
@@ -328,6 +324,53 @@ fun SubjectCreateSheet (
                     }
                 }
             }
+        }
+    }
+}
+
+fun saveSubject(lesson:lesson, saved:MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>, pos: Int, day: DayOfWeek): MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>> {
+    val posMap = saved[pos]?.toMutableMap() ?: mutableMapOf()
+    val savedSubjects = posMap[day]?.toMutableList() ?: mutableListOf()
+
+    val index = savedSubjects.indexOfFirst { it.id == lesson.id }
+    if (index != -1) {
+        savedSubjects[index] = lesson
+    } else {
+        savedSubjects.add(lesson)
+    }
+
+    posMap[day] = savedSubjects
+    val newCustomSubjects = saved.toMutableMap()
+    newCustomSubjects[pos] = posMap
+    return newCustomSubjects
+}
+
+fun deleteSubject(lesson:lesson, saved:MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>, pos: Int, day: DayOfWeek): MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>> {
+    val newCustomSubjects = saved
+    val dayList = newCustomSubjects[pos]?:mutableMapOf()
+
+    val posSubjects = dayList[day]?.toMutableList() ?: mutableListOf()
+    posSubjects.removeAll { it.id == lesson.id }
+
+    newCustomSubjects[pos]?.put(day, posSubjects)
+
+    dayList[day] = posSubjects
+    newCustomSubjects[pos] = dayList
+    return newCustomSubjects
+}
+
+fun getCompanionLesson(pos: Int): Int {
+    return if (pos <= 6) {
+        if (pos % 2 == 0) {
+            pos -1
+        }else {
+            pos + 1
+        }
+    }else {
+        if (pos % 2 != 0) {
+            pos -1
+        }else {
+            pos + 1
         }
     }
 }

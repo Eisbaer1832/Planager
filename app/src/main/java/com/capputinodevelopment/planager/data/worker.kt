@@ -62,7 +62,7 @@ class WidgetWorker(context: Context, workerParams: WorkerParameters):
         val timeNow = LocalTime.now()
         val current = fixDay(timeNow,dateNow)
         val ownSubjects = userSettings.ownSubjects.first()
-        var lessons = getLessons(userSettings, current.dayOfWeek, context = applicationContext)?: arrayListOf(lesson())
+        var lessons = getLessons(userSettings, current, context = applicationContext)?: arrayListOf(lesson())
 
         var index = if (current == LocalDate.now()) {
             when {
@@ -119,7 +119,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
 
         (0..4).forEach { i ->
             println("current: " + current.dayOfWeek)
-            val lesson = getLessons(userSettings, current.dayOfWeek, context = applicationContext)
+            val lesson = getLessons(userSettings, current, context = applicationContext)
             if (lesson != null) {
                 week.add(lesson)
                 current = current.plusDays(1)

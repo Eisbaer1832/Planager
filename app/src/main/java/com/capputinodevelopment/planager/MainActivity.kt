@@ -24,16 +24,14 @@ import androidx.core.view.WindowCompat
 import com.capputinodevelopment.planager.Screens.DayView
 import com.capputinodevelopment.planager.Screens.ResearchView
 import com.capputinodevelopment.planager.Screens.Settings
-import com.capputinodevelopment.planager.Screens.WeekView
+import com.capputinodevelopment.planager.Screens.WeekViewWrapper
 import com.capputinodevelopment.planager.components.NavBar
 import com.capputinodevelopment.planager.components.SearchDaySwitch
 import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.RegisterWorker
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.fetchWeekType
-import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
-import java.time.DayOfWeek
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
@@ -86,7 +84,7 @@ class MainActivity : ComponentActivity() {
                     ) { screen ->
                         when (screen) {
                             0 -> DayView(modifier = Modifier.padding(innerPadding))
-                            1 -> WeekView(modifier = Modifier.padding(innerPadding), editSubjects)
+                            1 -> WeekViewWrapper(modifier = Modifier.padding(innerPadding), editSubjects)
                             2 -> ResearchView(modifier = Modifier.padding(innerPadding))
                             3 -> Settings(modifier = Modifier.padding(innerPadding),snackbarHostState)
                         }

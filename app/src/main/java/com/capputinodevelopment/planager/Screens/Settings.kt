@@ -92,10 +92,10 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
     LaunchedEffect(Unit, FilterClass) {
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
         if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
+            Kurse = getKurse(userSettings, current, null, context)?: ArrayList()
         }
         if (AGs.isEmpty()) {
-            AGs = getKurse(userSettings, current.dayOfWeek, "AG", context)?: ArrayList()
+            AGs = getKurse(userSettings, current, "AG", context)?: ArrayList()
         }
 
     }
@@ -161,7 +161,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
 
 
                 couroutineScope.launch {
-                    Kurse = getKurse(userSettings, current.dayOfWeek, null, context)?: ArrayList()
+                    Kurse = getKurse(userSettings, current, null, context)?: ArrayList()
                 }
             },
         )

@@ -105,12 +105,13 @@ suspend fun getAllClasses(
 
 suspend fun getSelectedClass(
     userSettings: UserSettings,
-    day: DayOfWeek,
+    date: LocalDate,
     localFilterClass: String? = null,
-    context: Context
+    context: Context,
+
 ): Node? {
 
-    val xmlTimeTable = getDayXML(day, userSettings, context)
+    val xmlTimeTable = getDayXML(date, userSettings, context)
     if (xmlTimeTable.isEmpty()) {
         return null
     }
@@ -179,13 +180,13 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         isAg
     )
 }
-suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context, fetchAgs:Boolean = true): ArrayList<lesson>? {
-    val receivedClass = getSelectedClass(userSettings, day, localFilterClass, context)
+suspend fun getLessons(userSettings: UserSettings, date: LocalDate, localFilterClass: String? = null, context: Context, fetchAgs:Boolean = true): ArrayList<lesson>? {
+    val receivedClass = getSelectedClass(userSettings, date, localFilterClass, context)
 
     var agClasses: NodeList? = null
 
     if (fetchAgs) {
-        agClasses = getSelectedClass(userSettings, day, "AG", context)?.childNodes?.item(5)?.childNodes
+        agClasses = getSelectedClass(userSettings, date, "AG", context)?.childNodes?.item(5)?.childNodes
     }
     val lessons = ArrayList<lesson>()
 
@@ -223,8 +224,8 @@ suspend fun getLessons(userSettings: UserSettings, day: DayOfWeek, localFilterCl
     return lessons
 }
 
-suspend fun getKurse(userSettings: UserSettings, day: DayOfWeek, localFilterClass: String? = null, context: Context): ArrayList<Kurs>? {
-    val receivedClass = getSelectedClass(userSettings, day, localFilterClass, context)
+suspend fun getKurse(userSettings: UserSettings, date: LocalDate, localFilterClass: String? = null, context: Context): ArrayList<Kurs>? {
+    val receivedClass = getSelectedClass(userSettings, date, localFilterClass, context)
     if (receivedClass == null) {
         return null
     }

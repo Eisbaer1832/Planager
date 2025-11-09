@@ -92,7 +92,7 @@ fun FriendsList (
                             FilterClass = friendsClasses.get(friendName)?: ""
                             couroutineScope.launch {
                                 // TODO muss das : sein "/mobil/mobdaten/Klassen.xml"
-                                kurse.value = getKurse(userSettings, LocalDate.now().dayOfWeek, null, context)?: ArrayList()
+                                kurse.value = getKurse(userSettings, LocalDate.now(), null, context)?: ArrayList()
                             }
                             shouldShowDialog.value = true
                         }, {selected -> couroutineScope.launch{

@@ -33,8 +33,8 @@ object GlobalPlan {
 
 
 
-suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings, context: Context): String {
-
+suspend fun getDayXML(date: LocalDate, userSettings: UserSettings, context: Context): String {
+    val day = date.dayOfWeek
 
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var current = LocalDate.now()

@@ -10,17 +10,18 @@ import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.backend.parseLesson
 import com.capputinodevelopment.planager.data.getDayXML
 import java.time.DayOfWeek
+import java.time.LocalDate
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.arrayListOf
 
 suspend fun getResearchData(
     userSettings: UserSettings,
     context: Context,
-    day: DayOfWeek
+    date: LocalDate
 ): ResearchWeek {
     var researchData by mutableStateOf(ResearchWeek())
-
-    val xmlTimeTable = getDayXML(day, userSettings, context)
+    val day = date.dayOfWeek
+    val xmlTimeTable = getDayXML(date, userSettings, context)
     if (xmlTimeTable.isEmpty()) {
         return ResearchWeek()
     }
@@ -63,7 +64,7 @@ suspend fun getResearchData(
     for (i in 0..<allClasses.size) {
         val classes= researchData.classes.getOrPut(allClasses[i]) { Data() }
         if (allClasses[i].contains(Regex("\\d")) && !allClasses[i].contains("AG")) {
-            val lessons = getLessons(userSettings, day, allClasses[i], context, false)
+            val lessons = getLessons(userSettings, date, allClasses[i], context, false)
             if (!lessons.isNullOrEmpty()) {
                 for (i in 0..<(lessons.size)) {
                     classes.days.value[day]?.add(lessons[i])
