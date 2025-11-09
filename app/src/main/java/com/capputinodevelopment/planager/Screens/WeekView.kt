@@ -54,7 +54,7 @@ import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.GlobalPlan.days
+import com.capputinodevelopment.planager.data.GlobalPlan.weeks
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.fetchWeekType
@@ -133,7 +133,8 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
     val state = rememberPullToRefreshState()
     var isRefreshing by remember { mutableStateOf(false) }
     val onRefresh: () -> Unit = {
-        days = mutableStateOf(
+        val week = fetchWeekType(date)
+        weeks[week] = mutableStateOf(
             mutableMapOf(
                 DayOfWeek.MONDAY to "",
                 DayOfWeek.TUESDAY to "",

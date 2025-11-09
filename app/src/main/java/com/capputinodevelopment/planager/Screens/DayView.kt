@@ -51,12 +51,13 @@ import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
 import com.capputinodevelopment.planager.data.DataSharer.Kurse
 import com.capputinodevelopment.planager.data.DataSharer.doFilter
-import com.capputinodevelopment.planager.data.GlobalPlan.days
+import com.capputinodevelopment.planager.data.GlobalPlan.weeks
 import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.data.backend.getLessons
+import com.capputinodevelopment.planager.data.fetchWeekType
 import com.capputinodevelopment.planager.data.lesson
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.Multimaps.index
 import kotlinx.coroutines.delay
@@ -117,8 +118,9 @@ fun DayView(modifier: Modifier = Modifier) {
 
     var isRefreshing by remember { mutableStateOf(false) }
     val onRefresh: () -> Unit = {
+        val week = fetchWeekType(current)
         isRefreshing = true
-        days = mutableStateOf(
+        weeks[week] = mutableStateOf(
             mutableMapOf(
                 DayOfWeek.MONDAY to "",
                 DayOfWeek.TUESDAY to "",
