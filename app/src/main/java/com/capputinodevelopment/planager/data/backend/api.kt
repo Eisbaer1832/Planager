@@ -133,7 +133,9 @@ suspend fun getSelectedClass(
 fun getPart(array: NodeList, name: String): String? {
     for (i in 0..array.length) {
         val child = array.item(i)
-        if (child.nodeName == name) return child.textContent
+        if (child != null) {
+            if (child.nodeName == name) return child.textContent
+        }
     }
     return null
 }
@@ -147,6 +149,13 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
     if (subject == "---") {
         canceled = true
         subject = getPart(l, "If")?:""
+    }
+
+    val ku2 = getPart(l, "Ku2")
+    var replacementSubject: String? = null
+    if (ku2 != subject && ku2 != null) {
+        replacementSubject = subject
+        subject = ku2
     }
     val teacher = getPart(l, "Le")?:""
     val room = getPart(l, "Ra")?:""
@@ -177,7 +186,8 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         startT,
         endT,
         canceled,
-        isAg
+        isAg,
+        replacementSubject = replacementSubject
     )
 }
 suspend fun getLessons(userSettings: UserSettings, date: LocalDate, localFilterClass: String? = null, context: Context, fetchAgs:Boolean = true): ArrayList<lesson>? {

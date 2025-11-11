@@ -32,11 +32,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capputinodevelopment.planager.data.lesson
@@ -162,9 +166,14 @@ fun LessonCard(
                                 .background(primaryColor),
                             contentAlignment = Alignment.Center
                         ){
+
+                            var subject = l.subject
+                            if (l.replacementSubject != null) {
+                                subject += " " + l.replacementSubject
+                            }
                             Icon(
                                 modifier = Modifier.size(40.dp),
-                                imageVector = getSubjectIcon(l.subject),
+                                imageVector = getSubjectIcon(subject),
                                 contentDescription = "Localized description",
                                 tint = onprimary
                             )
@@ -250,12 +259,22 @@ fun SmallLessonCard (
                 color = primaryColor,
                 modifier = Modifier.fillMaxWidth()
             ){
+                var subject: AnnotatedString = buildAnnotatedString {append(lesson.subject) }
+
+                if (lesson.replacementSubject != null) {
+                    subject = buildAnnotatedString {
+                        withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+                            append(lesson.subject)
+                        }
+                        append(lesson.replacementSubject)
+                    }
+                }
                 Text(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    text = lesson.subject
+                    text = subject
                 )
             }
             if (editing && lesson.custom) {

@@ -21,5 +21,6 @@ data class lesson(
     val custom: Boolean = false,
     val week: WeekType = WeekType.AB,
     val doubleLesson:Boolean = false,
-    val id: String = UUID.randomUUID().toString()
+    val id: String = UUID.randomUUID().toString(),
+    val replacementSubject: String? = null
 )
