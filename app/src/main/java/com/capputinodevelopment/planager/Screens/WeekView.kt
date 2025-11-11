@@ -250,11 +250,18 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                     Column {
 
                                         var totalSubjects = orderedWeek[pos]?.get(i)?:listOf()
-                                        for (customSubject in customSubjects) {
-                                            // only append custom subject if it doesnt return the default error lesson
-                                            if (customSubject != lesson()) {
-                                                if (customSubject.week == WeekType.AB || customSubject.week == fetchWeekType(date)) {
-                                                    totalSubjects = totalSubjects.plus(customSubject)
+
+                                        if (doFilter && FilterFriend == "") {
+                                            for (customSubject in customSubjects) {
+                                                // only append custom subject if it doesnt return the default error lesson
+                                                if (customSubject != lesson()) {
+                                                    if (customSubject.week == WeekType.AB || customSubject.week == fetchWeekType(
+                                                            date
+                                                        )
+                                                    ) {
+                                                        totalSubjects =
+                                                            totalSubjects.plus(customSubject)
+                                                    }
                                                 }
                                             }
                                         }
