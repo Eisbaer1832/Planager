@@ -55,6 +55,7 @@ import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.GlobalPlan.weeks
 import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.WeekType
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.data.backend.getLessons
@@ -203,25 +204,26 @@ fun DayView(modifier: Modifier = Modifier) {
                             }
                             ?.toCollection(ArrayList())
 
+                        //append custom subjects
+                        for (pos in 0..11) {
+                            val customSubjects = savedCustomSubjects.value[pos]?.get(current.dayOfWeek) ?: listOf()
+                            val filteredLessons = customSubjects.filter { lesson ->
+                                lesson.week == WeekType.AB || lesson.week == fetchWeekType(current)
+                            }
+
+                            val insertIndex = currentLessons?.indexOfFirst { it.pos >= pos } ?: -1
+
+                            if (insertIndex == -1) {
+                                // Append at end if no position >= pos found
+                                currentLessons?.addAll(filteredLessons)
+                            } else {
+                                // Insert at the found position
+                                currentLessons?.addAll(insertIndex, filteredLessons)
+                            }
+                        }
                         // show subject if its not filtered or it doesnt contain in number since that would be a mandatory class subject (hopefully)
                     }else{
                         currentLessons = currentLessons?.filter { !it.ag } as ArrayList<lesson>?
-                    }
-
-
-                    for (pos in 0..11) {
-                        val customSubjects = savedCustomSubjects.value[pos]?.get(current.dayOfWeek) ?: listOf()
-                        for (i in 0..<(currentLessons?.size ?: 0)) {
-                            currentLessons?.get(i)?.pos?.let {
-                                if (it >= pos){
-                                    for (lesson in customSubjects)
-                                    {
-                                        currentLessons.add(i, lesson)
-                                    }
-                                    break
-                                }
-                            }
-                        }
                     }
 
                     currentLessons?.forEachIndexed { i, l ->
