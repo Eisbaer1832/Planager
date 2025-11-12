@@ -259,8 +259,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                             date
                                                         )
                                                     ) {
-                                                        totalSubjects =
-                                                            totalSubjects.plus(customSubject)
+                                                        totalSubjects = totalSubjects.plus(customSubject)
                                                     }
                                                 }
                                             }
@@ -276,14 +275,10 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                         Regex("-P")
                                                     ) || currentSubject.contains(Regex("-W")) || lesson.ag
                                                 ) {
-                                                    if (FilterFriend == "") {
-                                                        show =
-                                                            subjectsToShow[currentSubject.substringBefore(
-                                                                " "
-                                                            )] == true
+                                                    show = if (FilterFriend == "") {
+                                                        subjectsToShow[currentSubject.substringBefore(" ")] == true
                                                     } else {
-                                                        show = friendsSubjects.get(FilterFriend)
-                                                            ?.get(currentSubject.substringBefore(" ")) == true
+                                                        friendsSubjects[FilterFriend]?.get(currentSubject.substringBefore(" ")) == true
                                                     }
                                                 }
 

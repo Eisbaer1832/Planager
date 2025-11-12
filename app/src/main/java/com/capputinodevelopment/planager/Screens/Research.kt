@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Room
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -91,12 +92,9 @@ fun ResearchTeacherCard(
     shape: RoundedCornerShape,
     surfaceShape: RoundedCornerShape,
 ) {
-    ElevatedCard (
+    Card (
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
         ),
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
         shape = shape
@@ -169,12 +167,9 @@ fun ResearchLessonCard(
     surfaceShape: RoundedCornerShape,
     isRoom: Boolean = false,
     ) {
-    ElevatedCard (
+    Card (
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
         ),
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
         shape = shape

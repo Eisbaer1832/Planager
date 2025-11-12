@@ -208,27 +208,19 @@ suspend fun getLessons(userSettings: UserSettings, date: LocalDate, localFilterC
 
     val lessonNodes = selectedClass?.item(5)?.childNodes
 
-    var lastPos = 0
+
     for (i in 0..<lessonNodes!!.length) {
         val l = lessonNodes.item(i).childNodes
         val lesson = parseLesson(l, false)
         lessons.add(lesson)
+    }
 
-        if (fetchAgs && agClasses != null) {
-            if (lastPos != lesson.pos) {
-                lastPos = lesson.pos
-                for (j in 0..<agClasses.length) {
-                    val agL = agClasses.item(j).childNodes
-                    val ag = parseLesson(agL, true)
-                    if (ag.pos == lastPos || i >= lessonNodes.length - 1) {
-                        lessons.add(ag)
-                    }
-                    println("AG Namen ${ag.subject}")
-                }
-            }
+    if (fetchAgs && agClasses != null) {
+        for (j in 0..<agClasses.length) {
+            val agL = agClasses.item(j).childNodes
+            val ag = parseLesson(agL, true)
+            lessons.add(ag)
         }
-
-
     }
 
     return lessons
