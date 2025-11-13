@@ -87,6 +87,7 @@ fun DayView(modifier: Modifier = Modifier) {
     var current = LocalDate.now()
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
+    var loading by remember { mutableStateOf<Boolean>(true) }
 
     val filter by remember { DataSharer::FilterClass }
 
@@ -116,6 +117,7 @@ fun DayView(modifier: Modifier = Modifier) {
         }
         lessons = getLessons(userSettings, current, context= context)
         ags = getLessons(userSettings, current, "AG", context)?:arrayListOf()
+        loading = false
     }
     val state = rememberPullToRefreshState()
 
@@ -155,7 +157,7 @@ fun DayView(modifier: Modifier = Modifier) {
     ) {
 
         Box {
-            if (isRefreshing) {
+            if (isRefreshing || loading) {
                 Row(
                     Modifier
                         .fillMaxSize(),

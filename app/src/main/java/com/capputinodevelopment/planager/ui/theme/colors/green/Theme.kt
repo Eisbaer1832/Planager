@@ -1,8 +1,6 @@
-package com.capputinodevelopment.planager.ui.theme.colors.blue
-
-import androidx.compose.material3.darkColorScheme
+package com.capputinodevelopment.planager.ui.theme.colors.green
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.darkColorScheme
 import com.zaki.dynamic.core.model.ThemeDefinition
 import com.zaki.dynamic.core.model.ThemeFamily
 import com.zaki.dynamic.core.model.ThemeId
@@ -86,26 +84,26 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
-fun blueTheme(): ThemeFamily {
+fun greenTheme(): ThemeFamily {
     val defaultLightTheme = ThemeDefinition(
-        id = ThemeId("blue_light"),
-        displayName = "Blau",
+        id = ThemeId("green_light"),
+        displayName = "Grün - Hell",
         palette = lightScheme.toPalette(false),
         typography = defaultTypography(),
         shapes = defaultShapes(),
     )
 
     val defaultDarkTheme = ThemeDefinition(
-        id = ThemeId("default_dark"),
-        displayName = "Default",
+        id = ThemeId("green_dark"),
+        displayName = "Grün - Dunkel",
         palette = darkScheme.toPalette(true),
         typography = defaultTypography(),
         shapes = defaultShapes(),
     )
 
     val defaultFamily = ThemeFamily(
-        id = ThemeId("blue"),
-        displayName = "Blau",
+        id = ThemeId("green"),
+        displayName = "Grün",
         light = defaultLightTheme,
         dark = defaultDarkTheme
     )

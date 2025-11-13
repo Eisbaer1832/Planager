@@ -35,6 +35,7 @@ import com.capputinodevelopment.planager.data.WeekType
 import com.capputinodevelopment.planager.data.dataStore
 import com.capputinodevelopment.planager.ui.colors.ThemeStore
 import com.capputinodevelopment.planager.ui.theme.colors.blue.blueTheme
+import com.capputinodevelopment.planager.ui.theme.colors.green.greenTheme
 import com.capputinodevelopment.planager.ui.theme.colors.monetThemes
 import com.capputinodevelopment.planager.ui.theme.colors.red.redTheme
 import com.zaki.dynamic.core.adapter.Material3Adapter
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val controller = remember {
                 val registry = DefaultThemeRegistryFactory.create().apply {
-                    registerFamilies(listOf(blueTheme(), redTheme(), monetThemes(context)))
+                    registerFamilies(listOf(blueTheme(), redTheme(), greenTheme(), monetThemes(context)))
                 }
                 ThemeController(
                     registry = registry,

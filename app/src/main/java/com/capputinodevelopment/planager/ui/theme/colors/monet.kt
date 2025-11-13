@@ -1,6 +1,8 @@
 package com.capputinodevelopment.planager.ui.theme.colors
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -23,6 +25,7 @@ val Pink40 = Color(0xFF7D5260)
 
 
 
+@RequiresApi(Build.VERSION_CODES.S)
 fun monetThemes(context: Context): ThemeFamily {
     val defaultLightTheme = ThemeDefinition(
         id = ThemeId("monet_light"),
