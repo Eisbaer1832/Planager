@@ -11,6 +11,12 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.capputinodevelopment.planager.ui.theme.colors.Pink40
+import com.capputinodevelopment.planager.ui.theme.colors.Pink80
+import com.capputinodevelopment.planager.ui.theme.colors.Purple40
+import com.capputinodevelopment.planager.ui.theme.colors.Purple80
+import com.capputinodevelopment.planager.ui.theme.colors.PurpleGrey40
+import com.capputinodevelopment.planager.ui.theme.colors.PurpleGrey80
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,

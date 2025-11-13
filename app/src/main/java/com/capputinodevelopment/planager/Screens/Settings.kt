@@ -63,6 +63,7 @@ import com.capputinodevelopment.planager.data.DataSharer.topShape
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getAllClasses
+import com.capputinodevelopment.planager.ui.colors.ThemePickerBottomSheet
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
@@ -85,6 +86,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
     val FriendsListToggle = remember { mutableStateOf(false) }
     val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
     val licenseDialogToggle = remember { mutableStateOf(false) }
+    val ThemePickerToggle = remember { mutableStateOf(false) }
 
     val couroutineScope = rememberCoroutineScope()
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
@@ -115,6 +117,11 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         FriendsList(FriendsListToggle, Kurse,AGs,userSettings, allClasses)
     }
 
+    if (ThemePickerToggle.value) {
+        ThemePickerBottomSheet(
+            onDismiss = { ThemePickerToggle.value = false }
+        )
+    }
 
 
     Column(
@@ -167,19 +174,6 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         )
 
 
-        val defaltScreen = userSettings.defaultScreen.collectAsState("")
-        SettingsCardDropdown("Startseite",neutralShape,arrayOf("Tagesplan", "Wochenplan"), default= defaltScreen.value, onclick =  {
-                selected -> couroutineScope.launch{
-                    userSettings.updateDefaultScreen(selected)
-                }}
-        )
-        val customColor = userSettings.customSubjectsColor.collectAsState("")
-        SettingsCardDropdown("Custom Fach Farbe",neutralShape,arrayOf("Primärfarbe", "Tertiärfarbe"), default= customColor.value, onclick =  {
-                selected -> couroutineScope.launch{
-                    userSettings.updateCustomSubjectsColor(selected)
-                }}
-        )
-
         SettingsCardDropdown("Jahrgang / Klasse",neutralShape,allClasses, default= ownClass, onclick =  {
             selected -> couroutineScope.launch{
                 FilterClass = selected
@@ -189,9 +183,33 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         )
         SettingsCardEdit(
             "Fächer von Freunden",
-            neutralShape,
+            bottomShape,
             buttonText = "",
             onclick = { FriendsListToggle.value = true },
+        )
+
+        Spacer(Modifier.height(20.dp))
+        Text("Aussehen", style = MaterialTheme.typography.headlineMediumEmphasized)
+
+        val defaltScreen = userSettings.defaultScreen.collectAsState("")
+        SettingsCardDropdown("Startseite",topShape,arrayOf("Tagesplan", "Wochenplan"), default= defaltScreen.value, onclick =  {
+                selected -> couroutineScope.launch{
+            userSettings.updateDefaultScreen(selected)
+        }}
+        )
+        val customColor = userSettings.customSubjectsColor.collectAsState("")
+        SettingsCardDropdown("Custom Fach Farbe",neutralShape,arrayOf("Primärfarbe", "Tertiärfarbe"), default= customColor.value, onclick =  {
+                selected -> couroutineScope.launch{
+            userSettings.updateCustomSubjectsColor(selected)
+        }}
+        )
+
+
+        SettingsCardEdit(
+            "Farbschema",
+            neutralShape,
+            buttonText = "",
+            onclick = {  ThemePickerToggle.value = true},
         )
 
 

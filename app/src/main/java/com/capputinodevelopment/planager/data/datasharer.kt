@@ -201,6 +201,16 @@ class UserSettings private constructor(private val appContext: Context) {
         }
     }
 
+    val themeMode: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[THEME_MODE]
+    }
+
+    suspend fun updateThemeMode(value: String) {
+        dataStore.edit { settings ->
+            settings[THEME_MODE] = value
+        }
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: UserSettings? = null
@@ -220,6 +230,7 @@ class UserSettings private constructor(private val appContext: Context) {
         private val DEFAULT_SCREEN = stringPreferencesKey("default_screen")
         private val CUSTOM_SUBJECTS = stringPreferencesKey("custom_subjects")
         private val CUSTOM_SUBJECTS_COLOR = stringPreferencesKey("custom_subjects_color")
+        private val THEME_MODE = stringPreferencesKey("theme_mode")
 
         fun getInstance(context: Context): UserSettings {
             return INSTANCE ?: synchronized(this) {

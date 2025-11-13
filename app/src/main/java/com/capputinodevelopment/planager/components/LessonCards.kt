@@ -253,6 +253,7 @@ fun SmallLessonCard (
         ) {
             var primaryColor = MaterialTheme.colorScheme.primaryContainer
             if (lesson.custom && customColor == "Tertiärfarbe") {
+                println("using tertiary")
                 primaryColor = MaterialTheme.colorScheme.tertiaryContainer
             }
             Surface  (
@@ -336,11 +337,17 @@ fun SmallLessonCardCanceled (lesson: lesson) {
                     text = textArray[0]
                 )
             }
+
+            var text = ""
+            if (textArray.size > 1) {
+                text = textArray[1]
+            }
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                text = textArray[1]
+                text = text
             )
+
         }
     }
 

@@ -15,8 +15,8 @@ android {
         applicationId = "com.capputinodevelopment.planager"
         minSdk = 26
         targetSdk = 36
-        versionCode = 15
-        versionName = "1.21"
+        versionCode = 16
+        versionName = "1.22"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -97,4 +97,6 @@ dependencies {
     implementation(libs.aboutlibraries.compose.m3)
     implementation("androidx.compose.material:material-icons-core")
     implementation ("androidx.compose.material:material-icons-extended")
+    implementation("com.russhwolf:multiplatform-settings:1.3.0")
+    implementation("io.github.iammohdzaki.kmpalette:theme-core:0.0.4")
 }

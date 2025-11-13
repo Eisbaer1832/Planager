@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import com.capputinodevelopment.planager.Screens.DayView
 import com.capputinodevelopment.planager.Screens.ResearchView
@@ -31,7 +32,17 @@ import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.RegisterWorker
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.WeekType
-import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import com.capputinodevelopment.planager.data.dataStore
+import com.capputinodevelopment.planager.ui.colors.ThemeStore
+import com.capputinodevelopment.planager.ui.theme.colors.blue.blueTheme
+import com.capputinodevelopment.planager.ui.theme.colors.monetThemes
+import com.capputinodevelopment.planager.ui.theme.colors.red.redTheme
+import com.zaki.dynamic.core.adapter.Material3Adapter
+import com.zaki.dynamic.core.controller.ThemeController
+import com.zaki.dynamic.core.model.ThemeId
+import com.zaki.dynamic.core.provider.DynamicThemeProvider
+import com.zaki.dynamic.core.provider.PlatformSystemThemeProvider
+import com.zaki.dynamic.core.registry.DefaultThemeRegistryFactory
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
@@ -39,7 +50,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
         setContent {
-            IndiwareNativeTheme {
+            val context = LocalContext.current
+            val controller = remember {
+                val registry = DefaultThemeRegistryFactory.create().apply {
+                    registerFamilies(listOf(blueTheme(), redTheme(), monetThemes(context)))
+                }
+                ThemeController(
+                    registry = registry,
+                    store = ThemeStore(context.dataStore),
+                    system = PlatformSystemThemeProvider(),
+                    defaultThemeId = ThemeId("Monet")
+                )
+            }
+            DynamicThemeProvider(
+                controller = controller,
+                adapter = Material3Adapter(),
+            ) {
                 RegisterWorker()
                 var currentScreen by remember { mutableIntStateOf(0) }
                 var editSubjects by remember { mutableStateOf(false) }
