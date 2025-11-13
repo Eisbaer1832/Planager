@@ -301,7 +301,7 @@ fun DayView(modifier: Modifier = Modifier) {
 
                             // Timestamp animation
                             AnimatedVisibility(
-                                visible = visible && pos > lastPos,
+                                visible = visible && pos > 0,
                                 enter = slideInHorizontally(initialOffsetX = { -it / 2 }) + fadeIn(),
                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                             ) {

@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.getAllClasses
+import com.capputinodevelopment.planager.ui.theme.colors.red.onSurfaceVariantDark
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first

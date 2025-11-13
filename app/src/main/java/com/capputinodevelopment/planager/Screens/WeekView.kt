@@ -2,6 +2,7 @@ package com.capputinodevelopment.planager.Screens
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -66,7 +67,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import kotlin.getValue
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -91,6 +93,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
     var createSubjectLesson by remember { mutableStateOf(lesson()) }
     val showCreateSubjectSheet = remember { mutableStateOf(false) }
     val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
+    val customColor = userSettings.customSubjectsColor.collectAsState("")
 
     if (filter.isEmpty()) {
         FilterClass = ownClass
@@ -125,8 +128,11 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
 
 
         }
+        val newOrderedWeek = withContext(Dispatchers.Default) {
+            orderWeek(week)
+        }
+        orderedWeek = newOrderedWeek
         isLoading = false
-        orderedWeek = orderWeek(week)
     }
 
 
@@ -247,7 +253,9 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
                                     Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
                                 } else {
-                                    Column {
+                                    Column (
+                                        Modifier.animateContentSize()
+                                    ) {
 
                                         var totalSubjects = orderedWeek[pos]?.get(i)?:listOf()
 
@@ -290,7 +298,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
 
                                             var visible by remember { mutableStateOf(true) }
                                             LaunchedEffect(Unit) {
-                                                delay(i * 50L)
+
                                                 visible = true
                                             }
                                             AnimatedVisibility(
@@ -306,7 +314,6 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                             subject
                                                         )
                                                     } else {
-                                                        val customColor = userSettings.customSubjectsColor.collectAsState("")
                                                         SmallLessonCard(subject, editLocalSubjects, customColor.value) {
                                                             createSubjectLesson = subject
                                                             createSubjectWeekDay =

@@ -1,5 +1,6 @@
 
 package com.capputinodevelopment.planager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,7 +55,10 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val controller = remember {
                 val registry = DefaultThemeRegistryFactory.create().apply {
-                    registerFamilies(listOf(blueTheme(), redTheme(), greenTheme(), monetThemes(context)))
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            registerFamily(monetThemes(context))
+                    }
+                    registerFamilies(listOf(blueTheme(), redTheme(), greenTheme()))
                 }
                 ThemeController(
                     registry = registry,
