@@ -98,7 +98,7 @@ fun MoreOptionsSheet (
                 val options = listOf("Eigene Fächer", "Gesamter Plan")
                 val unCheckedIcons = listOf(Icons.Outlined.Person, Icons.Outlined.Group)
                 val checkedIcons = listOf(Icons.Filled.Person, Icons.Filled.Group)
-                val modifiers = listOf(Modifier.weight(1.5f), Modifier.weight(1f))
+                val modifiers = listOf(Modifier.weight(1.25f), Modifier.weight(1f))
 
                 Row(
                     Modifier.padding(horizontal = 8.dp),

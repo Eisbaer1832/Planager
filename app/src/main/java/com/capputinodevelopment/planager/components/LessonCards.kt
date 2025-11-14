@@ -271,7 +271,7 @@ fun SmallLessonCard (
                     }
                 }
                 Text(
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Clip,
                     maxLines = 1,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
@@ -287,8 +287,11 @@ fun SmallLessonCard (
                 }
             }else {
                 Text(
-                    text = lesson.teacher.replace("\n", "")
-                )
+                    textAlign = TextAlign.Center,
+                    text = lesson.teacher.replace("\n", ""),
+                    overflow = TextOverflow.Clip,
+                    maxLines = 1,
+                    )
                 val roomColor =  if (lesson.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
 
                 Text(

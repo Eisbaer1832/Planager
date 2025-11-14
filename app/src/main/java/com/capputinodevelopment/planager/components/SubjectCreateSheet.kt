@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -45,6 +47,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.DataSharer
@@ -112,7 +115,7 @@ fun SubjectCreateSheet (
 
     val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
 
-    val subject = TextFieldState(lesson.subject)
+    val subject = remember { TextFieldState(lesson.subject.filter { !it.isDigit() }) }
     val teacher = TextFieldState(lesson.teacher)
     val room = TextFieldState(lesson.room)
     val pos = lesson.pos
@@ -159,11 +162,17 @@ fun SubjectCreateSheet (
                         .height(70.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     OutlinedTextField(
                         modifier = Modifier.padding(end= 16.dp),
                         leadingIcon = {Icon(Icons.Default.School, "Subject Icon") },
                         label = {Text("Fach")},
                         state = subject,
+                        inputTransformation = {
+                            if (asCharSequence().any { !it.isLetter() && !it.isWhitespace() }) {
+                                revertAllChanges()
+                            }
+                        }
                     )
 
                     FilledIconButton(
@@ -283,7 +292,7 @@ fun SubjectCreateSheet (
                             }
                             scope.launch {
                                 userSettings.updateCustomSubjects(newCustomSubjects)
-                                println("subjects: " + newCustomSubjects)
+                                println("subjects: $newCustomSubjects")
                                 if (!sheetState.isVisible) {
                                     showBottomSheet.value = false
                                 }
@@ -326,17 +335,16 @@ fun saveSubject(lesson:lesson, saved:MutableMap<Int, MutableMap<DayOfWeek, List<
 }
 
 fun deleteSubject(lesson:lesson, saved:MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>, pos: Int, day: DayOfWeek): MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>> {
-    val newCustomSubjects = saved
-    val dayList = newCustomSubjects[pos]?:mutableMapOf()
+    val dayList = saved[pos]?:mutableMapOf()
 
     val posSubjects = dayList[day]?.toMutableList() ?: mutableListOf()
     posSubjects.removeAll { it.id == lesson.id }
 
-    newCustomSubjects[pos]?.put(day, posSubjects)
+    saved[pos]?.put(day, posSubjects)
 
     dayList[day] = posSubjects
-    newCustomSubjects[pos] = dayList
-    return newCustomSubjects
+    saved[pos] = dayList
+    return saved
 }
 
 fun getCompanionLesson(pos: Int): Int {
