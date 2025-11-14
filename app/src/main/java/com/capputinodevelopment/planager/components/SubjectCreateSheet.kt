@@ -168,11 +168,6 @@ fun SubjectCreateSheet (
                         leadingIcon = {Icon(Icons.Default.School, "Subject Icon") },
                         label = {Text("Fach")},
                         state = subject,
-                        inputTransformation = {
-                            if (asCharSequence().any { !it.isLetter() && !it.isWhitespace() }) {
-                                revertAllChanges()
-                            }
-                        }
                     )
 
                     FilledIconButton(

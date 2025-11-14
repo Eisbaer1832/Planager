@@ -278,7 +278,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                             var show = true
                                             val lesson = totalSubjects[j]
                                             val currentSubject = lesson.subject
-                                            if (doFilter) {
+                                            if (doFilter && !lesson.custom) {
                                                 if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(
                                                         Regex("-P")
                                                     ) || currentSubject.contains(Regex("-W")) || lesson.ag
