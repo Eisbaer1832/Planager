@@ -20,9 +20,7 @@ fun Application.configureRouting() {
             val username = call.request.queryParameters["username"] ?: ""
             val password = call.request.queryParameters["password"] ?: ""
 
-            val client = HttpClient()
-            //val authString = "schueler:s292q17"
-            ///53102849/mobil/mobdaten/PlanKl20251117.xml
+            val client = HttpClient()            
             val authString = "$username:$password"
             val encodedAuth = Base64.getEncoder().encodeToString(authString.toByteArray())
             println(path)
