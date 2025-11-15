@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
-    id("com.mikepenz.aboutlibraries.plugin.android") version "13.0.0-rc01"
+    id("com.mikepenz.aboutlibraries.plugin.android") version "13.1.0"
 }
 
 kotlin {
@@ -52,11 +52,12 @@ kotlin {
     wasmJs {
         browser()
         binaries.executable()
+
     }
 
     sourceSets {
         androidMain.dependencies {
-            implementation(compose.preview)
+            implementation(libs.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kotlinx.coroutines.android)
@@ -66,23 +67,23 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation("org.jetbrains.compose.material3:material3:1.10.0-alpha02")
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
+            implementation(libs.runtime)
+            implementation(libs.foundation)
+            implementation(libs.material3)
+            implementation(libs.ui)
+            implementation(libs.components.resources)
+            implementation(libs.ui.tooling.preview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(compose.materialIconsExtended)
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
-            implementation("com.russhwolf:multiplatform-settings:1.3.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+            implementation(libs.material.icons.extended)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.multiplatform.settings)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.coroutines.core)
-            implementation("com.fleeksoft.ksoup:ksoup:0.2.5")
-            implementation("com.fleeksoft.ksoup:ksoup-kotlinx:0.2.5")
-            implementation(compose.components.resources)
+            implementation(libs.ksoup)
+            implementation(libs.ksoup.kotlinx)
+            implementation(libs.components.resources)
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.core)
             implementation(libs.aboutlibraries.compose.m3)
@@ -94,10 +95,24 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation("io.ktor:ktor-client-cio:3.3.1")
+            implementation(libs.ktor.client.cio)
+        }
+        jsMain.dependencies {
+            implementation(libs.html.core)
+        }
+        val jsMain by getting {
+            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3Api")
+            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3ExpressiveApi")
+        }
+
+        val wasmJsMain by getting {
+            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3Api")
+            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3ExpressiveApi")
         }
     }
 }
+
+
 
 android {
     namespace = "com.capputinodevelopment.planager"

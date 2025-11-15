@@ -1,7 +1,6 @@
 package com.capputinodevelopment.planager.data
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.SliderState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -11,14 +10,8 @@ import com.capputinodevelopment.planager.data.backend.fixDay
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlin.collections.HashMap
-import kotlin.concurrent.Volatile
 import com.russhwolf.settings.set
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.internal.SynchronizedObject
-import kotlinx.coroutines.internal.synchronized
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 
@@ -42,29 +35,18 @@ object DataSharer {
 class UserSettings private constructor(private val settings: Settings) {
 
     companion object {
-        @Volatile
         private var INSTANCE: UserSettings? = null
 
-        @OptIn(InternalCoroutinesApi::class)
-        private val INSTANCE_LOCK: SynchronizedObject = Any() as SynchronizedObject
-
-        @OptIn(InternalCoroutinesApi::class)
         fun getInstance(settings: Settings): UserSettings {
-            return INSTANCE ?: kotlin.run {
-                synchronized(INSTANCE_LOCK) {
-                    INSTANCE ?: UserSettings(settings).also { INSTANCE = it }
-                }
-            }
+            return INSTANCE ?: UserSettings(settings).also { INSTANCE = it }
         }
 
-        // Shared Json instance for all encode/decode
         val JsonFormat = Json {
             encodeDefaults = true
             ignoreUnknownKeys = true
             prettyPrint = false
         }
 
-        // KMP-safe helper to decode JSON with default fallback
         inline fun <reified T> decodeOrDefault(json: String, defaultJson: String): T {
             return try {
                 JsonFormat.decodeFromString(json.ifEmpty { defaultJson })
