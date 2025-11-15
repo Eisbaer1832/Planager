@@ -1,9 +1,9 @@
 package com.capputinodevelopment.planager.data
 
 import com.capputinodevelopment.planager.data.backend.LocalTimeSerializer
+import kotlinx.datetime.LocalTime
 import kotlinx.serialization.Serializable
 import java.time.LocalTime
-import java.util.UUID
 
 @Serializable
 data class lesson(

@@ -1,20 +1,24 @@
 package com.capputinodevelopment.planager.data
 
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.font.Font
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
-import com.capputinodevelopment.planager.R
+import org.jetbrains.compose.resources.Font
+import planager.composeapp.generated.resources.Res
+import planager.composeapp.generated.resources.robotoflex_variable
 
-@OptIn(ExperimentalTextApi::class)
-val RobotoFlexVariable = FontFamily(
+
+@Composable
+fun RobotoFlexVariable(): FontFamily = FontFamily(
     Font(
-        R.font.robotoflex_variable,
+        Res.font.robotoflex_variable,
         variationSettings = FontVariation.Settings(
-            FontVariation.grade(10),
-            FontVariation.weight(850),
-            FontVariation.width(40f),
-            FontVariation.slant(-20f),
+            *arrayOf(
+                FontVariation.grade(10),
+                FontVariation.weight(850),
+                FontVariation.width(30f),
+                FontVariation.slant(-20f)
+            )
         )
     )
 )

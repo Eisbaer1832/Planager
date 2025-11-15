@@ -1,5 +1,6 @@
 package com.capputinodevelopment.planager.Screens
 
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -29,19 +30,20 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+========
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -77,10 +79,137 @@ import kotlinx.coroutines.withContext
 fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePassed: LocalDate) {
     val context = LocalContext.current
     val userSettings = UserSettings.getInstance(context.applicationContext)
+========
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.capputinodevelopment.planager.data.DataSharer
+import com.capputinodevelopment.planager.data.DataSharer.FilterClass
+import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
+import com.capputinodevelopment.planager.data.DataSharer.doFilter
+import com.capputinodevelopment.planager.data.GlobalPlan.days
+import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.backend.fixDay
+import com.capputinodevelopment.planager.data.backend.getLessons
+import com.capputinodevelopment.planager.data.getToday
+import com.capputinodevelopment.planager.data.lesson
+import com.capputinodevelopment.planager.data.nextOrSame
+import com.capputinodevelopment.planager.data.previousOrSame
+import com.capputinodevelopment.planager.data.previousOrSameMonday
+import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import io.ktor.client.request.invoke
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.plus
+
+
+@Composable
+fun SmallLessonCard (lesson: lesson) {
+    val configuration = LocalWindowInfo.current.containerSize
+    val screenWidth = configuration.width.dp
+
+    Card(
+        modifier = Modifier
+            .width(screenWidth / 6)
+            .padding(3.dp)
+
+
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Surface  (
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text(
+                    fontSize = 16.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = lesson.subject
+                )
+            }
+            Text(
+                text = lesson.teacher
+            )
+            val roomColor =  if (lesson.roomChanged) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+
+            Text(
+                text = lesson.room,
+                color = roomColor
+
+            )
+        }
+    }
+}
+
+
+@Composable
+fun SmallLessonCardCanceled (lesson: lesson) {
+    val configuration = LocalWindowInfo.current.containerSize
+    val screenWidth = configuration.width.dp
+
+    var text = lesson.subject
+    text = text
+        .replace(Regex("fällt aus"), "")
+        .replace(Regex("Herr"), "")
+        .replace(Regex("Frau"), "")
+    val textArray = text.split("  ") //yes actually 2 spaces
+
+    Card(
+        modifier = Modifier
+            .width(screenWidth / 6)
+            .padding(3.dp)
+            .height(70.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.error,
+            ) {
+                Text(
+                    fontSize = 19.sp,
+                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = textArray[0]
+                )
+            }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                text = textArray[1]
+            )
+        }
+    }
+
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
     val subjectsToShow by userSettings.ownSubjects.collectAsState(initial = HashMap())
     val friendsSubjects by userSettings.friendsSubjects.collectAsState(initial = HashMap())
     var week by remember { mutableStateOf(arrayListOf<ArrayList<lesson>>()) }
     var isLoading by remember { mutableStateOf(true) }
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
     val formatterDisplay = DateTimeFormatter.ofPattern("dd.MM.")
     var date = datePassed.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     date = fixDay(null, date)
@@ -95,6 +224,17 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
     val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
     val customColor = userSettings.customSubjectsColor.collectAsState("")
 
+========
+
+    var current = fixDay(getToday())
+    current = previousOrSameMonday(current)
+
+    var orderedWeek: HashMap<Int, ArrayList<ArrayList<lesson>>> = HashMap()
+    val filter by remember { DataSharer::FilterClass }
+    var refreshTrigger by remember { mutableIntStateOf(0) }
+    val ownClass by userSettings.ownClass.collectAsState(initial = "")
+    var weekDates = ArrayList<LocalDate>()
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
     if (filter.isEmpty()) {
         FilterClass = ownClass
     }
@@ -109,6 +249,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
         week = arrayListOf<ArrayList<lesson>>()
         weekDates = ArrayList<LocalDate>()
         for (i in 0..4) {
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
             println("cdom: "+ date.dayOfMonth)
             val lesson = getLessons(userSettings,date,context = context)
 
@@ -118,12 +259,30 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                 weekDates.add( today.with(TemporalAdjusters.previousOrSame(date.dayOfWeek)))
             }else{
                 weekDates.add(today.with(TemporalAdjusters.nextOrSame(date.dayOfWeek)))
+========
+            println("cdom: "+ current.day)
+            val lesson =
+                getLessons(
+                    userSettings,
+                    current.dayOfWeek,
+                )
+
+            var today = fixDay(getToday())
+            if (today.dayOfWeek > current.dayOfWeek) {
+                weekDates.add(previousOrSame(today, current.dayOfWeek))
+            }else{
+                weekDates.add(nextOrSame(today, current.dayOfWeek))
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
             }
 
 
             if (lesson != null) {
                 week.add(lesson)
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
                 date = date.plusDays(1)
+========
+                current = current.plus(1, DateTimeUnit.DAY)
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
             }
 
 
@@ -152,8 +311,8 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
         refreshTrigger++ // this is a bit dumm, since it takes up memory space - should probaply reimplemented in the future #TODO
     }
 
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
+    val configuration = LocalWindowInfo.current.containerSize
+    val screenWidth = configuration.width.dp
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -201,18 +360,22 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(top=5.dp, start = 5.dp, end = 10.dp)
                                 )
-                                val dayofWeek = if (!weekDates.isEmpty()) weekDates[i].format(formatterDisplay) else ""
+                                val dayofWeek = if (!weekDates.isEmpty()) weekDates[i].day else ""
                                 Text(
                                     modifier = Modifier.padding(bottom=5.dp, start = 5.dp, end = 0.dp),
-
-                                    text = dayofWeek,
+                                    text = dayofWeek.toString(),
                                 )
                             }
                         }
                     }
                 }
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
                 // this loop draws the week by position then day of week
                 for ( pos in 1..11 ) {
+========
+                for ( pos in 1..<orderedWeek.size) {
+
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
                     Row {
                         Card(
                             modifier = Modifier
@@ -251,7 +414,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                             for (i in 0..<(orderedWeek[pos]?.size ?: 0)) {
                                 val customSubjects = savedCustomSubjects.value[pos]?.get(DayOfWeek.of(i +1))?:listOf()
                                 if (orderedWeek[pos]?.get(i)?.isEmpty() == true) {
-                                    Spacer(modifier = Modifier.width(configuration.screenWidthDp.dp / 6))
+                                    Spacer(modifier = Modifier.width(screenWidth / 6))
                                 } else {
                                     Column (
                                         Modifier.animateContentSize()
@@ -276,6 +439,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
 
                                         for (j in 0..< totalSubjects.size) {
                                             var show = true
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
                                             val lesson = totalSubjects[j]
                                             val currentSubject = lesson.subject
                                             if (doFilter && !lesson.custom) {
@@ -287,6 +451,17 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                         subjectsToShow[currentSubject.substringBefore(" ")] == true
                                                     } else {
                                                         friendsSubjects[FilterFriend]?.get(currentSubject.substringBefore(" ")) == true
+========
+                                            val lesson = orderedWeek[pos]?.get(i)?.get(j)?: lesson()
+                                            val currentSubject = lesson.subject
+                                            if (doFilter){
+                                                if (currentSubject.contains(Regex("\\d")) || currentSubject.contains(Regex("-P")) || currentSubject.contains(Regex("-W")) || lesson.ag) {
+                                                    println("filtering object$currentSubject")
+                                                    if (FilterFriend == "") {
+                                                        show = subjectsToShow[currentSubject.substringBefore(" ")] == true
+                                                    }else {
+                                                        show = friendsSubjects.get(FilterFriend)?.get(currentSubject.substringBefore(" ")) == true
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
                                                     }
                                                 }
 
@@ -299,7 +474,23 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                             var visible by remember { mutableStateOf(true) }
                                             LaunchedEffect(Unit) {
 
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/WeekView.kt
                                                 visible = true
+========
+                                            if (show){
+                                                val subject = orderedWeek.get(pos)?.get(i)?.get(j) ?: lesson()
+                                                if (subject.canceled) {
+                                                    SmallLessonCardCanceled(
+                                                        subject
+                                                    )
+                                                }else {
+                                                    SmallLessonCard(
+                                                        subject
+                                                    )
+                                                }
+                                            } else {
+                                                Spacer(modifier = Modifier.width(screenWidth / 6))
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/WeekView.kt
                                             }
                                             AnimatedVisibility(
                                                 visible = visible,

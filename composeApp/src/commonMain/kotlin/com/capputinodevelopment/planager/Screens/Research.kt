@@ -1,5 +1,9 @@
 package com.capputinodevelopment.planager.Screens
 
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/Research.kt
+========
+
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Research.kt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,10 +61,12 @@ import com.capputinodevelopment.planager.data.DataSharer.roundShape
 import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
+import com.capputinodevelopment.planager.data.getToday
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.data.research.ResearchWeek
 import com.capputinodevelopment.planager.data.research.SearchObject
 import com.capputinodevelopment.planager.data.research.getResearchData
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/Research.kt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -68,6 +74,14 @@ import java.time.LocalTime
 import java.time.temporal.TemporalAdjusters
 import java.util.ArrayList
 
+========
+import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Research.kt
 @Composable
 fun ResearchHeading(text: String) {
     Row(
@@ -78,7 +92,7 @@ fun ResearchHeading(text: String) {
         Text(
             fontSize = 40.sp,
             textAlign = TextAlign.Center,
-            fontFamily = RobotoFlexVariable,
+            fontFamily = RobotoFlexVariable(),
             text = text
         )
     }
@@ -243,13 +257,17 @@ fun ResearchLessonCard(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/Research.kt
 fun ResearchView(modifier: Modifier = Modifier) {
     val context = LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val current = fixDay( LocalTime.now(), LocalDate.now())
+========
+fun ResearchView(name: String, modifier: Modifier = Modifier, userSettings: UserSettings) {
+    val current = fixDay( getToday())
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Research.kt
 
     var dataToSearch by remember { mutableStateOf(ResearchWeek()) }
     val dayToSearch = DataSharer.searchDay.value
@@ -265,29 +283,33 @@ fun ResearchView(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit, dayToSearch) {
         println("daytoSearch $dayToSearch")
         loading = true
+<<<<<<<< HEAD:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Screens/Research.kt
         val research = withContext(Dispatchers.IO) {
             getResearchData(userSettings, context, current.with(TemporalAdjusters.nextOrSame(dayToSearch)))
         }
         dataToSearch = research
+========
+        dataToSearch = getResearchData(userSettings, dayToSearch)
+>>>>>>>> origin/kmp:composeApp/src/commonMain/kotlin/com/capputinodevelopment/planager/Research.kt
         loading = false
     }
 
     if (isLehrerSelected) {
         dataToSearch.teachers.values.map { teacher ->
-            teacher.days.value[dayToSearch]?.getOrNull(0)?.teacher?.let {
-                val searchObject = SearchObject(it, Icons.Default.School)
-                if (!items.contains(searchObject))items.add(searchObject)
-            }
-        }
+            teacher.days.value[dayToSearch]?.getOrNull(0)?.room?.let {
+                val searchObject = SearchObject(it, Icons.Default.Room)
+                if (!items.contains(searchObject)) items.add(searchObject)
+            } }
     }
 
     if (isRaeumeSelected) {
-        dataToSearch.rooms.values.map { room ->
+        dataToSearch.rooms.values.forEach { room ->
             room.days.value[dayToSearch]?.getOrNull(0)?.room?.let {
                 val searchObject = SearchObject(it, Icons.Default.Room)
-                if (!items.contains(searchObject))items.add(searchObject) }
-
+                if (!items.contains(searchObject)) items.add(searchObject)
+            }
         }
+
     }
 
 

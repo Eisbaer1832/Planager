@@ -3,7 +3,7 @@ package com.capputinodevelopment.planager.data.research
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.capputinodevelopment.planager.data.lesson
-import java.time.DayOfWeek
+import kotlinx.datetime.DayOfWeek
 
 data class Data(
     var days: MutableState<MutableMap<DayOfWeek, ArrayList<lesson>>> = mutableStateOf(

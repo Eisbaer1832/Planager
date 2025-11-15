@@ -1,29 +1,20 @@
 package com.capputinodevelopment.planager.data
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.SliderState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.capputinodevelopment.planager.data.backend.fixDay
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.serialization.json.Json
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalTime
 import kotlin.collections.HashMap
+import com.russhwolf.settings.set
+import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.json.Json
 
 
-@SuppressLint("MutableCollectionMutableState")
 object DataSharer {
     var doFilter by mutableStateOf(true)
     var NavbarSelectedItem by mutableIntStateOf(0)
@@ -40,202 +31,109 @@ object DataSharer {
 }
 
 
-val Context.dataStore by preferencesDataStore("user_settings")
 
-
-class UserSettings private constructor(private val appContext: Context) {
-    private val dataStore = appContext.dataStore
-
-    val friendsSubjects: Flow<HashMap<String, HashMap<String, Boolean>>> = dataStore.data.map { preferences ->
-        preferences[FRIENDS_SUBJECTS]?.let { json ->
-            Json.decodeFromString<HashMap<String, HashMap<String, Boolean>>>(json)
-        } ?: HashMap()
-    }
-    suspend fun updateFriendsSubjects(newMap: HashMap<String, HashMap<String, Boolean>>) {
-        dataStore.edit { settings ->
-            settings[FRIENDS_SUBJECTS] = Json.encodeToString(newMap)
-        }
-    }
-
-    val friendsClass: Flow<HashMap<String, String>> = dataStore.data.map { preferences ->
-        preferences[FRIENDS_CLASS]?.let { json ->
-            Json.decodeFromString<HashMap<String, String>>(json)
-        } ?: HashMap()
-    }
-    suspend fun updateFriendsClass(newMap: HashMap<String, String>) {
-        dataStore.edit { settings ->
-            settings[FRIENDS_CLASS] = Json.encodeToString(newMap)
-        }
-    }
-
-    val notificationHistory: Flow<NotificationHistory> = dataStore.data.map { preferences ->
-        preferences[NOTIFICATION_HISTORY]?.let { json ->
-            Json.decodeFromString<NotificationHistory>(json)
-        }?: NotificationHistory(LocalDate.now(), emptyList())
-    }
-
-    suspend fun updateRoomWidgetCash(newList: lesson) {
-        dataStore.edit { settings ->
-            settings[ROOM_WIDGET_CACHE] = Json.encodeToString(newList)
-        }
-    }
-    val dayWidgetCash: Flow<ArrayList<lesson>> = dataStore.data.map { preferences ->
-        preferences[DAY_WIDGET_CACHE]?.let { json ->
-            Json.decodeFromString<ArrayList<lesson>>(json)
-        }?: arrayListOf(lesson())
-    }
-
-    suspend fun updateDayWidgetCash(newList: ArrayList<lesson>) {
-        dataStore.edit { settings ->
-            settings[DAY_WIDGET_CACHE] = Json.encodeToString(newList)
-        }
-    }
-    val roomWidgetCash: Flow<lesson> = dataStore.data.map { preferences ->
-        preferences[ROOM_WIDGET_CACHE]?.let { json ->
-            Json.decodeFromString<lesson>(json)
-        }?: lesson()
-    }
-
-    suspend fun updateNotificationHistory(newList: NotificationHistory) {
-        dataStore.edit { settings ->
-            settings[NOTIFICATION_HISTORY] = Json.encodeToString(newList)
-        }
-    }
-
-    val ownSubjects: Flow<HashMap<String, Boolean>> = dataStore.data.map { preferences ->
-        preferences[OWN_SUBJECTS]?.let { json ->
-            Json.decodeFromString<HashMap<String, Boolean>>(json)
-        } ?: HashMap()
-    }
-    suspend fun updateOwnSubjects(newMap: HashMap<String, Boolean>) {
-        dataStore.edit { settings ->
-            settings[OWN_SUBJECTS] = Json.encodeToString(newMap)
-        }
-    }
-
-    val showTeacher = dataStore.data.map { preferences ->
-        preferences[SHOW_TEACHERS] ?: false
-    }
-
-    suspend fun updateShowTeachers(value: Boolean) {
-        dataStore.edit { settings ->
-            settings[SHOW_TEACHERS] = value
-        }
-    }
-
-
-    val ownClass = dataStore.data.map { preferences ->
-        preferences[OWN_CLASS] ?: ""
-    }
-    suspend fun updateOwnClass(value: String) {
-        dataStore.edit { settings ->
-            settings[OWN_CLASS] = value
-        }
-    }
-
-    val schoolID = dataStore.data.map { preferences ->
-        preferences[SCHOOL_ID] ?: ""
-    }
-
-    suspend fun updateSchoolID(value: String) {
-        dataStore.edit { settings ->
-            settings[SCHOOL_ID] = value
-        }
-    }
-    val username = dataStore.data.map { preferences ->
-        preferences[USERNAME] ?: ""
-    }
-
-    suspend fun updateUsername(value: String) {
-        dataStore.edit { settings ->
-            settings[USERNAME] = value
-        }
-    }
-    val password = dataStore.data.map { preferences ->
-        preferences[PASSWORD] ?: ""
-    }
-
-
-    suspend fun updatePassword(value: String) {
-        dataStore.edit { settings ->
-            settings[PASSWORD] = value
-        }
-    }
-
-    val onboarding = dataStore.data.map { preferences ->
-        preferences[ONBOARDING] ?: true
-    }
-
-    suspend fun updateOnboarding(value: Boolean) {
-        dataStore.edit { settings ->
-            settings[ONBOARDING] = value
-        }
-    }
-
-    val defaultScreen = dataStore.data.map { preferences ->
-        preferences[DEFAULT_SCREEN] ?: "Tagesplan"
-    }
-    suspend fun updateDefaultScreen(value: String) {
-        dataStore.edit { settings ->
-            settings[DEFAULT_SCREEN] = value
-        }
-    }
-
-    suspend fun updateCustomSubjects(newList: MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>) {
-        dataStore.edit { settings ->
-            settings[CUSTOM_SUBJECTS] = Json.encodeToString(newList)
-        }
-    }
-    val customSubjects: Flow<MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>> = dataStore.data.map { preferences ->
-        preferences[CUSTOM_SUBJECTS]?.let { json ->
-            Json.decodeFromString<MutableMap<Int, MutableMap<DayOfWeek, List<lesson>>>>(json)
-        }?: mutableMapOf()
-    }
-
-    val customSubjectsColor = dataStore.data.map { preferences ->
-        preferences[CUSTOM_SUBJECTS_COLOR] ?: "Primär"
-    }
-    suspend fun updateCustomSubjectsColor(value: String) {
-        dataStore.edit { settings ->
-            settings[CUSTOM_SUBJECTS_COLOR] = value
-        }
-    }
-
-    val themeMode: Flow<String?> = dataStore.data.map { preferences ->
-        preferences[THEME_MODE]
-    }
-
-    suspend fun updateThemeMode(value: String) {
-        dataStore.edit { settings ->
-            settings[THEME_MODE] = value
-        }
-    }
+class UserSettings private constructor(private val settings: Settings) {
 
     companion object {
-        @Volatile
         private var INSTANCE: UserSettings? = null
 
-        private val SHOW_TEACHERS = booleanPreferencesKey("show_teachers")
-        private val OWN_SUBJECTS = stringPreferencesKey("own_subjects")
-        private val OWN_CLASS = stringPreferencesKey("own_class")
-        private val FRIENDS_SUBJECTS = stringPreferencesKey("friends_subjects")
-        private val FRIENDS_CLASS = stringPreferencesKey("friends_class")
-        private val SCHOOL_ID = stringPreferencesKey("school_id")
-        private val USERNAME = stringPreferencesKey("username")
-        private val PASSWORD = stringPreferencesKey("password")
-        private val ONBOARDING = booleanPreferencesKey("onboarding")
-        private val NOTIFICATION_HISTORY = stringPreferencesKey("notification_history")
-        private val ROOM_WIDGET_CACHE = stringPreferencesKey("room_widget_cache")
-        private val DAY_WIDGET_CACHE = stringPreferencesKey("day_widget_cache")
-        private val DEFAULT_SCREEN = stringPreferencesKey("default_screen")
-        private val CUSTOM_SUBJECTS = stringPreferencesKey("custom_subjects")
-        private val CUSTOM_SUBJECTS_COLOR = stringPreferencesKey("custom_subjects_color")
-        private val THEME_MODE = stringPreferencesKey("theme_mode")
+        fun getInstance(settings: Settings): UserSettings {
+            return INSTANCE ?: UserSettings(settings).also { INSTANCE = it }
+        }
 
-        fun getInstance(context: Context): UserSettings {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: UserSettings(context.applicationContext).also { INSTANCE = it }
+        val JsonFormat = Json {
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+            prettyPrint = false
+        }
+
+        inline fun <reified T> decodeOrDefault(json: String, defaultJson: String): T {
+            return try {
+                JsonFormat.decodeFromString(json.ifEmpty { defaultJson })
+            } catch (_: Exception) {
+                JsonFormat.decodeFromString(defaultJson)
             }
         }
     }
+
+    // --- Friends Subjects ---
+    val friendsSubjects: Flow<HashMap<String, HashMap<String, Boolean>>> = flow {
+        val json = settings.getString("friends_subjects", "{}")
+        emit(decodeOrDefault(json, "{}"))
+    }
+
+    fun updateFriendsSubjects(newMap: HashMap<String, HashMap<String, Boolean>>) {
+        settings["friends_subjects"] = JsonFormat.encodeToString(newMap)
+    }
+
+    // --- Friends Class ---
+    val friendsClass: Flow<HashMap<String, String>> = flow {
+        val json = settings.getString("friends_class", "{}")
+        emit(decodeOrDefault(json, "{}"))
+    }
+
+    fun updateFriendsClass(newMap: HashMap<String, String>) {
+        settings["friends_class"] = JsonFormat.encodeToString(newMap)
+    }
+
+    // --- Notification History ---
+    val notificationHistory: Flow<NotificationHistory> = flow {
+        val json = settings.getString("notification_history", "{}")
+        emit(decodeOrDefault(json, JsonFormat.encodeToString(NotificationHistory(getToday().date, emptyList()))))
+    }
+
+    fun updateNotificationHistory(newList: NotificationHistory) {
+        settings["notification_history"] = JsonFormat.encodeToString(newList)
+    }
+
+    // --- Day Widget Cache ---
+    val dayWidgetCache: Flow<ArrayList<lesson>> = flow {
+        val json = settings.getString("day_widget_cache", "[]")
+        emit(decodeOrDefault(json, "[]"))
+    }
+
+    fun updateDayWidgetCache(newList: ArrayList<lesson>) {
+        settings["day_widget_cache"] = JsonFormat.encodeToString(newList)
+    }
+
+    // --- Room Widget Cache ---
+    val roomWidgetCache: Flow<lesson> = flow {
+        val json = settings.getString("room_widget_cache", "{}")
+        emit(decodeOrDefault(json, JsonFormat.encodeToString(lesson())))
+    }
+
+    fun updateRoomWidgetCache(newValue: lesson) {
+        settings["room_widget_cache"] = JsonFormat.encodeToString(newValue)
+    }
+
+    // --- Own Subjects ---
+    val ownSubjects: Flow<HashMap<String, Boolean>> = flow {
+        val json = settings.getString("own_subjects", "{}")
+        emit(decodeOrDefault(json, "{}"))
+    }
+
+    fun updateOwnSubjects(newMap: HashMap<String, Boolean>) {
+        settings["own_subjects"] = JsonFormat.encodeToString(newMap)
+    }
+
+
+
+    // --- Simple Booleans and Strings ---
+    val showTeacher: Flow<Boolean> = flow { emit(settings.getBoolean("show_teachers", false)) }
+    fun updateShowTeachers(value: Boolean) { settings["show_teachers"] = value }
+
+    val ownClass: Flow<String> = flow { emit(settings.getString("own_class", "")) }
+    fun updateOwnClass(value: String) { settings["own_class"] = value }
+
+    val schoolID: Flow<String> = flow { emit(settings.getString("school_id", "")) }
+    fun updateSchoolID(value: String) { settings["school_id"] = value }
+
+    val username: Flow<String> = flow { emit(settings.getString("username", "")) }
+    fun updateUsername(value: String) { settings["username"] = value }
+
+    val password: Flow<String> = flow { emit(settings.getString("password", "")) }
+    fun updatePassword(value: String) { settings["password"] = value }
+
+    val onboarding: Flow<Boolean> = flow { emit(settings.getBoolean("onboarding", true)) }
+    fun updateOnboarding(value: Boolean) { settings["onboarding"] = value }
 }
