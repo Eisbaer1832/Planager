@@ -87,7 +87,9 @@ kotlin {
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.core)
             implementation(libs.aboutlibraries.compose.m3)
-
+            implementation(libs.kmpauth.google.z)
+            implementation(libs.kmpauth.firebase.z)
+            implementation(libs.kmpauth.uihelper.z)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

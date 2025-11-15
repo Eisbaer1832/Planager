@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,9 +27,7 @@ fun App() {
 
         val settings = provideSettings()
         val userSettings = UserSettings.getInstance(settings)
-        userSettings.updatePassword("s292q17")
-        userSettings.updateSchoolID("53102849")
-        userSettings.updateUsername("schueler")
+
 
         Scaffold(
             snackbarHost = {
@@ -43,23 +42,24 @@ fun App() {
                     1 -> TopBar("Wochenplan", true, userSettings)
                     3 -> TopBar("Einstellungen", false, userSettings)
                 }
-            }, bottomBar = {
-                NavBar(currentScreen) { currentScreen = it } }
+            }
         ){ innerPadding ->
-            AnimatedContent(
-                targetState = currentScreen,
-                transitionSpec = {
-                    slideInHorizontally { width -> width }.togetherWith(slideOutHorizontally { width -> -width })
-                }
-            ) { screen ->
-                when (screen) {
-                    0 -> Greeting(name = "Android", modifier = Modifier.padding(innerPadding), userSettings)
-                    1 -> WeekView(modifier = Modifier.padding(innerPadding), userSettings)
-                    2 -> ResearchView(name="Recherche", modifier = Modifier.padding(innerPadding), userSettings)
-                    3 -> Settings(modifier = Modifier.padding(innerPadding), snackbarHostState, userSettings)
+            Row {
+                NavBar(currentScreen,padding = innerPadding, onNavigate = { currentScreen = it })
+                AnimatedContent(
+                    targetState = currentScreen,
+                    transitionSpec = {
+                        slideInHorizontally { width -> width }.togetherWith(slideOutHorizontally { width -> -width })
+                    }
+                ) { screen ->
+                    when (screen) {
+                        0 -> Greeting(name = "Android", modifier = Modifier.padding(innerPadding), userSettings)
+                        1 -> WeekView(modifier = Modifier.padding(innerPadding), userSettings)
+                        2 -> ResearchView(name="Recherche", modifier = Modifier.padding(innerPadding), userSettings)
+                        3 -> Settings(modifier = Modifier.padding(innerPadding), snackbarHostState, userSettings)
+                    }
                 }
             }
-
         }
     }
 }
