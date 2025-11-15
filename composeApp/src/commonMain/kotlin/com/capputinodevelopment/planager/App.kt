@@ -16,10 +16,9 @@ import com.capputinodevelopment.planager.components.SliderToolBar
 import com.capputinodevelopment.planager.components.TopBar
 import com.capputinodevelopment.planager.data.UserSettings
 import com.russhwolf.settings.Settings
-import org.jetbrains.compose.ui.tooling.preview.Preview
 expect fun provideSettings(): Settings
+
 @Composable
-@Preview
 fun App() {
     MaterialTheme {
         var currentScreen by remember { mutableStateOf(0) }
@@ -27,6 +26,9 @@ fun App() {
 
         val settings = provideSettings()
         val userSettings = UserSettings.getInstance(settings)
+        userSettings.updatePassword("s292q17")
+        userSettings.updateSchoolID("53102849")
+        userSettings.updateUsername("schueler")
 
         Scaffold(
             snackbarHost = {

@@ -35,10 +35,8 @@ suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings): String {
         generateSequence(current) { it.plus(1, DateTimeUnit.DAY) }
             .first { it.dayOfWeek == day }
     }
-
-    val currentAsString = current.format(LocalDate.Format {
-        current.day.toString() + current.month + current.year
-    })
+    val currentAsString = current.toString().replace("-", "")
+    println("c: "+ currentAsString)
 
 
     var dayXML= days.value[day]?:""

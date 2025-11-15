@@ -77,13 +77,7 @@ suspend fun fetchTimetable(
     println("using: https://www.stundenplan24.de/$schoolID$url for outgoing network call")
 
     return try {
-        client.get("https://www.stundenplan24.de/$schoolID$url") {
-            username.let { user ->
-                password.let { pwd ->
-                    headers.append(HttpHeaders.Authorization, "$user:$pwd")
-                }
-            }
-        }.bodyAsText()
+        client.get("http://127.0.0.1:1202/$schoolID$url?username=$username&password=$password").bodyAsText()
     } catch (e: Exception) {
         e.printStackTrace()
         ""
