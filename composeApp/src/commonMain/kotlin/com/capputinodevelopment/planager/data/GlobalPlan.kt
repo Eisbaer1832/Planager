@@ -26,9 +26,9 @@ object GlobalPlan {
 suspend fun getDayXML(day: DayOfWeek, userSettings: UserSettings): String {
 
 
-    val current = fixDay( getToday())
+    var current = fixDay( getToday())
 
-    if (current.dayOfWeek > day) {
+    current = if (current.dayOfWeek > day) {
         generateSequence(current) { it.minus(1, DateTimeUnit.DAY) }
             .first { it.dayOfWeek == day }
     }else{

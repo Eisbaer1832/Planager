@@ -157,17 +157,14 @@ fun WeekView(modifier: Modifier = Modifier, userSettings: UserSettings) {
     LaunchedEffect(Unit, filter, refreshTrigger) {
         // loading a full school week
         isLoading = true
-        week = arrayListOf<ArrayList<lesson>>()
-        weekDates = ArrayList<LocalDate>()
+        week = arrayListOf()
+        weekDates = ArrayList()
         for (i in 0..4) {
-            println("cdom: "+ current.day)
+            println("cdom: "+ current.dayOfWeek)
             val lesson =
-                getLessons(
-                    userSettings,
-                    current.dayOfWeek,
-                )
+                getLessons(userSettings,current.dayOfWeek)
 
-            var today = fixDay(getToday())
+            val today = fixDay(getToday())
             if (today.dayOfWeek > current.dayOfWeek) {
                 weekDates.add(previousOrSame(today, current.dayOfWeek))
             }else{

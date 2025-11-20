@@ -87,9 +87,10 @@ kotlin {
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.core)
             implementation(libs.aboutlibraries.compose.m3)
-            implementation(libs.kmpauth.google.z)
-            implementation(libs.kmpauth.firebase.z)
-            implementation(libs.kmpauth.uihelper.z)
+            implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:3.2.6"))
+            implementation("io.github.jan-tennert.supabase:auth-kt:3.2.6")
+            implementation("io.github.jan-tennert.supabase:postgrest-kt:3.2.6")
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -102,15 +103,7 @@ kotlin {
         jsMain.dependencies {
             implementation(libs.html.core)
         }
-        val jsMain by getting {
-            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3Api")
-            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3ExpressiveApi")
-        }
 
-        val wasmJsMain by getting {
-            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3Api")
-            languageSettings.optIn("org.jetbrains.compose.material3.ExperimentalMaterial3ExpressiveApi")
-        }
     }
 }
 

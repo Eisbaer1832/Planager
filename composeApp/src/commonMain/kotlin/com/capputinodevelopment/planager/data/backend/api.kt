@@ -54,7 +54,7 @@ fun fixDay(current: LocalDateTime): LocalDate {
         else -> returnCurrent
     }
 
-    if (time > endOfDay) returnCurrent = day.plus(2,DateTimeUnit.DAY)
+    //if (time > endOfDay) returnCurrent = day.plus(2,DateTimeUnit.DAY)
 
     return returnCurrent
 }
