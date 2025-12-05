@@ -4,6 +4,7 @@ package com.capputinodevelopment.planager.Screens
 import android.Manifest
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -22,8 +23,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -52,6 +55,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.capputinodevelopment.planager.MainActivity
+import com.capputinodevelopment.planager.data.dataStore
+import com.capputinodevelopment.planager.ui.colors.ThemeStore
 import com.capputinodevelopment.planager.ui.theme.colors.blue.blueTheme
 import com.capputinodevelopment.planager.ui.theme.colors.green.greenTheme
 import com.capputinodevelopment.planager.ui.theme.colors.monetThemes
@@ -59,17 +64,19 @@ import com.capputinodevelopment.planager.ui.theme.colors.red.redTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.zaki.dynamic.core.adapter.Material3Adapter
 import com.zaki.dynamic.core.controller.ThemeController
+import com.zaki.dynamic.core.model.ThemeId
 import com.zaki.dynamic.core.provider.DynamicThemeProvider
+import com.zaki.dynamic.core.provider.PlatformSystemThemeProvider
 import com.zaki.dynamic.core.registry.DefaultThemeRegistryFactory
 import kotlinx.coroutines.delay
 
 class QrCodeScanActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
@@ -114,7 +121,22 @@ class QrCodeScanActivity : ComponentActivity() {
                         )
                     }
                 ){innerPadding ->
-                    QrCodeScanScreen(innerPadding, {})
+                    val permissionState = rememberPermissionState(Manifest.permission.CAMERA)
+                    if (permissionState.status.isGranted) {
+                        QrCodeScanScreen(innerPadding) {
+                            println("scanned: $it")
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Button(onClick = {permissionState.launchPermissionRequest()  }) {
+                                Text("Kamerazugriff erlauben")
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -125,7 +147,9 @@ fun QrCodeScanScreen(
     innerPadding: PaddingValues,
     onQrCodeDetected: (String) -> Unit, // Callback to handle detected QR/barcode
 ) {
-    var barcode by remember { mutableStateOf<String?>(null) }
+    var barcode by rememberSaveable { mutableStateOf<String?>("No Code Scanned") }
+
+
 
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -140,19 +164,15 @@ fun QrCodeScanScreen(
         modifier = Modifier.fillMaxSize().padding(innerPadding),
         factory = { ctx ->
             PreviewView(ctx).apply {
-                // Configure barcode scanning options for supported formats
                 val options = BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
-
-                // Initialize the barcode scanner client with the configured options
                 val barcodeScanner = BarcodeScanning.getClient(options)
 
-                // Set up the image analysis analyzer for barcode detection
                 cameraController.setImageAnalysisAnalyzer(
-                    ContextCompat.getMainExecutor(ctx), // Use the main executor
+                    ContextCompat.getMainExecutor(ctx),
                     MlKitAnalyzer(
-                        listOf(barcodeScanner), // Pass the barcode scanner
-                        ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED, // Use view-referenced coordinates
-                        ContextCompat.getMainExecutor(ctx) // Use the main executor
+                        listOf(barcodeScanner),
+                        ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
+                        ContextCompat.getMainExecutor(ctx)
                     ) { result: MlKitAnalyzer.Result? ->
 
                         // Process the barcode scanning results
@@ -190,7 +210,7 @@ fun DrawRectangle(rect: Rect?) {
                 color = Color.Red,
                 topLeft = Offset(it.left, it.top),
                 size = Size(it.width, it.height),
-                style = Stroke(width = 5f) // Use a stroke style with a width of 5f
+                style = Stroke(width = 5f)
             )
         }
     }

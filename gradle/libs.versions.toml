@@ -54,6 +54,7 @@ foundationLayoutVersion = "1.10.0"
 animation = "1.10.0"
 
 [libraries]
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences" }
 androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
