@@ -2,6 +2,7 @@ package com.capputinodevelopment.planager.components
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
@@ -58,6 +60,8 @@ fun SettingsCardEdit(
     size: Dp = 16.dp,
     onclick: () -> Unit,
     leadingIcon: Int? = null,
+    onclick2: () -> Unit = {},
+    buttonIcon2: ImageVector? = null,
 
     ) {
     Card(
@@ -79,17 +83,33 @@ fun SettingsCardEdit(
             }
             Text(title)
             Spacer(modifier = Modifier.weight(1f))
-            Button(
-                onClick = {onclick()},
-            ) {
-                Row (verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = buttonIcon,
-                        contentDescription = "Favorite",
-                        modifier = Modifier
-                            .size(30.dp)
-                    )
-                    Text(buttonText)
+            Row() {
+                if ( buttonIcon2 != null) {
+                    IconButton(
+                        onClick = {onclick2()},
+                    ) {
+                        Row (verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = buttonIcon2,
+                                contentDescription = "Favorite",
+                                modifier = Modifier
+                                    .size(30.dp)
+                            )
+                        }
+                    }
+                }
+                Button(
+                    onClick = {onclick()},
+                ) {
+                    Row (verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = buttonIcon,
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(30.dp)
+                        )
+                        Text(buttonText)
+                    }
                 }
             }
         }

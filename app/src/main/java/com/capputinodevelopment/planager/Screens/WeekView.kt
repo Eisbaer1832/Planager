@@ -120,7 +120,6 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                 weekDates.add(today.with(TemporalAdjusters.nextOrSame(date.dayOfWeek)))
             }
 
-
             if (lesson != null) {
                 week.add(lesson)
                 date = date.plusDays(1)

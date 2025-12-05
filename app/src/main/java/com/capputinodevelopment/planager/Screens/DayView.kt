@@ -205,10 +205,15 @@ fun DayView(modifier: Modifier = Modifier) {
                                         )
                             }
                             ?.toCollection(ArrayList())
-
+                        // show subject if its not filtered or it doesnt contain in number since that would be a mandatory class subject (hopefully)
+                    } else{
+                        currentLessons = currentLessons?.filter { !it.ag } as ArrayList<lesson>?
+                    }
+                    if (doFilter && FilterFriend.isEmpty()) {
                         //append custom subjects
                         for (pos in 0..11) {
-                            val customSubjects = savedCustomSubjects.value[pos]?.get(current.dayOfWeek) ?: listOf()
+                            val customSubjects =
+                                savedCustomSubjects.value[pos]?.get(current.dayOfWeek) ?: listOf()
                             val filteredLessons = customSubjects.filter { lesson ->
                                 lesson.week == WeekType.AB || lesson.week == fetchWeekType(current)
                             }
@@ -223,11 +228,7 @@ fun DayView(modifier: Modifier = Modifier) {
                                 currentLessons?.addAll(insertIndex, filteredLessons)
                             }
                         }
-                        // show subject if its not filtered or it doesnt contain in number since that would be a mandatory class subject (hopefully)
-                    }else{
-                        currentLessons = currentLessons?.filter { !it.ag } as ArrayList<lesson>?
                     }
-
                     currentLessons?.forEachIndexed { i, l ->
                         val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
                         val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)

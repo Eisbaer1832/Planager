@@ -2,8 +2,10 @@ package com.capputinodevelopment.planager
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -11,6 +13,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.cornerRadius
@@ -31,14 +34,20 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.capputinodevelopment.planager.data.UserSettings
+import com.capputinodevelopment.planager.data.dataStore
+import com.capputinodevelopment.planager.data.lesson
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.Json
 
 class RoomWidget : GlanceAppWidget() {
     @SuppressLint("RestrictedApi")
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val userSettings = UserSettings.getInstance(context)
-        val lesson = userSettings.roomWidgetCash.first()
+        val lesson = context.dataStore.data.first()[stringPreferencesKey("room_widget_cache")]?.let { json ->
+            Json.decodeFromString<lesson>(json)
+        }?: lesson()
+
+        println("widget: $lesson")
 
         provideContent {
             GlanceTheme{
@@ -54,8 +63,15 @@ class RoomWidget : GlanceAppWidget() {
                         contentAlignment = Alignment.Center
                     ) {
                         Column (horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = GlanceModifier.clickable {} //ensures updates on click,
-                            ) {
+                            modifier = GlanceModifier.clickable(
+                                onClick = actionStartActivity(
+                                    Intent("android.intent.action.MAIN").apply {
+                                        setClassName("com.capputinodevelopment.planager", "com.capputinodevelopment.planager.MainActivity")
+                                        addCategory(Intent.CATEGORY_LAUNCHER)
+                                    }
+                                )
+                            ) //ensures updates on click,
+                        ) {
                             Text(
                                 text = lesson.subject,
                                 style = TextStyle(
@@ -114,8 +130,14 @@ class DayWidget : GlanceAppWidget() {
                                                 horizontal = 10.dp
                                             )
                                             .cornerRadius(16.dp)
-                                            .clickable {
-                                            },
+                                            .clickable(
+                                                onClick = actionStartActivity(
+                                                    Intent("android.intent.action.MAIN").apply {
+                                                        setClassName("com.capputinodevelopment.planager", "com.example.app.MainActivity")
+                                                        addCategory(Intent.CATEGORY_LAUNCHER)
+                                                    }
+                                                )
+                                            ),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(

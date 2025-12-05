@@ -4,7 +4,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.CAMERA"/>
 
+    <uses-feature
+            android:name="android.hardware.camera"
+            android:required="true" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -21,6 +25,16 @@
             android:exported="false"
             android:label="@string/title_activity_onboarding"
             android:theme="@style/Theme.IndiwareNative" />
+        <activity
+                android:name=".Screens.QrCodeActivity"
+                android:exported="false"
+                android:label="@string/title_activity_onboarding"
+                android:theme="@style/Theme.IndiwareNative" />
+        <activity
+                android:name=".Screens.QrCodeScanActivity"
+                android:exported="false"
+                android:label="@string/title_activity_onboarding"
+                android:theme="@style/Theme.IndiwareNative" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

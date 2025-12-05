@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.*
@@ -166,11 +168,15 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
                 FilterClass = ownClass
                 OwnSubjectDialogToggle.value = true
 
-
                 couroutineScope.launch {
                     Kurse = getKurse(userSettings, current, null, context)?: ArrayList()
                 }
             },
+            onclick2 = {
+                context.startActivity(Intent(context, QrCodeActivity::class.java))
+            },
+            buttonIcon2 = Icons.Default.QrCode,
+
         )
 
 
@@ -186,6 +192,10 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
             bottomShape,
             buttonText = "",
             onclick = { FriendsListToggle.value = true },
+            onclick2 = {
+                context.startActivity(Intent(context, QrCodeScanActivity::class.java))
+            },
+            buttonIcon2 = Icons.Default.QrCodeScanner,
         )
 
         Spacer(Modifier.height(20.dp))

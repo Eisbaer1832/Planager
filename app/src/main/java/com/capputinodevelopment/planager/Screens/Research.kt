@@ -265,9 +265,14 @@ fun ResearchView(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit, dayToSearch) {
         println("daytoSearch $dayToSearch")
         loading = true
-        val research = withContext(Dispatchers.IO) {
-            getResearchData(userSettings, context, current.with(TemporalAdjusters.nextOrSame(dayToSearch)))
+        val today = LocalDate.now()
+        val date = if (today.dayOfWeek > dayToSearch) {
+            today.with(TemporalAdjusters.previousOrSame(dayToSearch))
+        }else{
+            today.with(TemporalAdjusters.nextOrSame(dayToSearch))
         }
+        val research = getResearchData(userSettings, context, date)
+
         dataToSearch = research
         loading = false
     }
