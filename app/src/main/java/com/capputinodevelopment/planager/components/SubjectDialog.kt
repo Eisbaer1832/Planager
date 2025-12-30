@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GroupWork
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,6 +59,7 @@ import com.capputinodevelopment.planager.DayWidget
 import com.capputinodevelopment.planager.RoomWidget
 import com.capputinodevelopment.planager.data.Kurs
 import com.capputinodevelopment.planager.data.UserSettings
+import io.github.alexzhirkevich.qrose.options.roundCorners
 import kotlinx.coroutines.launch
 
 @Composable
@@ -197,7 +201,7 @@ fun SubjectDialog(
             userSettings.ownSubjects.collectAsState(initial = HashMap())
         }
 
-        BasicAlertDialog(
+       BasicAlertDialog(
             onDismissRequest = {
                 shouldShowDialog.value = false
             },
@@ -209,6 +213,7 @@ fun SubjectDialog(
                 val startDestination = Destination.LESSONS
                 var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
                 Scaffold(
+                    containerColor = Color.Transparent,
                     floatingActionButton = {
                         MediumFloatingActionButton(onClick = {
                             shouldShowDialog.value = false
@@ -227,9 +232,9 @@ fun SubjectDialog(
                             .padding(innerPadding)
                             .fillMaxSize()
                             .wrapContentHeight(),
-                        shape = MaterialTheme.shapes.large
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-                        println("Kurse: " + Kurse)
+                        println("Kurse: $Kurse")
                         Column(
                             modifier = Modifier
                                 .padding(16.dp)
@@ -264,11 +269,10 @@ fun SubjectDialog(
                                 friend = friend,
                                 startDestination = startDestination,
                             )
-
-
                         }
                     }
                 }
-            })
+            }
+       )
     }
 }

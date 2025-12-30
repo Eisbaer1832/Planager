@@ -21,12 +21,14 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -126,8 +128,8 @@ class QRCodeContent(val version: String, val year: String, val subjects: List<St
 @Composable
 fun QrCodeScreen(innerPadding: PaddingValues) {
     // QR Code Setup
-    val gradColor1 = MaterialTheme.colorScheme.primary
-    val gradColor2 = MaterialTheme.colorScheme.primary
+    val gradColor1 = MaterialTheme.colorScheme.primaryContainer
+    val gradColor2 = MaterialTheme.colorScheme.tertiaryContainer
     val context = LocalContext.current
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val ownClass = userSettings.ownClass.collectAsState("")
@@ -158,23 +160,15 @@ fun QrCodeScreen(innerPadding: PaddingValues) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Text(
-            modifier = Modifier.padding(10.dp).fillMaxWidth(),
-            fontFamily = RobotoFlexVariable,
-            fontSize = 30.sp,
-            textAlign = TextAlign.Center,
-            text ="Zeige diesen QR-Code deinen Freunden"
-        )
 
         Card(
             modifier = Modifier.padding(10.dp).fillMaxWidth(),
-
         ) {
             Image(
                 modifier = Modifier.weight(1f, fill = false)
                     .aspectRatio(qrCode.intrinsicSize.width / qrCode.intrinsicSize.height)
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(15.dp),
                 painter = qrCode,
                 contentScale = ContentScale.Fit,
                 contentDescription = "QR code referring to the example.com website"
