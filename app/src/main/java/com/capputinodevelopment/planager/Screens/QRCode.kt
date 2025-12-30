@@ -128,8 +128,8 @@ class QRCodeContent(val version: String, val year: String, val subjects: List<St
 @Composable
 fun QrCodeScreen(innerPadding: PaddingValues) {
     // QR Code Setup
-    val gradColor1 = MaterialTheme.colorScheme.primaryContainer
-    val gradColor2 = MaterialTheme.colorScheme.tertiaryContainer
+    val gradColor1 = MaterialTheme.colorScheme.primary
+    val gradColor2 = MaterialTheme.colorScheme.tertiary
     val context = LocalContext.current
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val ownClass = userSettings.ownClass.collectAsState("")
