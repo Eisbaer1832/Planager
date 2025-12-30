@@ -87,19 +87,20 @@ fun ShowLessonList(modifier: Modifier = Modifier, userSettings: UserSettings, ku
                                     text = kurse[i].subject + " " + kurse[i].teacher
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
+                                println("checking: " + kurse[i].subject)
                                 var checked by remember { mutableStateOf(status.value.get(kurse[i].subject) == true) }
                                 Switch(
                                     checked = checked,
                                     onCheckedChange = {
                                         checked = it
-                                        status.value.put(kurse[i].subject, checked)
+                                        status.value[kurse[i].subject] = checked
                                         if (own) {
                                             couroutineScope.launch {
                                                 userSettings.updateOwnSubjects(status.value)
                                             }
                                         } else {
                                             println("friend $friend: " + allFriends.value.get(friend))
-                                            allFriends.value.put(friend, status.value)
+                                            allFriends.value[friend] = status.value
                                             couroutineScope.launch {
                                                 userSettings.updateFriendsSubjects(
                                                     allFriends.value

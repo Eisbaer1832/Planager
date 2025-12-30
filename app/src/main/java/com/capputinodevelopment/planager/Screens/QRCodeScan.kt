@@ -35,9 +35,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,6 +57,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.capputinodevelopment.planager.MainActivity
+import com.capputinodevelopment.planager.components.FriendCreateDialog
+import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.dataStore
 import com.capputinodevelopment.planager.ui.colors.ThemeStore
 import com.capputinodevelopment.planager.ui.theme.colors.blue.blueTheme
@@ -73,7 +77,11 @@ import com.zaki.dynamic.core.model.ThemeId
 import com.zaki.dynamic.core.provider.DynamicThemeProvider
 import com.zaki.dynamic.core.provider.PlatformSystemThemeProvider
 import com.zaki.dynamic.core.registry.DefaultThemeRegistryFactory
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+
 
 class QrCodeScanActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -82,6 +90,9 @@ class QrCodeScanActivity : ComponentActivity() {
         WindowCompat.enableEdgeToEdge(window)
         setContent {
             val context = LocalContext.current
+            val userSettings = UserSettings.getInstance(context.applicationContext)
+            val couroutineScope = rememberCoroutineScope()
+
             val controller = remember {
                 val registry = DefaultThemeRegistryFactory.create().apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -122,9 +133,50 @@ class QrCodeScanActivity : ComponentActivity() {
                     }
                 ){innerPadding ->
                     val permissionState = rememberPermissionState(Manifest.permission.CAMERA)
+
+                    val friendsClasses by userSettings.friendsClass.collectAsState(initial = HashMap())
+                    val friends by userSettings.friendsSubjects.collectAsState(initial = HashMap())
+                    val createFriendDialog = remember { mutableStateOf(false) }
+                    var friendName by remember { mutableStateOf("") }
+                    val allFriends = userSettings.friendsSubjects.collectAsState(initial = HashMap())
+                    var data by remember { mutableStateOf(QRCodeContent("", "", listOf())) }
+
+                    if (createFriendDialog.value) {
+                        FriendCreateDialog({ createFriendDialog.value = false }, {name: String ->
+                            createFriendDialog.value = false
+                            couroutineScope.launch{userSettings.updateFriendsSubjects(friends)}
+                            friendName = name
+
+                            if (!friendName.isEmpty()) {
+                                val subjects = hashMapOf<String, Boolean>()
+                                for (i in 0..<data.subjects.size) {
+                                    subjects[data.subjects[i]] = true
+                                }
+                                val newFriendSubjects = HashMap(allFriends.value)
+                                newFriendSubjects[friendName] = subjects
+
+                                val newClasses = HashMap(friendsClasses)
+                                newClasses[friendName] = data.year
+
+                                couroutineScope.launch {
+                                    userSettings.updateFriendsClass(newClasses)
+                                    userSettings.updateFriendsSubjects(newFriendSubjects)
+                                }
+                            }
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    MainActivity::class.java
+                                )
+                            )
+                        }, "Freund Erfinden")
+                    }
+
                     if (permissionState.status.isGranted) {
                         QrCodeScanScreen(innerPadding) {
                             println("scanned: $it")
+                            createFriendDialog.value = true
+                            data = Json.decodeFromString<QRCodeContent>(it)
                         }
                     } else {
                         Box(
@@ -136,6 +188,7 @@ class QrCodeScanActivity : ComponentActivity() {
                             }
                         }
                     }
+
 
                 }
             }
@@ -152,7 +205,7 @@ fun QrCodeScanScreen(
 
 
     val context = LocalContext.current
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     var qrCodeDetected by remember { mutableStateOf(false) }
     var boundingRect by remember { mutableStateOf<Rect?>(null) }
 

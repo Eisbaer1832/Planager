@@ -66,7 +66,7 @@ fun FriendsList (
 
     if (createFriendDialog.value) {
         FriendCreateDialog({ createFriendDialog.value = false }, {name: String ->
-            friends.put(name, HashMap())
+            friends[name] = HashMap()
             createFriendDialog.value = false
             couroutineScope.launch{userSettings.updateFriendsSubjects(friends)}
 
