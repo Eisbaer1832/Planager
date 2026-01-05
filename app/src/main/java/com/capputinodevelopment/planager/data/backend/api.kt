@@ -76,10 +76,17 @@ suspend fun fetchTimetable(
         val encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charsets.UTF_8))
 
         connection.setRequestProperty("Authorization", "Basic $encodedAuth")
-        connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText()  }
     }catch (e: Exception) {
         e.printStackTrace()
-        ""
+        return@withContext try {
+            lContext.resources.openRawResource(R.raw.backup_plan)
+                .bufferedReader(Charsets.UTF_8)
+                .use { it.readText() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
     }
 
 }
