@@ -305,8 +305,8 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                 enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
                                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                                             ) {
-                                                val subject = totalSubjects[j]?: lesson()
-                                                if (show) {
+                                                val subject = totalSubjects[j]
+                                                if (show && subject.subject != "" && subject.room != "") {
                                                     displayEditButton = false
                                                     if (subject.canceled) {
                                                         SmallLessonCardCanceled(
@@ -314,9 +314,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                         )
                                                     } else {
                                                         SmallLessonCard(subject, editLocalSubjects, customColor.value) {
-                                                            createSubjectLesson = subject
-                                                            createSubjectWeekDay =
-                                                                DayOfWeek.of(i + 1)
+                                                            DayOfWeek.of(i + 1)
                                                             showCreateSubjectSheet.value = true
                                                         }
                                                     }
