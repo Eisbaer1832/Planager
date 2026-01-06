@@ -315,6 +315,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                     } else {
                                                         SmallLessonCard(subject, editLocalSubjects, customColor.value) {
                                                             createSubjectLesson.value = lesson
+                                                            createSubjectWeekDay.value = DayOfWeek.of(i + 1)
                                                             DayOfWeek.of(i + 1)
                                                             showCreateSubjectSheet.value = true
                                                         }
