@@ -89,8 +89,8 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
     var refreshTrigger by remember { mutableIntStateOf(0) }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     var weekDates by remember { mutableStateOf(arrayListOf<LocalDate>())}
-    var createSubjectWeekDay by remember { mutableStateOf(DayOfWeek.MONDAY) }
-    var createSubjectLesson by remember { mutableStateOf(lesson()) }
+    val createSubjectWeekDay = remember { mutableStateOf(DayOfWeek.MONDAY) }
+    val createSubjectLesson = remember { mutableStateOf(lesson()) }
     val showCreateSubjectSheet = remember { mutableStateOf(false) }
     val savedCustomSubjects = userSettings.customSubjects.collectAsState(mutableMapOf())
     val customColor = userSettings.customSubjectsColor.collectAsState("")
@@ -99,7 +99,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
         FilterClass = ownClass
     }
     if (showCreateSubjectSheet.value) {
-        SubjectCreateSheet(showCreateSubjectSheet, userSettings, createSubjectWeekDay,createSubjectLesson)
+        SubjectCreateSheet(showCreateSubjectSheet, userSettings, createSubjectWeekDay.value,createSubjectLesson.value)
     }
 
     LaunchedEffect(Unit, filter, refreshTrigger) {
@@ -314,6 +314,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                         )
                                                     } else {
                                                         SmallLessonCard(subject, editLocalSubjects, customColor.value) {
+                                                            createSubjectLesson.value = lesson
                                                             DayOfWeek.of(i + 1)
                                                             showCreateSubjectSheet.value = true
                                                         }
@@ -335,8 +336,8 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                     .width(screenWidth / 6)
                                                     .height(80.dp),
                                                 onClick = {
-                                                    createSubjectLesson = lesson(pos, "", "", "")
-                                                    createSubjectWeekDay = DayOfWeek.of(i + 1)
+                                                    createSubjectLesson.value = lesson(pos, "", "", "")
+                                                    createSubjectWeekDay.value = DayOfWeek.of(i + 1)
                                                     showCreateSubjectSheet.value = true
                                                 }
                                             ) { Icon(Icons.Default.Add, "Fach hinzufügen") }

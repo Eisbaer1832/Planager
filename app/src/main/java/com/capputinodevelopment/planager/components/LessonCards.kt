@@ -297,7 +297,6 @@ fun SmallLessonCard (
                 Text(
                     text = lesson.room,
                     color = roomColor
-
                 )
             }
         }
