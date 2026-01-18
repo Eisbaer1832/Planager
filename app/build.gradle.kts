@@ -15,8 +15,8 @@ android {
         applicationId = "com.capputinodevelopment.planager"
         minSdk = 26
         targetSdk = 36
-        versionCode = 143
-        versionName = "1.43"
+        versionCode = 145
+        versionName = "1.45"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

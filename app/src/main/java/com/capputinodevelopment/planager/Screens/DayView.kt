@@ -3,9 +3,14 @@ package com.capputinodevelopment.planager.Screens
 import android.R.attr.visible
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.drawable.shapes.Shape
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,8 +28,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
@@ -33,6 +41,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,6 +50,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.currentState
@@ -54,6 +66,7 @@ import com.capputinodevelopment.planager.data.DataSharer.Kurse
 import com.capputinodevelopment.planager.data.DataSharer.doFilter
 import com.capputinodevelopment.planager.data.GlobalPlan.weeks
 import com.capputinodevelopment.planager.data.RobotoFlexVariable
+import com.capputinodevelopment.planager.data.RobotoLight
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.WeekType
 import com.capputinodevelopment.planager.data.backend.fixDay
@@ -182,7 +195,8 @@ fun DayView(modifier: Modifier = Modifier) {
                     ) {
                         Text(
                             fontSize = 40.sp,
-                            fontFamily = RobotoFlexVariable,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
                             text = current.dayOfWeek.getDisplayName(
                                 TextStyle.FULL_STANDALONE ,
                                 Locale.GERMANY),
@@ -190,7 +204,6 @@ fun DayView(modifier: Modifier = Modifier) {
                     }
 
                     var currentLessons = lessons
-                    var lastPos = 0
 
 
                     if (doFilter && !FilterClass.isEmpty()) {
@@ -214,6 +227,7 @@ fun DayView(modifier: Modifier = Modifier) {
                         for (pos in 0..11) {
                             val customSubjects =
                                 savedCustomSubjects.value[pos]?.get(current.dayOfWeek) ?: listOf()
+                            //println("cS " + customSubjects.joinToString { it.subject })
                             val filteredLessons = customSubjects.filter { lesson ->
                                 lesson.week == WeekType.AB || lesson.week == fetchWeekType(current)
                             }
@@ -253,10 +267,8 @@ fun DayView(modifier: Modifier = Modifier) {
                                     }
                                 }else {
                                     numberShape = topShape
-                                    if (pos > lastPos) {
-                                        shape = topShape
-                                        surfaceShape = topSurfaceShape
-                                    }
+                                    shape = topShape
+                                    surfaceShape = topSurfaceShape
                                 }
                             }else {
                                 if (pos % 2 != 0){
@@ -285,7 +297,33 @@ fun DayView(modifier: Modifier = Modifier) {
                             numberShape = rounded
                         }
 
+                        val previousPos = currentLessons.getOrNull(i - 1)?.pos
+                        var visible by remember { mutableStateOf(false) }
 
+                        LaunchedEffect(Unit) {
+                            delay(i * 50L) // staggered animation
+                            visible = true
+                        }
+                        if (previousPos != null && pos > previousPos + 1) {
+                            AnimatedVisibility(
+                                visible = visible,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    LinearWavyProgressIndicator(
+                                        progress = { 1f },
+                                        amplitude = { 3f },
+                                        waveSpeed = 0.dp
+                                    )
+                                }
+                            }
+
+                        }
                         Row(
                             modifier = Modifier
                                 .padding(horizontal = 10.dp)
@@ -310,17 +348,19 @@ fun DayView(modifier: Modifier = Modifier) {
                             }
 
                             Spacer(Modifier.width(4.dp))
-
                             // Lesson card animation
                             AnimatedVisibility(
                                 visible = visible,
                                 enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                             ) {
-                                if (!l.canceled) {
-                                    LessonCard(l, showTeacher, shape, surfaceShape, customColor.value)
-                                } else {
-                                    LessonCardCanceled(l, shape)
+                                //this ensures no placeholder cards and abandoned custom subjects without ids are being shown
+                                if (!l.placeHolder && ((l.custom && l.id.isNotEmpty()) || !l.custom)) {
+                                    if (!l.canceled) {
+                                        LessonCard(l, showTeacher, shape, surfaceShape, customColor.value)
+                                    } else {
+                                        LessonCardCanceled(l, shape)
+                                    }
                                 }
                             }
                         }

@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LabelImportant
+import androidx.compose.material.icons.automirrored.filled.Outbound
+import androidx.compose.material.icons.filled.Bed
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,6 +45,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.lesson
 
 
@@ -79,13 +82,10 @@ fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
-        ),
         shape = shape,
         modifier = Modifier
             .height(80.dp)
-            .padding(end = 10.dp)
+            .padding(end = 5.dp)
             .fillMaxWidth()
     ) {
         Row(
@@ -101,7 +101,7 @@ fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
             ) {
                 Icon(
                     modifier = Modifier.size(40.dp),
-                    imageVector = Icons.AutoMirrored.Filled.LabelImportant,
+                    imageVector = Icons.Default.Bed,
                     contentDescription = "Localized description",
                     tint = MaterialTheme.colorScheme.onError
                 )
@@ -111,7 +111,7 @@ fun LessonCardCanceled(l: lesson, shape: RoundedCornerShape)  {
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-
+                fontFamily = RobotoFlexVariable,
                 text = l.subject
             )
         }
@@ -184,7 +184,9 @@ fun LessonCard(
                             fontSize = 30.sp,
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
-                            text = l.subject
+                            text = l.subject,
+                            fontFamily = RobotoFlexVariable
+
                         )
                     }
                 }

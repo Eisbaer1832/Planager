@@ -166,6 +166,10 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
     }
     val teacher = getPart(l, "Le")?:""
     val room = getPart(l, "Ra")?:""
+    var placeholder = false
+    if (room == "Placeholder") {
+        placeholder = true
+    }
     val formatter = DateTimeFormatter.ofPattern("H:mm")
     var roomChanged = false
     for (i in 0..l.length) {
@@ -184,6 +188,7 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
     if (end?.isEmpty() == false) {
         endT = LocalTime.parse(end, formatter)
     }
+
     return lesson(
         pos,
         teacher,
@@ -194,7 +199,8 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         endT,
         canceled,
         isAg,
-        replacementSubject = replacementSubject
+        replacementSubject = replacementSubject,
+        placeHolder = placeholder
     )
 }
 suspend fun getLessons(userSettings: UserSettings, date: LocalDate, localFilterClass: String? = null, context: Context, fetchAgs:Boolean = true): ArrayList<lesson>? {

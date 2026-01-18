@@ -1,7 +1,6 @@
 package com.capputinodevelopment.planager.data
 
 import android.Manifest
-import android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -11,11 +10,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.glance.appwidget.updateAll
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.capputinodevelopment.planager.R
 import com.capputinodevelopment.planager.RoomWidget
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.backend.fixDay
@@ -33,6 +34,12 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun RegisterWorker() {
     val notificationWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES)
+        .setConstraints(
+            Constraints.Builder()
+                .setRequiresBatteryNotLow(false)
+                .setRequiresDeviceIdle(false)
+                .build()
+        )
         .build()
 
     val widgetWorkRequest = PeriodicWorkRequestBuilder<WidgetWorker>(45, TimeUnit.MINUTES)
@@ -172,7 +179,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             .setContentTitle(title)
             .setContentText(message)
             .setAutoCancel(true)
-            .setSmallIcon(R.drawable.stat_sys_warning)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
 
         // Show notification

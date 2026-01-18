@@ -56,6 +56,7 @@ import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.DataSharer
 import com.capputinodevelopment.planager.data.DataSharer.FilterClass
 import com.capputinodevelopment.planager.data.GlobalPlan.weeks
+import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.fetchWeekType
@@ -306,19 +307,20 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                                                 exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                                             ) {
                                                 val subject = totalSubjects[j]
-                                                if (show && subject.subject != "" && subject.room != "") {
+                                                if (show && !lesson.placeHolder) {
                                                     displayEditButton = false
                                                     if (subject.canceled) {
                                                         SmallLessonCardCanceled(
                                                             subject
                                                         )
                                                     } else {
-                                                        SmallLessonCard(subject, editLocalSubjects, customColor.value) {
-                                                            createSubjectLesson.value = lesson
-                                                            createSubjectWeekDay.value = DayOfWeek.of(i + 1)
-                                                            DayOfWeek.of(i + 1)
-                                                            showCreateSubjectSheet.value = true
-                                                        }
+                                                            SmallLessonCard(subject, editLocalSubjects, customColor.value) {
+                                                                createSubjectLesson.value = lesson
+                                                                createSubjectWeekDay.value = DayOfWeek.of(i + 1)
+                                                                DayOfWeek.of(i + 1)
+                                                                showCreateSubjectSheet.value = true
+                                                            }
+
                                                     }
                                                 } else {
                                                     if (!editLocalSubjects) {
