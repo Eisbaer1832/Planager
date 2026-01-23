@@ -46,7 +46,7 @@ fun App() {
         ){ innerPadding ->
             Row {
                 NavBar(currentScreen,padding = innerPadding, onNavigate = { currentScreen = it })
-                AuthScreen(userSettings)
+                //AuthScreen(userSettings)
                 AnimatedContent(
                     targetState = currentScreen,
                     transitionSpec = {

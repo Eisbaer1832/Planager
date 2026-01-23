@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
-    id("com.mikepenz.aboutlibraries.plugin.android") version "13.1.0"
+    id("com.mikepenz.aboutlibraries.plugin.android") version "13.2.1"
 }
 
 kotlin {
@@ -88,8 +88,8 @@ kotlin {
             implementation(libs.aboutlibraries.compose.core)
             implementation(libs.aboutlibraries.compose.m3)
             implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:3.2.6"))
-            implementation("io.github.jan-tennert.supabase:auth-kt:3.2.6")
-            implementation("io.github.jan-tennert.supabase:postgrest-kt:3.2.6")
+            implementation(libs.auth.kt)
+            implementation(libs.postgrest.kt)
 
         }
         commonTest.dependencies {
@@ -143,7 +143,7 @@ android {
 }
 
 dependencies {
-    debugImplementation(compose.uiTooling)
+    debugImplementation("org.jetbrains.compose.ui:ui-tooling:1.10.0")
 }
 
 compose.desktop {
