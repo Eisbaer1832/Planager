@@ -328,7 +328,7 @@ fun DayView(modifier: Modifier = Modifier) {
                             modifier = Modifier
                                 .padding(horizontal = 10.dp)
                                 .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
+                            horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             var visible by remember { mutableStateOf(false) }

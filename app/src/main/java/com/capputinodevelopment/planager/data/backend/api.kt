@@ -258,7 +258,9 @@ suspend fun getKurse(userSettings: UserSettings, date: LocalDate, localFilterCla
     for (i in 0..<normalClasses!!.length) {
         val c = normalClasses.item(i).firstChild
         val teacher = c.attributes.getNamedItem("UeLe").textContent
-        val name = c.attributes.getNamedItem("UeFa").textContent
+        val name: String = c.attributes
+            ?.getNamedItem("UeFa")
+            ?.textContent?:""
         if (name.contains("-P") || name.contains("-W")) {
             kurse.add(Kurs(teacher, name))
 
