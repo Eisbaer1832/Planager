@@ -1,11 +1,8 @@
 package com.capputinodevelopment.planager.data.backend
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.glance.LocalContext
 import com.capputinodevelopment.planager.R
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
+import com.capputinodevelopment.planager.data.Globals.FilterClass
 import com.capputinodevelopment.planager.data.Kurs
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.getDayXML
@@ -16,7 +13,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
-import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.DayOfWeek
@@ -26,7 +22,6 @@ import java.time.format.DateTimeFormatter
 import java.util.ArrayList
 import java.util.Base64
 import javax.xml.parsers.DocumentBuilderFactory
-import androidx.compose.ui.platform.LocalResources
 
 // API Endpoints
 // https://www.stundenplan24.de/53102849/mobil/mobdaten/Klassen.xml
@@ -52,6 +47,7 @@ suspend fun fetchTimetable(
     url: String,
     localFilterClass: String? = null,
     lContext: Context,
+    unsafe: Boolean = false,
 ): String = withContext(Dispatchers.IO){
 
     println("using: $url for outgoing network call")
@@ -69,6 +65,7 @@ suspend fun fetchTimetable(
         }
     }
     try {
+        println("fetching table from: https://www.stundenplan24.de/$schoolID$url")
         val connection = URL("https://www.stundenplan24.de/$schoolID$url").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
 
@@ -79,16 +76,16 @@ suspend fun fetchTimetable(
         connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText()  }
     }catch (e: Exception) {
         e.printStackTrace()
-        return@withContext try {
-            lContext.resources.openRawResource(R.raw.backup_plan)
+        if (unsafe) return@withContext ""
+        try {
+            return@withContext lContext.resources.openRawResource(R.raw.backup_plan)
                 .bufferedReader(Charsets.UTF_8)
                 .use { it.readText() }
         } catch (e: Exception) {
             e.printStackTrace()
-            ""
+            return@withContext ""
         }
     }
-
 }
 suspend fun getAllClasses(
     userSettings: UserSettings,
@@ -164,6 +161,7 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         replacementSubject = subject
         subject = ku2
     }
+
     val teacher = getPart(l, "Le")?:""
     val room = getPart(l, "Ra")?:""
     var placeholder = false
@@ -200,7 +198,8 @@ fun parseLesson(l: NodeList, isAg: Boolean): lesson {
         canceled,
         isAg,
         replacementSubject = replacementSubject,
-        placeHolder = placeholder
+        placeHolder = placeholder,
+        className = ku2?:""
     )
 }
 suspend fun getLessons(userSettings: UserSettings, date: LocalDate, localFilterClass: String? = null, context: Context, fetchAgs:Boolean = true): ArrayList<lesson>? {

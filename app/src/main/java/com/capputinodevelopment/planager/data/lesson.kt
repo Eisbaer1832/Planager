@@ -23,5 +23,6 @@ data class lesson(
     val doubleLesson:Boolean = false,
     val id: String = UUID.randomUUID().toString(),
     val replacementSubject: String? = null,
-    val placeHolder: Boolean = false
+    val placeHolder: Boolean = false,
+    var className: String = ""
 )

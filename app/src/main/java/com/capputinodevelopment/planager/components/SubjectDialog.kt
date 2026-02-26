@@ -11,19 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GroupWork
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
@@ -57,16 +54,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.capputinodevelopment.planager.DayWidget
 import com.capputinodevelopment.planager.RoomWidget
+import com.capputinodevelopment.planager.data.Globals.roundShape
 import com.capputinodevelopment.planager.data.Kurs
 import com.capputinodevelopment.planager.data.UserSettings
-import io.github.alexzhirkevich.qrose.options.roundCorners
+import com.capputinodevelopment.planager.data.lesson
 import kotlinx.coroutines.launch
 
 @Composable
 fun ShowLessonList(modifier: Modifier = Modifier, userSettings: UserSettings, kurse: ArrayList<Kurs>, status: State<HashMap<String, Boolean>>, own: Boolean, friend: String) {
     val couroutineScope = rememberCoroutineScope()
     val allFriends = userSettings.friendsSubjects.collectAsState(initial = HashMap())
-
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -76,8 +73,7 @@ fun ShowLessonList(modifier: Modifier = Modifier, userSettings: UserSettings, ku
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            println("Kurse2: " + kurse)
-            kurse.size.let {
+            kurse.size.let { it ->
                 for (i in 0..<it) {
                     Row {
                         Card(
@@ -92,7 +88,11 @@ fun ShowLessonList(modifier: Modifier = Modifier, userSettings: UserSettings, ku
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 println("checking: " + kurse[i].subject)
-                                var checked by remember { mutableStateOf(status.value.get(kurse[i].subject) == true) }
+                                val isCheckedInStatus = status.value[kurse[i].subject] == true
+                                var checked by remember(kurse[i].subject, status.value) {
+                                    mutableStateOf(isCheckedInStatus)
+                                }
+
                                 Switch(
                                     checked = checked,
                                     onCheckedChange = {
@@ -139,7 +139,7 @@ fun AppNavHost(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     userSettings: UserSettings,
-    kurse: ArrayList<Kurs>,
+    subjects: ArrayList<Kurs>,
     ags: ArrayList<Kurs>,
     status: State<HashMap<String, Boolean>>,
     own: Boolean,
@@ -156,7 +156,7 @@ fun AppNavHost(
                     Destination.LESSONS -> ShowLessonList(
                         modifier,
                         userSettings = userSettings,
-                        kurse = kurse,
+                        kurse = subjects,
                         status = status,
                         own = own,
                         friend = friend
@@ -181,7 +181,7 @@ fun AppNavHost(
 @Composable
 fun SubjectDialog(
     shouldShowDialog: MutableState<Boolean>,
-    Kurse: ArrayList<Kurs>?,
+    subjects: ArrayList<Kurs>?,
     ags: ArrayList<Kurs>?,
     userSettings: UserSettings,
     own: Boolean,
@@ -232,12 +232,10 @@ fun SubjectDialog(
                             .padding(innerPadding)
                             .fillMaxSize()
                             .wrapContentHeight(),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = roundShape
                     ) {
-                        println("Kurse: $Kurse")
                         Column(
-                            modifier = Modifier
-                                .padding(16.dp)
+                            modifier = Modifier.padding(16.dp)
                         ) {
                             Text(title)
                             PrimaryTabRow(selectedTabIndex = selectedDestination) {
@@ -262,7 +260,7 @@ fun SubjectDialog(
                                 navController,
                                 modifier = Modifier,
                                 userSettings = userSettings,
-                                kurse = Kurse ?: arrayListOf(),
+                                subjects = subjects ?: arrayListOf(),
                                 ags = ags ?: arrayListOf(),
                                 status = status,
                                 own = own,

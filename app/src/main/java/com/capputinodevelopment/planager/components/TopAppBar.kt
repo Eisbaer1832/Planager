@@ -27,8 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
-import com.capputinodevelopment.planager.data.DataSharer.doFilter
+import com.capputinodevelopment.planager.data.Globals.FilterFriend
+import com.capputinodevelopment.planager.data.Globals.doFilter
 import com.capputinodevelopment.planager.data.UserSettings
 
 @OptIn(ExperimentalAnimationApi::class)

@@ -26,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
+import com.capputinodevelopment.planager.data.Globals.FilterClass
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

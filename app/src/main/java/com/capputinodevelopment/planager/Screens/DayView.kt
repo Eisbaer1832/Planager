@@ -1,12 +1,8 @@
 package com.capputinodevelopment.planager.Screens
 
-import android.R.attr.visible
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.drawable.shapes.Shape
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,7 +27,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
@@ -41,8 +36,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,19 +47,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.currentState
 import com.capputinodevelopment.planager.Onboarding
 import com.capputinodevelopment.planager.components.LessonCard
 import com.capputinodevelopment.planager.components.LessonCardCanceled
 import com.capputinodevelopment.planager.components.TimestampCard
-import com.capputinodevelopment.planager.data.DataSharer
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
-import com.capputinodevelopment.planager.data.DataSharer.Kurse
-import com.capputinodevelopment.planager.data.DataSharer.doFilter
+import com.capputinodevelopment.planager.data.Globals
+import com.capputinodevelopment.planager.data.Globals.FilterClass
+import com.capputinodevelopment.planager.data.Globals.FilterFriend
+import com.capputinodevelopment.planager.data.Globals.Kurse
+import com.capputinodevelopment.planager.data.Globals.doFilter
 import com.capputinodevelopment.planager.data.GlobalPlan.weeks
-import com.capputinodevelopment.planager.data.RobotoFlexVariable
-import com.capputinodevelopment.planager.data.RobotoLight
+import com.capputinodevelopment.planager.data.Globals.bottomShape
+import com.capputinodevelopment.planager.data.Globals.neutralShape
+import com.capputinodevelopment.planager.data.Globals.roundShape
+import com.capputinodevelopment.planager.data.Globals.topShape
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.WeekType
 import com.capputinodevelopment.planager.data.backend.fixDay
@@ -74,10 +68,8 @@ import com.capputinodevelopment.planager.data.backend.getKurse
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.fetchWeekType
 import com.capputinodevelopment.planager.data.lesson
-import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.Multimaps.index
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -102,7 +94,7 @@ fun DayView(modifier: Modifier = Modifier) {
     val onboarding by userSettings.onboarding.collectAsState(initial = null)
     var loading by remember { mutableStateOf<Boolean>(true) }
 
-    val filter by remember { DataSharer::FilterClass }
+    val filter by remember { Globals::FilterClass }
 
     if (filter.isEmpty()) {
         FilterClass = ownClass
@@ -244,46 +236,44 @@ fun DayView(modifier: Modifier = Modifier) {
                         }
                     }
                     currentLessons?.forEachIndexed { i, l ->
-                        val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
-                        val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
                         val topSurfaceShape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 0.dp)
                         val bottomSurfaceShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 16.dp)
-                        val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
-                        val rounded = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
-                        var numberShape = neutralShape
-                        var shape = neutralShape
-                        var surfaceShape = neutralShape
+                        var numberShape = roundShape
+                        var shape = roundShape
+                        var surfaceShape = roundShape
 
                         val pos = l.pos
 
-                        //TODO Clean this mess up
-                        if (i + 1 <= currentLessons.size - 1) {
-                            if (l.pos < 8) {
-                                if (pos % 2 == 0) {
-                                    numberShape = bottomShape
-                                    if (currentLessons[i + 1].pos > pos) {
-                                        shape = bottomShape
-                                        surfaceShape = bottomSurfaceShape
+                        if (doFilter) {
+                            //TODO Clean this mess up
+                            if (i + 1 <= currentLessons.size - 1) {
+                                if (l.pos < 8) {
+                                    if (pos % 2 == 0) {
+                                        numberShape = bottomShape
+                                        if (currentLessons[i + 1].pos > pos) {
+                                            shape = bottomShape
+                                            surfaceShape = bottomSurfaceShape
+                                        }
+                                    } else {
+                                        numberShape = topShape
+                                        shape = topShape
+                                        surfaceShape = topSurfaceShape
                                     }
-                                }else {
-                                    numberShape = topShape
-                                    shape = topShape
-                                    surfaceShape = topSurfaceShape
-                                }
-                            }else {
-                                if (pos % 2 != 0){
-                                    numberShape = bottomShape
+                                } else {
+                                    if (pos % 2 != 0) {
+                                        numberShape = bottomShape
 
-                                    if (currentLessons[i + 1].pos > pos) {
-                                        shape = bottomShape
-                                        surfaceShape = bottomSurfaceShape
+                                        if (currentLessons[i + 1].pos > pos) {
+                                            shape = bottomShape
+                                            surfaceShape = bottomSurfaceShape
+                                        }
+                                    } else {
+                                        numberShape = topShape
+                                        shape = topShape
+                                        surfaceShape = topSurfaceShape
                                     }
-                                }else {
-                                    numberShape = topShape
-                                    shape = topShape
-                                    surfaceShape = topSurfaceShape
-                                }
 
+                                }
                             }
                         }
 
@@ -294,7 +284,7 @@ fun DayView(modifier: Modifier = Modifier) {
                         }
 
                         if (!doFilter || showTeacher) {
-                            numberShape = rounded
+                            numberShape = roundShape
                         }
 
                         val previousPos = currentLessons.getOrNull(i - 1)?.pos

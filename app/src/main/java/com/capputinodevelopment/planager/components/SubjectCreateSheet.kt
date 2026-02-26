@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -47,10 +45,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.capputinodevelopment.planager.data.DataSharer
+import com.capputinodevelopment.planager.data.Globals
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.data.WeekType
@@ -172,7 +169,7 @@ fun SubjectCreateSheet (
 
                     FilledIconButton(
                         colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-                        shape = DataSharer.roundShape,
+                        shape = Globals.roundShape,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top= 8.dp, bottom = 4.dp),

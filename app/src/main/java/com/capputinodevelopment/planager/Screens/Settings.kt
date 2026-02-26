@@ -4,28 +4,22 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.capputinodevelopment.planager.ui.theme.IndiwareNativeTheme
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCode
@@ -54,14 +48,13 @@ import com.capputinodevelopment.planager.components.SettingsCardDropdown
 import com.capputinodevelopment.planager.components.SettingsCardEdit
 import com.capputinodevelopment.planager.components.SettingsCardInput
 import com.capputinodevelopment.planager.components.SubjectDialog
-import com.capputinodevelopment.planager.components.TopBar
-import com.capputinodevelopment.planager.data.DataSharer.AGs
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.DataSharer.Kurse
-import com.capputinodevelopment.planager.data.DataSharer.bottomShape
-import com.capputinodevelopment.planager.data.DataSharer.neutralShape
-import com.capputinodevelopment.planager.data.DataSharer.roundShape
-import com.capputinodevelopment.planager.data.DataSharer.topShape
+import com.capputinodevelopment.planager.data.Globals.AGs
+import com.capputinodevelopment.planager.data.Globals.FilterClass
+import com.capputinodevelopment.planager.data.Globals.Kurse
+import com.capputinodevelopment.planager.data.Globals.bottomShape
+import com.capputinodevelopment.planager.data.Globals.neutralShape
+import com.capputinodevelopment.planager.data.Globals.roundShape
+import com.capputinodevelopment.planager.data.Globals.topShape
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getAllClasses
@@ -260,10 +253,10 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
             Icons.Filled.Web,
             schoolID,
             { settings ->
-                settings.schoolID.first() // async load
+                settings.schoolID.first()
             },
             { value, settings ->
-                settings.updateSchoolID(value) // async save
+                settings.updateSchoolID(value)
             }
         )
 
@@ -275,12 +268,13 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
             Icons.Filled.Person,
             username,
             { settings ->
-                settings.username.first() // async load
+                settings.username.first()
             },
             { value, settings ->
-                settings.updateUsername(value) // async save
+                settings.updateUsername(value)
             }
         )
+
 
         val pwd by userSettings.password.collectAsState(initial = "")
         SettingsCardInput(
@@ -290,14 +284,44 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
             Icons.Filled.Password,
             pwd,
             { settings ->
-               settings.password.first() // async load
+               settings.password.first()
             },
             { value, settings ->
-                settings.updatePassword(value) // async save
+                settings.updatePassword(value)
             },
             true
         )
         CheckCredentials(snackbarHostState = snackbarHostState, onValidationChanged = {  }, context)
+
+        val customeDB by userSettings.customDB.collectAsState(initial = "")
+        SettingsCardInput(
+            topShape,
+            userSettings,
+            "Eigener Suchserver",
+            Icons.Filled.Cloud,
+            customeDB,
+            { settings ->
+                settings.customDB.first()
+            },
+            { value, settings ->
+                settings.updateCustomDB(value)
+            }
+        )
+
+        val customeDBKey by userSettings.customDB.collectAsState(initial = "")
+        SettingsCardInput(
+            bottomShape,
+            userSettings,
+            "Suchserver Key",
+            Icons.Filled.Key,
+            customeDBKey,
+            { settings ->
+                settings.customDBkey.first()
+            },
+            { value, settings ->
+                settings.updateCustomDBKey(value)
+            }
+        )
 
         Spacer(Modifier.height(20.dp))
         Text("Sonstiges", style = MaterialTheme.typography.headlineMediumEmphasized)

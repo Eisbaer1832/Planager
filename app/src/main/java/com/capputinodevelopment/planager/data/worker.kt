@@ -18,7 +18,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.capputinodevelopment.planager.R
 import com.capputinodevelopment.planager.RoomWidget
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
+import com.capputinodevelopment.planager.data.Globals.FilterClass
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.backend.getLessons
 import kotlinx.coroutines.flow.first

@@ -2,7 +2,6 @@ package com.capputinodevelopment.planager.components
 
 import android.content.Context
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.getAllClasses
-import com.capputinodevelopment.planager.ui.theme.colors.red.onSurfaceVariantDark
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
@@ -253,7 +251,7 @@ fun CheckCredentials(snackbarHostState: SnackbarHostState, onValidationChanged: 
                 val result = fetchTimetable(
                     userSettings = userSettings,
                     url = "/mobil/mobdaten/Klassen.xml",
-                    lContext = context
+                    lContext = context,
                 )
 
                 if (result.isEmpty()) {

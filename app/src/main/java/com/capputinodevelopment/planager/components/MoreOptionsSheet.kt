@@ -19,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
@@ -38,10 +37,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
-import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
-import com.capputinodevelopment.planager.data.DataSharer.doFilter
+import com.capputinodevelopment.planager.data.Globals.FilterClass
+import com.capputinodevelopment.planager.data.Globals.FilterFriend
+import com.capputinodevelopment.planager.data.Globals.doFilter
 import com.capputinodevelopment.planager.data.UserSettings
 
 

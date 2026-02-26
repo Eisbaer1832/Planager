@@ -50,19 +50,17 @@ import androidx.compose.ui.unit.dp
 import com.capputinodevelopment.planager.components.SmallLessonCard
 import com.capputinodevelopment.planager.components.SmallLessonCardCanceled
 import com.capputinodevelopment.planager.components.SubjectCreateSheet
-import com.capputinodevelopment.planager.data.DataSharer.FilterFriend
-import com.capputinodevelopment.planager.data.DataSharer.doFilter
+import com.capputinodevelopment.planager.data.Globals.FilterFriend
+import com.capputinodevelopment.planager.data.Globals.doFilter
 import com.capputinodevelopment.planager.data.backend.getLessons
-import com.capputinodevelopment.planager.data.DataSharer
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
+import com.capputinodevelopment.planager.data.Globals
+import com.capputinodevelopment.planager.data.Globals.FilterClass
 import com.capputinodevelopment.planager.data.GlobalPlan.weeks
-import com.capputinodevelopment.planager.data.RobotoFlexVariable
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.fixDay
 import com.capputinodevelopment.planager.data.fetchWeekType
 import com.capputinodevelopment.planager.data.lesson
 import com.capputinodevelopment.planager.data.WeekType
-import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -86,7 +84,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
     var date = datePassed.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     date = fixDay(null, date)
     var orderedWeek by remember { mutableStateOf(HashMap<Int, ArrayList<ArrayList<lesson>>>())}
-    val filter by remember { DataSharer::FilterClass }
+    val filter by remember { Globals::FilterClass }
     var refreshTrigger by remember { mutableIntStateOf(0) }
     val ownClass by userSettings.ownClass.collectAsState(initial = String())
     var weekDates by remember { mutableStateOf(arrayListOf<LocalDate>())}

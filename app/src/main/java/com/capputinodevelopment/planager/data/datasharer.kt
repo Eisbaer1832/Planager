@@ -3,7 +3,6 @@ package com.capputinodevelopment.planager.data
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.SliderState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,16 +23,16 @@ import kotlin.collections.HashMap
 
 
 @SuppressLint("MutableCollectionMutableState")
-object DataSharer {
+object Globals {
     var doFilter by mutableStateOf(true)
     var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
-    var searchDay = mutableStateOf(fixDay(LocalTime.now(), LocalDate.now()).dayOfWeek)
+    var searchDay = mutableStateOf(fixDay(LocalTime.now(), LocalDate.now()))
     var FilterFriend by mutableStateOf("")
     var Kurse by mutableStateOf(ArrayList<Kurs>())
     var AGs by mutableStateOf(ArrayList<Kurs>())
-    val topShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp)
-    val bottomShape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp)
+    val topShape = RoundedCornerShape(16.dp, 16.dp, 4.dp, 4.dp)
+    val bottomShape = RoundedCornerShape(4.dp, 4.dp, 16.dp, 16.dp)
     val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
     val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
     var lessons by mutableStateOf( ArrayList<lesson>())
@@ -151,6 +150,26 @@ class UserSettings private constructor(private val appContext: Context) {
             settings[USERNAME] = value
         }
     }
+
+    val customDB = dataStore.data.map { preferences ->
+        preferences[CUSTOM_DB] ?: ""
+    }
+
+    suspend fun updateCustomDB(value: String) {
+        dataStore.edit { settings ->
+            settings[CUSTOM_DB] = value
+        }
+    }
+
+    val customDBkey = dataStore.data.map { preferences ->
+        preferences[CUSTOM_DB_KEY] ?: ""
+    }
+
+    suspend fun updateCustomDBKey(value: String) {
+        dataStore.edit { settings ->
+            settings[CUSTOM_DB_KEY] = value
+        }
+    }
     val password = dataStore.data.map { preferences ->
         preferences[PASSWORD] ?: ""
     }
@@ -223,6 +242,8 @@ class UserSettings private constructor(private val appContext: Context) {
         private val SCHOOL_ID = stringPreferencesKey("school_id")
         private val USERNAME = stringPreferencesKey("username")
         private val PASSWORD = stringPreferencesKey("password")
+        private val CUSTOM_DB = stringPreferencesKey("custom_DB")
+        private val CUSTOM_DB_KEY = stringPreferencesKey("custom_db_key")
         private val ONBOARDING = booleanPreferencesKey("onboarding")
         private val NOTIFICATION_HISTORY = stringPreferencesKey("notification_history")
         private val ROOM_WIDGET_CACHE = stringPreferencesKey("room_widget_cache")

@@ -75,11 +75,11 @@ import com.capputinodevelopment.planager.components.SettingsCardDropdown
 import com.capputinodevelopment.planager.components.SettingsCardEdit
 import com.capputinodevelopment.planager.components.SettingsCardInput
 import com.capputinodevelopment.planager.components.SubjectDialog
-import com.capputinodevelopment.planager.data.DataSharer.AGs
-import com.capputinodevelopment.planager.data.DataSharer.Kurse
-import com.capputinodevelopment.planager.data.DataSharer.bottomShape
-import com.capputinodevelopment.planager.data.DataSharer.neutralShape
-import com.capputinodevelopment.planager.data.DataSharer.topShape
+import com.capputinodevelopment.planager.data.Globals.AGs
+import com.capputinodevelopment.planager.data.Globals.Kurse
+import com.capputinodevelopment.planager.data.Globals.bottomShape
+import com.capputinodevelopment.planager.data.Globals.neutralShape
+import com.capputinodevelopment.planager.data.Globals.topShape
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getKurse

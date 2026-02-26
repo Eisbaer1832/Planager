@@ -1,8 +1,6 @@
 package com.capputinodevelopment.planager.data
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,11 +9,12 @@ import com.capputinodevelopment.planager.data.GlobalPlan.kurse
 import com.capputinodevelopment.planager.data.GlobalPlan.weeks
 import com.capputinodevelopment.planager.data.backend.fetchTimetable
 import com.capputinodevelopment.planager.data.backend.fixDay
-import com.capputinodevelopment.planager.data.research.ResearchWeek
+import com.capputinodevelopment.planager.data.backend.getDayFromSearchServer
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
+import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 
 object GlobalPlan {
@@ -46,7 +45,13 @@ object GlobalPlan {
 
 
 
-suspend fun getDayXML(datePassed: LocalDate, userSettings: UserSettings, context: Context): String {
+suspend fun getDayXML(
+    datePassed: LocalDate,
+    userSettings: UserSettings,
+    context: Context,
+    useSearchServer: Boolean = false,
+    ignoreCache: Boolean = false
+): String {
 
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     var date = fixDay(null, datePassed)
@@ -61,10 +66,16 @@ suspend fun getDayXML(datePassed: LocalDate, userSettings: UserSettings, context
     val currentAsString = date.format(formatter)
     val week = fetchWeekType(date)
 
-    var dayXML= weeks[week]?.value[day]?:""
-    if (dayXML.isEmpty()) {
+    var dayXML= if(!ignoreCache) weeks[week]?.value[day]?:"" else null
+    if (dayXML.isNullOrEmpty()) {
         println("Updating global Variable")
-        var result = fetchTimetable(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml", null, context)
+
+        val result = if (!useSearchServer) {
+            fetchTimetable(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml", null, context, ignoreCache)
+        }else {
+            println("search server")
+            getDayFromSearchServer( currentAsString, userSettings, context)
+        }
         weeks[week]?.value = weeks[week]?.value?.toMutableMap()?.apply { this[day] = result } ?: mutableMapOf(day to result)
 
         dayXML = result
@@ -76,7 +87,7 @@ suspend fun getDayXML(datePassed: LocalDate, userSettings: UserSettings, context
 suspend fun getKurseXML(userSettings: UserSettings, context: Context): String {
     if (kurse == "") {
         println("Updating global Variable")
-        kurse = fetchTimetable(userSettings, "/mobil/mobdaten/Klassen.xml", null, context)
+        kurse = fetchTimetable(userSettings, "/mobil/mobdaten/Klassen.xml", lContext = context,)
     }
     return kurse
 }

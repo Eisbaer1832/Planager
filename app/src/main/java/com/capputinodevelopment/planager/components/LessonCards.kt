@@ -61,11 +61,8 @@ fun TimestampCard(l: lesson, shape: RoundedCornerShape) {
             .padding(start = 5.dp, end = 10.dp)
             .height(80.dp)
     ){
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
             Text(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
                 text = l.pos.toString(),
                 textAlign = TextAlign.Center,
                 fontSize = 25.sp,

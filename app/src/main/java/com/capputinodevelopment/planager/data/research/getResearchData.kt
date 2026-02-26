@@ -9,7 +9,8 @@ import com.capputinodevelopment.planager.data.backend.getAllClasses
 import com.capputinodevelopment.planager.data.backend.getLessons
 import com.capputinodevelopment.planager.data.backend.parseLesson
 import com.capputinodevelopment.planager.data.getDayXML
-import java.time.DayOfWeek
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.arrayListOf
@@ -21,19 +22,28 @@ suspend fun getResearchData(
 ): ResearchWeek {
     var researchData by mutableStateOf(ResearchWeek())
     val day = date.dayOfWeek
-    val xmlTimeTable = getDayXML(date, userSettings, context)
+    var xmlTimeTable = getDayXML(date, userSettings, context, ignoreCache = true)
     if (xmlTimeTable.isEmpty()) {
-        return ResearchWeek()
+        println("fetching failed")
+        xmlTimeTable = getDayXML(date, userSettings, context, true, ignoreCache = true)
+        if (xmlTimeTable.isEmpty()) {
+            return ResearchWeek()
+        }
     }
 
-    val xmlRes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTimeTable.byteInputStream())
+    val xmlRes = withContext(Dispatchers.IO) {
+        DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(xmlTimeTable.byteInputStream())
+    }
     val pls = xmlRes.documentElement.getElementsByTagName("Pl")
 
 
     for (i in 0..<pls.length) {
         val stds = pls.item(i).childNodes
+        val className = pls.item(i).parentNode.childNodes.item(0).textContent
         for (j in 0..<stds.length) {
             val lesson = parseLesson(stds.item(j).childNodes, false)
+            if (lesson.className.isEmpty())lesson.className = className
             if (lesson.room.isEmpty()) {
                 lesson.room = lesson.subject
             }

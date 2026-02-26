@@ -1,8 +1,5 @@
 package com.capputinodevelopment.planager.components
 
-import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.capputinodevelopment.planager.data.DataSharer.FilterClass
+import com.capputinodevelopment.planager.data.Globals.FilterClass
 import com.capputinodevelopment.planager.data.Kurs
 import com.capputinodevelopment.planager.data.UserSettings
 import com.capputinodevelopment.planager.data.backend.getKurse
