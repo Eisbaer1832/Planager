@@ -1,6 +1,0 @@
-ktor:
-  application:
-    modules:
-      - com.capputinodevelopment.ApplicationKt.module
-  deployment:
-    port: 1202
