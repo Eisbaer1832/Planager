@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                             1 -> WeekViewWrapper(modifier = Modifier.padding(innerPadding), editSubjects) {
                                 activeWeekType = it
                             }
-                            2 -> ResearchView(modifier = Modifier.padding(innerPadding))
+                            2 -> ResearchView()
                             3 -> Settings(modifier = Modifier.padding(innerPadding),snackbarHostState)
                         }
                     }

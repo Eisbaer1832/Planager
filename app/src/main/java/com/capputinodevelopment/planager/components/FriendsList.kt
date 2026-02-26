@@ -55,7 +55,7 @@ fun FriendsList (
     val createFriendDialog = remember { mutableStateOf(false) }
     val couroutineScope = rememberCoroutineScope()
     var friendName by remember { mutableStateOf("") }
-    var kurse = remember { mutableStateOf(Kurse) }
+    val kurse = remember { mutableStateOf(Kurse) }
     if (shouldShowDialog.value) {
         println("friend opening with $friendName")
         SubjectDialog(shouldShowDialog, kurse.value, ags, userSettings, false, friendName)

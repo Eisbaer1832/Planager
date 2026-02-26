@@ -74,7 +74,7 @@ suspend fun getDayXML(
             fetchTimetable(userSettings, "/mobil/mobdaten/PlanKl${currentAsString}.xml", null, context, ignoreCache)
         }else {
             println("search server")
-            getDayFromSearchServer( currentAsString, userSettings, context)
+            getDayFromSearchServer( currentAsString, userSettings)
         }
         weeks[week]?.value = weeks[week]?.value?.toMutableMap()?.apply { this[day] = result } ?: mutableMapOf(day to result)
 

@@ -1,7 +1,5 @@
 package com.capputinodevelopment.planager.data.backend
 
-import android.content.Context
-import com.capputinodevelopment.planager.R
 import com.capputinodevelopment.planager.data.UserSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -10,7 +8,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Base64
 
-suspend fun getDayFromSearchServer(date: String?, userSettings: UserSettings, context: Context): String = withContext(
+suspend fun getDayFromSearchServer(date: String?, userSettings: UserSettings): String = withContext(
     Dispatchers.IO){
     val server = userSettings.customDB.first()
     val key = userSettings.customDBkey.first()

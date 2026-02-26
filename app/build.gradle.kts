@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinxSerialization).apply(true)
     id("maven-publish")
-    id("com.mikepenz.aboutlibraries.plugin.android") version "13.0.0-rc01"
+    id("com.mikepenz.aboutlibraries.plugin.android") version "13.2.1"
 }
 
 android {
@@ -96,20 +96,20 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("com.google.accompanist:accompanist-navigation-animation:0.36.0")
+    implementation(libs.accompanist.navigation.animation)
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.core)
     implementation(libs.aboutlibraries.compose.m3)
-    implementation("androidx.compose.material:material-icons-core")
-    implementation ("androidx.compose.material:material-icons-extended")
-    implementation("com.russhwolf:multiplatform-settings:1.3.0")
-    implementation("io.github.iammohdzaki.kmpalette:theme-core:0.0.4")
-    implementation("io.github.alexzhirkevich:qrose:1.0.1")
-    implementation ("com.google.mlkit:barcode-scanning:17.3.0")
-    implementation ("androidx.camera:camera-core:1.3.4")
-    implementation ("androidx.camera:camera-camera2:1.3.4")
-    implementation ("androidx.camera:camera-lifecycle:1.3.4")
-    implementation ("androidx.camera:camera-view:1.3.4")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation (libs.androidx.compose.material.icons.extended)
+    implementation(libs.multiplatform.settings)
+    implementation(libs.theme.core)
+    implementation(libs.qrose)
+    implementation (libs.barcode.scanning)
+    implementation (libs.androidx.camera.core)
+    implementation (libs.androidx.camera.camera2)
+    implementation (libs.androidx.camera.lifecycle)
+    implementation (libs.androidx.camera.view)
+    implementation (libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.google.accompanist.permissions)
 }

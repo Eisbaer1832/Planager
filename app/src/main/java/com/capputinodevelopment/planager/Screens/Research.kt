@@ -163,7 +163,6 @@ fun ResearchTeacherCard(
 @Composable
 fun ResearchLessonCard(
     l: lesson,
-    showTeacher: Boolean?,
     shape: RoundedCornerShape,
     surfaceShape: RoundedCornerShape,
     isRoom: Boolean = false,
@@ -243,7 +242,7 @@ fun ResearchLessonCard(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ResearchView(modifier: Modifier = Modifier) {
+fun ResearchView() {
     val context = LocalContext.current //somehow it knows 2 different types of context, so DO NOT REMOVE the explicit call
     val userSettings = remember { UserSettings.getInstance(context.applicationContext) }
     val current = fixDay( LocalTime.now(), LocalDate.now())
@@ -372,7 +371,7 @@ fun ResearchView(modifier: Modifier = Modifier) {
                             val lessons = dataToSearch.rooms[item.name]?.days?.value[searchWeekDay]
                                 ?: arrayListOf()
                             for (j in 0..<lessons.size) @Composable {
-                                ResearchLessonCard(lessons[j], true, roundShape, roundShape, true)
+                                ResearchLessonCard(lessons[j], roundShape, roundShape, true)
                             }
                         }
                     }
@@ -387,7 +386,7 @@ fun ResearchView(modifier: Modifier = Modifier) {
                             val lessons = dataToSearch.classes[item.name]?.days?.value[searchWeekDay]
                                 ?: arrayListOf()
                             for (j in 0..<lessons.size) @Composable {
-                                ResearchLessonCard(lessons[j], true, roundShape, roundShape)
+                                ResearchLessonCard(lessons[j], roundShape, roundShape)
                             }
                         }
                     }

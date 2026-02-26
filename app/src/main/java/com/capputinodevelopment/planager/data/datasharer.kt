@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
@@ -25,17 +24,15 @@ import kotlin.collections.HashMap
 @SuppressLint("MutableCollectionMutableState")
 object Globals {
     var doFilter by mutableStateOf(true)
-    var NavbarSelectedItem by mutableIntStateOf(0)
     var FilterClass by mutableStateOf("")
     var searchDay = mutableStateOf(fixDay(LocalTime.now(), LocalDate.now()))
     var FilterFriend by mutableStateOf("")
-    var Kurse by mutableStateOf(ArrayList<Kurs>())
+    var kurse by mutableStateOf(ArrayList<Kurs>())
     var AGs by mutableStateOf(ArrayList<Kurs>())
     val topShape = RoundedCornerShape(16.dp, 16.dp, 4.dp, 4.dp)
     val bottomShape = RoundedCornerShape(4.dp, 4.dp, 16.dp, 16.dp)
     val roundShape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp)
     val neutralShape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
-    var lessons by mutableStateOf( ArrayList<lesson>())
 }
 
 

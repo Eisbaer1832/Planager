@@ -54,11 +54,10 @@ import com.capputinodevelopment.planager.components.TimestampCard
 import com.capputinodevelopment.planager.data.Globals
 import com.capputinodevelopment.planager.data.Globals.FilterClass
 import com.capputinodevelopment.planager.data.Globals.FilterFriend
-import com.capputinodevelopment.planager.data.Globals.Kurse
+import com.capputinodevelopment.planager.data.Globals.kurse
 import com.capputinodevelopment.planager.data.Globals.doFilter
 import com.capputinodevelopment.planager.data.GlobalPlan.weeks
 import com.capputinodevelopment.planager.data.Globals.bottomShape
-import com.capputinodevelopment.planager.data.Globals.neutralShape
 import com.capputinodevelopment.planager.data.Globals.roundShape
 import com.capputinodevelopment.planager.data.Globals.topShape
 import com.capputinodevelopment.planager.data.UserSettings
@@ -117,8 +116,8 @@ fun DayView(modifier: Modifier = Modifier) {
         }
     }
     LaunchedEffect(Unit, filter) {
-        if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current, null, context)?: ArrayList()
+        if (kurse.isEmpty()) {
+            kurse = getKurse(userSettings, current, null, context)?: ArrayList()
         }
         lessons = getLessons(userSettings, current, context= context)
         ags = getLessons(userSettings, current, "AG", context)?:arrayListOf()

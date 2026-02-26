@@ -1,12 +1,10 @@
 package com.capputinodevelopment.planager
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -76,7 +74,7 @@ import com.capputinodevelopment.planager.components.SettingsCardEdit
 import com.capputinodevelopment.planager.components.SettingsCardInput
 import com.capputinodevelopment.planager.components.SubjectDialog
 import com.capputinodevelopment.planager.data.Globals.AGs
-import com.capputinodevelopment.planager.data.Globals.Kurse
+import com.capputinodevelopment.planager.data.Globals.kurse
 import com.capputinodevelopment.planager.data.Globals.bottomShape
 import com.capputinodevelopment.planager.data.Globals.neutralShape
 import com.capputinodevelopment.planager.data.Globals.topShape
@@ -97,11 +95,8 @@ class Onboarding : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             IndiwareNativeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Onboarding(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
+                    OnboardingScreen()
                 }
             }
         }
@@ -165,7 +160,7 @@ fun ThirdPageInput() {
 
     var allClasses by remember { mutableStateOf(emptyArray<String>()) }
     var loading by remember { mutableStateOf(false) }
-    val OwnSubjectDialogToggle = remember { mutableStateOf(false) }
+    val ownSubjectDialogToggle = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var localFilterClass by remember { mutableStateOf("") }
     val current = LocalDate.now()
@@ -175,7 +170,7 @@ fun ThirdPageInput() {
         if (schoolID.isBlank() || username.isBlank() || password.isBlank()) return@LaunchedEffect
         loading = true
         try {
-            Kurse = getKurse(userSettings, current, localFilterClass, context) ?: ArrayList()
+            kurse = getKurse(userSettings, current, localFilterClass, context) ?: ArrayList()
             AGs = getKurse(userSettings, current, "AG", context) ?: ArrayList()
             allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context) ?: arrayOf()
             println("all classes: ${allClasses.joinToString()}  password length=${password.length}")
@@ -199,8 +194,8 @@ fun ThirdPageInput() {
             ) { LoadingIndicator() }
         }
         else -> {
-            if (OwnSubjectDialogToggle.value) {
-                SubjectDialog(OwnSubjectDialogToggle, Kurse, AGs, userSettings, true)
+            if (ownSubjectDialogToggle.value) {
+                SubjectDialog(ownSubjectDialogToggle, kurse, AGs, userSettings, true)
             }
             SettingsCardDropdown(
                 "Jahrgang / Klasse",
@@ -220,7 +215,7 @@ fun ThirdPageInput() {
                 buttonText = "",
                 onclick = {
                     localFilterClass = ownClass
-                    OwnSubjectDialogToggle.value = true
+                    ownSubjectDialogToggle.value = true
                 }
             )
         }
@@ -495,7 +490,7 @@ fun BackButton() {
 
 }
 @Composable
-fun Onboarding(name: String, modifier: Modifier = Modifier) {
+fun OnboardingScreen() {
     var canContinue by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -598,14 +593,4 @@ fun Onboarding(name: String, modifier: Modifier = Modifier) {
             }
         }
     )
-}
-
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun OnboardingPreview() {
-    IndiwareNativeTheme {
-        Onboarding("Android")
-    }
 }

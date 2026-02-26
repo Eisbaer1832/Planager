@@ -57,11 +57,10 @@ import com.capputinodevelopment.planager.RoomWidget
 import com.capputinodevelopment.planager.data.Globals.roundShape
 import com.capputinodevelopment.planager.data.Kurs
 import com.capputinodevelopment.planager.data.UserSettings
-import com.capputinodevelopment.planager.data.lesson
 import kotlinx.coroutines.launch
 
 @Composable
-fun ShowLessonList(modifier: Modifier = Modifier, userSettings: UserSettings, kurse: ArrayList<Kurs>, status: State<HashMap<String, Boolean>>, own: Boolean, friend: String) {
+fun ShowLessonList(userSettings: UserSettings, kurse: ArrayList<Kurs>, status: State<HashMap<String, Boolean>>, own: Boolean, friend: String) {
     val couroutineScope = rememberCoroutineScope()
     val allFriends = userSettings.friendsSubjects.collectAsState(initial = HashMap())
     Box(
@@ -154,7 +153,6 @@ fun AppNavHost(
             composable(destination.route) {
                 when (destination) {
                     Destination.LESSONS -> ShowLessonList(
-                        modifier,
                         userSettings = userSettings,
                         kurse = subjects,
                         status = status,
@@ -162,7 +160,6 @@ fun AppNavHost(
                         friend = friend
                     )
                     Destination.AGS -> ShowLessonList(
-                        modifier,
                         userSettings = userSettings,
                         kurse = ags,
                         status = status,

@@ -124,7 +124,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             history = arrayListOf()
         }
 
-        (0..4).forEach { i ->
+        (0..4).forEach { _ ->
             println("current: " + current.dayOfWeek)
             val lesson = getLessons(userSettings, current, context = applicationContext)
             if (lesson != null) {
@@ -133,7 +133,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters):
             }
         }
         for ((index, day) in week.withIndex()) {
-            var lessons = day.filter { lesson ->
+            val lessons = day.filter { lesson ->
                 val key = lesson.subject.substringBefore(" ")
                 status[key] == true || (!lesson.subject.contains(Regex("\\d")) && FilterClass != "13")
             } as ArrayList<lesson>

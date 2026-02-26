@@ -107,7 +107,7 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
         isLoading = true
         week = arrayListOf<ArrayList<lesson>>()
         weekDates = ArrayList<LocalDate>()
-        for (i in 0..4) {
+        (0..4).forEach { i ->
             println("cdom: "+ date.dayOfMonth)
             val lesson = getLessons(userSettings,date,context = context)
 
@@ -123,8 +123,6 @@ fun WeekView(modifier: Modifier = Modifier, editLocalSubjects: Boolean, datePass
                 week.add(lesson)
                 date = date.plusDays(1)
             }
-
-
         }
         val newOrderedWeek = withContext(Dispatchers.Default) {
             orderWeek(week)

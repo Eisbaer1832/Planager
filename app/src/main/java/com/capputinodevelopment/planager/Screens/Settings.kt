@@ -50,7 +50,7 @@ import com.capputinodevelopment.planager.components.SettingsCardInput
 import com.capputinodevelopment.planager.components.SubjectDialog
 import com.capputinodevelopment.planager.data.Globals.AGs
 import com.capputinodevelopment.planager.data.Globals.FilterClass
-import com.capputinodevelopment.planager.data.Globals.Kurse
+import com.capputinodevelopment.planager.data.Globals.kurse
 import com.capputinodevelopment.planager.data.Globals.bottomShape
 import com.capputinodevelopment.planager.data.Globals.neutralShape
 import com.capputinodevelopment.planager.data.Globals.roundShape
@@ -88,8 +88,8 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
 
     LaunchedEffect(Unit, FilterClass) {
         allClasses = getAllClasses(userSettings, "/mobil/mobdaten/Klassen.xml", context)?: arrayOf(String())
-        if (Kurse.isEmpty()) {
-            Kurse = getKurse(userSettings, current, null, context)?: ArrayList()
+        if (kurse.isEmpty()) {
+            kurse = getKurse(userSettings, current, null, context)?: ArrayList()
         }
         if (AGs.isEmpty()) {
             AGs = getKurse(userSettings, current, "AG", context)?: ArrayList()
@@ -103,13 +103,13 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
         }
     }
     if (OwnSubjectDialogToggle.value) {
-        SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, Kurse, AGs, userSettings, true)
+        SubjectDialog(shouldShowDialog = OwnSubjectDialogToggle, kurse, AGs, userSettings, true)
     }
     if (licenseDialogToggle.value) {
         LicenseDialog(licenseDialogToggle)
     }
     if (FriendsListToggle.value) {
-        FriendsList(FriendsListToggle, Kurse,AGs,userSettings, allClasses)
+        FriendsList(FriendsListToggle, kurse,AGs,userSettings, allClasses)
     }
 
     if (ThemePickerToggle.value) {
@@ -162,7 +162,7 @@ fun Settings(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState
                 OwnSubjectDialogToggle.value = true
 
                 couroutineScope.launch {
-                    Kurse = getKurse(userSettings, current, null, context)?: ArrayList()
+                    kurse = getKurse(userSettings, current, null, context)?: ArrayList()
                 }
             },
             onclick2 = {

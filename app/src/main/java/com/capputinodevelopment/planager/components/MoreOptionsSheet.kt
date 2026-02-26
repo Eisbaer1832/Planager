@@ -53,7 +53,6 @@ fun MoreOptionsSheet (
 
     ) {
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
     val ownClass by userSettings.ownClass.collectAsState(initial = "")
     val friendsClasses by userSettings.friendsClass.collectAsState(initial = HashMap())
 
