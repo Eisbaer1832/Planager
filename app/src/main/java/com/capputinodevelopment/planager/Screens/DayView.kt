@@ -108,7 +108,6 @@ fun DayView(modifier: Modifier = Modifier) {
 
     val timeNow = LocalTime.now()
     current = fixDay(timeNow, current)
-
     LaunchedEffect(onboarding) {
         if (onboarding == true) {
             println("doing onboarding")

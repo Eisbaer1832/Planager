@@ -12,13 +12,20 @@ suspend fun getDayFromSearchServer(date: String?, userSettings: UserSettings): S
     Dispatchers.IO){
     val server = userSettings.customDB.first()
     val key = userSettings.customDBkey.first()
-    val connection = URL("$server?date=$date").openConnection() as HttpURLConnection
-    connection.requestMethod = "GET"
+    try {
+        val connection = URL("$server?date=$date").openConnection() as HttpURLConnection
 
-    val auth = "planager:$key"
-    val encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charsets.UTF_8))
+        connection.requestMethod = "GET"
 
-    connection.setRequestProperty("Authorization", "Basic $encodedAuth")
-    connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText()  }
+        val auth = "planager:$key"
+        val encodedAuth = Base64.getEncoder().encodeToString(auth.toByteArray(Charsets.UTF_8))
 
+        connection.setRequestProperty("Authorization", "Basic $encodedAuth")
+        connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText()  }
+    } catch (error: Exception) {
+        println("could not fetch search data from custome server")
+        println(error)
+
+        return@withContext ""
+    }
 }
