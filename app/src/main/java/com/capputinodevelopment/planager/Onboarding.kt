@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -95,8 +96,8 @@ class Onboarding : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             IndiwareNativeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
-                    OnboardingScreen()
+                Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
+                    OnboardingScreen(padding)
                 }
             }
         }
@@ -490,7 +491,7 @@ fun BackButton() {
 
 }
 @Composable
-fun OnboardingScreen() {
+fun OnboardingScreen(padding: PaddingValues) {
     var canContinue by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -518,6 +519,7 @@ fun OnboardingScreen() {
     }
 
     Scaffold(
+        modifier = Modifier.padding(padding),
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
