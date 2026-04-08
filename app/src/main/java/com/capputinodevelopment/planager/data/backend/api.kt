@@ -239,21 +239,14 @@ suspend fun getLessons(userSettings: UserSettings, date: LocalDate, localFilterC
 }
 
 suspend fun getKurse(userSettings: UserSettings, date: LocalDate, localFilterClass: String? = null, context: Context): ArrayList<Kurs>? {
-    val receivedClass = getSelectedClass(userSettings, date, localFilterClass, context)
-    if (receivedClass == null) {
-        return null
-    }
-
+    val receivedClass = getSelectedClass(userSettings, date, localFilterClass, context) ?: return null
     val selectedClass =receivedClass.childNodes
-
-
 
     val kursNodes = selectedClass?.item(3)?.childNodes
     val kurse = ArrayList<Kurs>()
 
-
     // normal classes (P/W)
-    var normalClasses = selectedClass?.item(4)?.childNodes
+    val normalClasses = selectedClass?.item(4)?.childNodes
     for (i in 0..<normalClasses!!.length) {
         val c = normalClasses.item(i).firstChild
         val teacher = c.attributes.getNamedItem("UeLe").textContent
@@ -262,7 +255,6 @@ suspend fun getKurse(userSettings: UserSettings, date: LocalDate, localFilterCla
             ?.textContent?:""
         if (name.contains("-P") || name.contains("-W")) {
             kurse.add(Kurs(teacher, name))
-
         }
     }
     //Kurse
